@@ -1,0 +1,56 @@
+name: Apply portfolio payload
+
+on:
+  push:
+    branches:
+      - feat/real-assets-and-evidence
+    paths:
+      - portfolio_payload.tar.gz
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/real-assets-and-evidence
+          fetch-depth: 0
+      - name: Extract approved portfolio files
+        run: |
+          test -f portfolio_payload.tar.gz
+          tar -xzf portfolio_payload.tar.gz
+          rm -f portfolio_payload.tar.gz
+          rm -f assets/images/network_setup.svg
+          rm -f assets/images/automation_test_environment.svg
+          rm -f assets/images/panel_trace.svg
+          rm -f assets/images/defect_batt_percent_15.svg
+      - name: Verify file signatures
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          pngs = list(Path('assets/images/black-box').glob('*.png'))
+          thumbs = list(Path('assets/evidence/thumbnails').glob('*.webp'))
+          pdfs = list(Path('assets/evidence').glob('*.pdf'))
+          assert len(pngs) == 5, pngs
+          assert len(thumbs) == 5, thumbs
+          assert len(pdfs) == 5, pdfs
+          for path in pngs:
+              assert path.read_bytes().startswith(b'\x89PNG\r\n\x1a\n'), path
+          for path in thumbs:
+              data = path.read_bytes()
+              assert data.startswith(b'RIFF') and data[8:12] == b'WEBP', path
+          for path in pdfs:
+              assert path.read_bytes().startswith(b'%PDF-'), path
+          PY
+      - name: Run portfolio tests
+        run: python -m unittest discover -s tests -v
+      - name: Commit generated portfolio state
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "feat: add real project screenshots and credential evidence"
+          git push origin HEAD:feat/real-assets-and-evidence
