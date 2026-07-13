@@ -5,7 +5,7 @@ on:
     branches:
       - feat/real-assets-and-evidence
     paths:
-      - portfolio_payload.tar.gz
+      - payload-chunks/READY
 
 permissions:
   contents: write
@@ -18,11 +18,13 @@ jobs:
         with:
           ref: feat/real-assets-and-evidence
           fetch-depth: 0
-      - name: Extract approved portfolio files
+      - name: Reconstruct and extract approved portfolio files
         run: |
-          test -f portfolio_payload.tar.gz
+          test -f payload-chunks/READY
+          cat payload-chunks/part-* | base64 --decode > portfolio_payload.tar.gz
+          echo "aee7728ce3bf3c51be16df6da6471fbb333817c6c23cb0bda74b7bbd6c6dc983  portfolio_payload.tar.gz" | sha256sum --check -
           tar -xzf portfolio_payload.tar.gz
-          rm -f portfolio_payload.tar.gz
+          rm -rf portfolio_payload.tar.gz payload-chunks
           rm -f assets/images/network_setup.svg
           rm -f assets/images/automation_test_environment.svg
           rm -f assets/images/panel_trace.svg
@@ -51,6 +53,7 @@ jobs:
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          rm -f .github/workflows/apply-portfolio-payload.yml
           git add -A
           git commit -m "feat: add real project screenshots and credential evidence"
           git push origin HEAD:feat/real-assets-and-evidence
