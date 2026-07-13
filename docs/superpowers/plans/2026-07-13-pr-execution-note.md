@@ -1,0 +1,1 @@
+The approved refinement is executed through a draft pull request workflow because the connector can create repository files but cannot apply a partial patch to the existing large `index.html`. The workflow runs `scripts/refine_portfolio.py`, executes the Python test suite, and commits the result back to the feature branch. Temporary workflow files are removed after verification.
