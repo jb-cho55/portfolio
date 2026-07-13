@@ -1,0 +1,44 @@
+name: Clean obsolete branches
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/cleanup-branches.yml
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Delete every remote branch except main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git ls-remote --heads origin \
+            | awk '{sub("refs/heads/", "", $2); print $2}' \
+            | while IFS= read -r branch; do
+                if [ "$branch" != "main" ]; then
+                  echo "Deleting $branch"
+                  git push origin --delete "$branch"
+                fi
+              done
+
+      - name: Remove temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          rm -f .github/workflows/cleanup-branches.yml
+          git add -A
+          git commit -m "chore: remove temporary branch cleanup workflow"
+          git push origin HEAD:main
