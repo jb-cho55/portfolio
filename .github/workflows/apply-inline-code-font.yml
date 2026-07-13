@@ -41,24 +41,23 @@ jobs:
 
           path = Path("index.html")
           html = path.read_text(encoding="utf-8")
-
-          anchor = """    .debug-step {
-            padding: 12px 14px;
-            border-left: 3px solid var(--blue);
-            background: var(--blue-soft);
-            color: #394962;
-            font-size: 14px;
-          }
-          """.replace("          ", "")
-
-          addition = """
-    .debug-step code {
-      font-family: inherit;
-      font-size: inherit;
-      font-weight: 700;
-      color: var(--navy);
-    }
-"""
+          anchor = (
+              "    .debug-step {\n"
+              "      padding: 12px 14px;\n"
+              "      border-left: 3px solid var(--blue);\n"
+              "      background: var(--blue-soft);\n"
+              "      color: #394962;\n"
+              "      font-size: 14px;\n"
+              "    }\n"
+          )
+          addition = (
+              "\n    .debug-step code {\n"
+              "      font-family: inherit;\n"
+              "      font-size: inherit;\n"
+              "      font-weight: 700;\n"
+              "      color: var(--navy);\n"
+              "    }\n"
+          )
 
           if ".debug-step code {" in html:
               raise SystemExit(".debug-step code rule already exists")
