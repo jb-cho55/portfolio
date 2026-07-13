@@ -1,22 +1,23 @@
 name: Apply inline code font style
 
 on:
-  issues:
+  pull_request:
     types: [opened]
 
 permissions:
   contents: write
-  issues: write
+  pull-requests: write
 
 jobs:
   update-inline-code-style:
-    if: github.event.issue.title == 'Apply inline code font style'
+    if: github.event.pull_request.title == 'Apply inline code font style'
     runs-on: ubuntu-latest
     steps:
-      - name: Check out main branch
+      - name: Check out pull request branch
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
 
       - name: Confirm regression test fails before fix
         shell: bash
@@ -41,23 +42,23 @@ jobs:
           path = Path("index.html")
           html = path.read_text(encoding="utf-8")
 
-          anchor = '''    .debug-step {
+          anchor = """    .debug-step {
             padding: 12px 14px;
             border-left: 3px solid var(--blue);
             background: var(--blue-soft);
             color: #394962;
             font-size: 14px;
           }
-          '''.replace("          ", "")
+          """.replace("          ", "")
 
-          addition = '''
+          addition = """
     .debug-step code {
       font-family: inherit;
       font-size: inherit;
       font-weight: 700;
       color: var(--navy);
     }
-'''
+"""
 
           if ".debug-step code {" in html:
               raise SystemExit(".debug-step code rule already exists")
@@ -73,21 +74,20 @@ jobs:
 
       - name: Commit and push fix
         run: |
+          rm -f .github/inline-code-trigger.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
+          git add -A
           git commit -m "Use portfolio font for inline debug code"
-          git push
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
 
       - name: Report success
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          gh issue comment "${{ github.event.issue.number }}" --body "Inline code typography updated; the regression test and full portfolio test suite passed."
-          gh issue close "${{ github.event.issue.number }}" --reason completed
+        run: gh pr comment "${{ github.event.pull_request.number }}" --body "Inline code typography updated; the regression test and full portfolio test suite passed."
 
       - name: Report failure
         if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh issue comment "${{ github.event.issue.number }}" --body "Inline code typography workflow failed. Review the Actions log for the failing step."
+        run: gh pr comment "${{ github.event.pull_request.number }}" --body "Inline code typography workflow failed. Review the Actions log for the failing step."
