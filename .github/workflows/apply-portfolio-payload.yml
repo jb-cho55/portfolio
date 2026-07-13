@@ -24,7 +24,7 @@ jobs:
         run: |
           set -euo pipefail
           test -f transfer/payload/READY
-          test "$(find transfer/payload -maxdepth 1 -name 'part-*.b64' | wc -l)" -eq 9
+          test "$(find transfer/payload -maxdepth 1 -name 'part-*.b64' | wc -l)" -eq 146
           cat transfer/payload/part-*.b64 > portfolio_payload.b64
           base64 --decode portfolio_payload.b64 > portfolio_payload.tar.gz
           echo "aee7728ce3bf3c51be16df6da6471fbb333817c6c23cb0bda74b7bbd6c6dc983  portfolio_payload.tar.gz" | sha256sum --check -
