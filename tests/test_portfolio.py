@@ -87,19 +87,50 @@ class PortfolioContentTests(unittest.TestCase):
             self.html,
         )
 
-    def test_black_box_gallery_contains_accessible_local_evidence(self):
+    def test_black_box_gallery_uses_actual_project_pngs(self):
         gallery = [
-            ("assets/images/network_setup.svg", "CANoe Network 구성"),
-            ("assets/images/automation_test_environment.svg", "CAPL 자동화 테스트 환경"),
-            ("assets/images/panel_trace.svg", "Panel 및 Trace 화면"),
-            ("assets/images/defect_batt_percent_15.svg", "Test Result 근거"),
+            ("assets/images/black-box/network_setup.png", "CANoe Network 구성"),
+            ("assets/images/black-box/automation_test_environment.png", "CAPL 자동화 테스트 환경"),
+            ("assets/images/black-box/panel_trace.png", "Panel 및 Trace 화면"),
+            ("assets/images/black-box/test_environment.png", "Black Box Test Environment"),
+            ("assets/images/black-box/defect_batt_percent_15.png", "Batt Percent 15% Test Result"),
         ]
         for path, caption in gallery:
             self.assertIn(f'src="{path}"', self.html)
+            self.assertIn(f'href="{path}"', self.html)
             self.assertIn(caption, self.html)
-        self.assertGreaterEqual(self.html.count('loading="lazy"'), 4)
-        self.assertGreaterEqual(self.html.count("<figcaption>"), 4)
-        self.assertGreaterEqual(self.html.count("alt="), 4)
+        self.assertNotIn("포트폴리오 재구성", self.html)
+        self.assertNotIn("assets/images/network_setup.svg", self.html)
+        self.assertGreaterEqual(self.html.count('loading="lazy"'), 10)
+        self.assertGreaterEqual(self.html.count("alt="), 10)
+
+    def test_credentials_include_original_pdf_evidence(self):
+        evidence = {
+            "HL만도·HL클레무브 IVS 5기 수료증": "assets/evidence/ivs_completion.pdf",
+            "Black Box Testing 프로젝트 우수상": "assets/evidence/black_box_award.pdf",
+            "IVS 5기 모범상": "assets/evidence/exemplary_award.pdf",
+            "정보처리기사": "assets/evidence/information_processing_engineer.pdf",
+            "ISTQB CTFL": "assets/evidence/istqb_ctfl.pdf",
+        }
+        for label, path in evidence.items():
+            self.assertIn(label, self.html)
+            self.assertIn(f'href="{path}"', self.html)
+        self.assertEqual(self.html.count('class="credential-evidence-card"'), 5)
+        self.assertGreaterEqual(self.html.count("원본 PDF 보기"), 5)
+        self.assertGreaterEqual(self.html.count('target="_blank"'), 11)
+        self.assertGreaterEqual(self.html.count('rel="noreferrer"'), 11)
+
+    def test_credential_thumbnails_are_accessible(self):
+        thumbnails = [
+            "assets/evidence/thumbnails/ivs_completion.webp",
+            "assets/evidence/thumbnails/black_box_award.webp",
+            "assets/evidence/thumbnails/exemplary_award.webp",
+            "assets/evidence/thumbnails/information_processing_engineer.webp",
+            "assets/evidence/thumbnails/istqb_ctfl.webp",
+        ]
+        for path in thumbnails:
+            self.assertIn(f'src="{path}"', self.html)
+        self.assertIn('class="credential-evidence-grid"', self.html)
 
     def test_bootloader_details_use_two_development_stages(self):
         self.assertIn("개발 단계 1 — 애플리케이션 보호 및 복구", self.html)

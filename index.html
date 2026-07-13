@@ -518,11 +518,21 @@
     }
 
     .evidence-item {
+      display: block;
       overflow: hidden;
       margin: 0;
       border: 1px solid var(--line);
       border-radius: 9px;
       background: #fff;
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+
+    .evidence-item:hover,
+    .evidence-item:focus-visible {
+      border-color: #9fc0ec;
+      box-shadow: 0 10px 24px rgba(15, 35, 60, .12);
+      transform: translateY(-2px);
+      outline: none;
     }
 
     .evidence-item img {
@@ -533,7 +543,8 @@
       background: #eef2f7;
     }
 
-    .evidence-item figcaption {
+    .evidence-caption {
+      display: block;
       padding: 10px 12px;
       color: var(--muted);
       font-size: 12px;
@@ -698,6 +709,68 @@
       text-align: right;
     }
 
+    .credential-evidence-heading {
+      margin: 34px 0 14px;
+      color: var(--navy);
+      font-size: 18px;
+    }
+
+    .credential-evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .credential-evidence-card {
+      display: grid;
+      grid-template-rows: 260px auto;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+
+    .credential-evidence-card:hover,
+    .credential-evidence-card:focus-visible {
+      border-color: #9fc0ec;
+      box-shadow: 0 12px 28px rgba(15, 35, 60, .12);
+      transform: translateY(-2px);
+      outline: none;
+    }
+
+    .credential-evidence-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 10px;
+      background: #eef2f7;
+    }
+
+    .credential-evidence-copy {
+      display: block;
+      padding: 14px 15px 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .credential-evidence-copy strong,
+    .credential-evidence-copy small {
+      display: block;
+    }
+
+    .credential-evidence-copy strong {
+      color: var(--navy);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .credential-evidence-copy small {
+      margin-top: 5px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
     .contact {
       padding: 44px 0;
       color: #fff;
@@ -758,6 +831,10 @@
       .education-grid,
       .credentials-layout {
         grid-template-columns: 1fr;
+      }
+
+      .credential-evidence-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .hero {
@@ -875,6 +952,16 @@
       .footer-inner {
         flex-direction: column;
         gap: 3px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .credential-evidence-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .credential-evidence-card {
+        grid-template-rows: 340px auto;
       }
     }
 
@@ -1053,22 +1140,26 @@
                 <article class="detail-block wide">
                   <h4>실제 수행 환경 및 Test Result</h4>
                   <div class="evidence-gallery">
-                    <figure class="evidence-item">
-                      <img src="assets/images/network_setup.svg" alt="IVS와 주변 ECU를 CAN 버스로 연결한 CANoe Network 구성도" loading="lazy">
-                      <figcaption>CANoe Network 구성 · 포트폴리오 재구성</figcaption>
-                    </figure>
-                    <figure class="evidence-item">
-                      <img src="assets/images/automation_test_environment.svg" alt="요구사양을 CAPL 시나리오와 Test Module로 실행하는 자동화 테스트 흐름" loading="lazy">
-                      <figcaption>CAPL 자동화 테스트 환경 · 포트폴리오 재구성</figcaption>
-                    </figure>
-                    <figure class="evidence-item">
-                      <img src="assets/images/panel_trace.svg" alt="Panel 입력 제어와 CAN Trace 확인 과정을 나타낸 검증 화면" loading="lazy">
-                      <figcaption>Panel 및 Trace 화면 · 포트폴리오 재구성</figcaption>
-                    </figure>
-                    <figure class="evidence-item">
-                      <img src="assets/images/defect_batt_percent_15.svg" alt="Batt Percent 15퍼센트 경계값의 기대 결과와 실제 결과를 비교한 Test Result" loading="lazy">
-                      <figcaption>Test Result 근거 — Batt Percent 15% 경계값</figcaption>
-                    </figure>
+                    <a class="evidence-item" href="assets/images/black-box/network_setup.png" target="_blank" rel="noreferrer">
+                      <img src="assets/images/black-box/network_setup.png" alt="CANoe에서 IVS와 주변 ECU Network Node를 구성한 실제 프로젝트 화면" loading="lazy">
+                      <span class="evidence-caption">CANoe Network 구성</span>
+                    </a>
+                    <a class="evidence-item" href="assets/images/black-box/automation_test_environment.png" target="_blank" rel="noreferrer">
+                      <img src="assets/images/black-box/automation_test_environment.png" alt="CANoe Test Setup과 CAPL Test Module을 구성한 실제 자동화 시험 화면" loading="lazy">
+                      <span class="evidence-caption">CAPL 자동화 테스트 환경</span>
+                    </a>
+                    <a class="evidence-item" href="assets/images/black-box/panel_trace.png" target="_blank" rel="noreferrer">
+                      <img src="assets/images/black-box/panel_trace.png" alt="CANoe Panel에서 차량 신호를 제어한 실제 프로젝트 화면" loading="lazy">
+                      <span class="evidence-caption">Panel 및 Trace 화면</span>
+                    </a>
+                    <a class="evidence-item" href="assets/images/black-box/test_environment.png" target="_blank" rel="noreferrer">
+                      <img src="assets/images/black-box/test_environment.png" alt="차량 Simulation과 가상 ECU 및 검증 대상 ECU의 비교 구조를 정리한 실제 프로젝트 테스트 환경 화면" loading="lazy">
+                      <span class="evidence-caption">Black Box Test Environment</span>
+                    </a>
+                    <a class="evidence-item" href="assets/images/black-box/defect_batt_percent_15.png" target="_blank" rel="noreferrer">
+                      <img src="assets/images/black-box/defect_batt_percent_15.png" alt="Batt Percent 15퍼센트 경계값 미검출을 확인한 실제 Test Result 화면" loading="lazy">
+                      <span class="evidence-caption">Batt Percent 15% Test Result</span>
+                    </a>
                   </div>
                 </article>
               </div>
@@ -1304,6 +1395,30 @@
               </li>
             </ul>
           </article>
+        </div>
+
+        <h3 class="credential-evidence-heading">증빙 자료</h3>
+        <div class="credential-evidence-grid">
+          <a class="credential-evidence-card" href="assets/evidence/ivs_completion.pdf" target="_blank" rel="noreferrer">
+            <img src="assets/evidence/thumbnails/ivs_completion.webp" alt="HL만도·HL클레무브 IVS 5기 수료증 원본 PDF 첫 페이지" loading="lazy">
+            <span class="credential-evidence-copy"><strong>HL만도·HL클레무브 IVS 5기 수료증</strong><small>원본 PDF 보기</small></span>
+          </a>
+          <a class="credential-evidence-card" href="assets/evidence/black_box_award.pdf" target="_blank" rel="noreferrer">
+            <img src="assets/evidence/thumbnails/black_box_award.webp" alt="Black Box Testing 프로젝트 우수상 원본 PDF 첫 페이지" loading="lazy">
+            <span class="credential-evidence-copy"><strong>Black Box Testing 프로젝트 우수상</strong><small>원본 PDF 보기</small></span>
+          </a>
+          <a class="credential-evidence-card" href="assets/evidence/exemplary_award.pdf" target="_blank" rel="noreferrer">
+            <img src="assets/evidence/thumbnails/exemplary_award.webp" alt="IVS 5기 모범상 원본 PDF 첫 페이지" loading="lazy">
+            <span class="credential-evidence-copy"><strong>IVS 5기 모범상</strong><small>원본 PDF 보기</small></span>
+          </a>
+          <a class="credential-evidence-card" href="assets/evidence/information_processing_engineer.pdf" target="_blank" rel="noreferrer">
+            <img src="assets/evidence/thumbnails/information_processing_engineer.webp" alt="정보처리기사 국가기술자격증 원본 PDF 첫 페이지" loading="lazy">
+            <span class="credential-evidence-copy"><strong>정보처리기사</strong><small>원본 PDF 보기</small></span>
+          </a>
+          <a class="credential-evidence-card" href="assets/evidence/istqb_ctfl.pdf" target="_blank" rel="noreferrer">
+            <img src="assets/evidence/thumbnails/istqb_ctfl.webp" alt="ISTQB CTFL 자격증 원본 PDF 첫 페이지" loading="lazy">
+            <span class="credential-evidence-copy"><strong>ISTQB CTFL</strong><small>원본 PDF 보기</small></span>
+          </a>
         </div>
       </div>
     </section>

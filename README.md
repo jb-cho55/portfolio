@@ -7,7 +7,7 @@
 - 다크 기술형 Hero와 밝은 기업형 본문을 결합한 혼합형 디자인
 - 차량 SW QA 업무 방식과 핵심 역량
 - CANoe/CAPL 기반 Black Box Testing 대표 프로젝트
-- CANoe·CAPL·Panel·Trace·Test Result를 시각화한 Black Box Testing 상세 갤러리
+- 실제 CANoe Network·Test Environment·CAPL·Panel·Test Result 화면을 사용한 Black Box Testing 상세 갤러리
 - UDS·Flash·SHA-256 기반 OTA Bootloader 프로젝트
 - 애플리케이션 보호·복구와 SW Binary 무결성 검증의 2단계 구현 설명
 - Memory Alignment Error를 Trace32로 분석하고 4바이트 정렬 버퍼로 개선한 문제 해결 사례
@@ -36,3 +36,7 @@ GitHub Pages 설정 후 아래 주소로 공개됩니다.
 ## 수정 방법
 
 사이트의 문구, 스타일, 모바일 메뉴, 프로젝트 상세 펼침/접기 기능은 저장소 루트의 `index.html` 한 파일에 포함되어 있습니다.
+
+## 실제 프로젝트 화면 및 증빙
+
+Black Box Testing 상세 영역에는 실제 CANoe·CAPL·Panel·결함 근거 화면을 사용합니다. 자격·수상 섹션의 썸네일을 클릭하면 업로드한 원본 PDF가 새 탭에서 열립니다.
