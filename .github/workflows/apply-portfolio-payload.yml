@@ -5,13 +5,14 @@ on:
     branches:
       - feat/real-assets-and-evidence
     paths:
-      - transfer/payload/READY
+      - portfolio_payload.tar.gz
 
 permissions:
   contents: write
 
 jobs:
   apply:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,17 +20,14 @@ jobs:
           ref: feat/real-assets-and-evidence
           fetch-depth: 0
 
-      - name: Reconstruct and extract approved portfolio files
+      - name: Extract approved portfolio files
         shell: bash
         run: |
           set -euo pipefail
-          test -f transfer/payload/READY
-          test "$(find transfer/payload -maxdepth 1 -name 'part-*.b64' | wc -l)" -eq 146
-          cat transfer/payload/part-*.b64 > portfolio_payload.b64
-          base64 --decode portfolio_payload.b64 > portfolio_payload.tar.gz
+          test -f portfolio_payload.tar.gz
           echo "aee7728ce3bf3c51be16df6da6471fbb333817c6c23cb0bda74b7bbd6c6dc983  portfolio_payload.tar.gz" | sha256sum --check -
           tar -xzf portfolio_payload.tar.gz
-          rm -f portfolio_payload.b64 portfolio_payload.tar.gz
+          rm -f portfolio_payload.tar.gz
           rm -rf transfer
           rm -f assets/images/network_setup.svg
           rm -f assets/images/automation_test_environment.svg
