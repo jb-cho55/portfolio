@@ -1,42 +1,46 @@
 # Vehicle SW QA Portfolio
 
-현대오토에버 Embedded SW QA Engineer 지원을 위해 제작한 조정빈의 1페이지 포트폴리오입니다.
+조정빈의 차량 소프트웨어 개발·검증 포트폴리오입니다.  
+CANoe/CAPL 기반 테스트 설계·자동화 검증과 AURIX 기반 OTA Bootloader 구현 경험을 중심으로 구성했습니다.
 
-## 주요 구성
+**Portfolio:** https://jb-cho55.github.io/portfolio
 
-- 다크 기술형 Hero와 밝은 기업형 본문을 결합한 혼합형 디자인
-- 차량 SW QA 업무 방식과 핵심 역량
-- CANoe/CAPL 기반 Black Box Testing 대표 프로젝트
-- 실제 CANoe Network·Test Environment·CAPL·Panel·Test Result 화면을 사용한 Black Box Testing 상세 갤러리
-- UDS·Flash·SHA-256 기반 OTA Bootloader 프로젝트
-- 애플리케이션 보호·복구와 SW Binary 무결성 검증의 2단계 구현 설명
-- Memory Alignment Error를 Trace32로 분석하고 4바이트 정렬 버퍼로 개선한 문제 해결 사례
-- Private 저장소 링크 대신 카드 내부 프로젝트 상세 보기 제공
-- 교육·자격·수상 내역
-- 모바일 반응형, 키보드 접근성, 독립적인 펼침/접기 제어
+## 주요 내용
 
-## 프로젝트 공개 원칙
+- **IVS Black Box Testing**  
+  요구사양 분석, CANdb·CANoe 환경 구성, CAPL 자동화, 정적·동적 결함 분석
+- **OTA Bootloader**  
+  UDS 리프로그래밍, Flash Backup·Restore, SHA-256 무결성 검사, Memory Alignment Error 분석
+- **자격·수상 증빙**  
+  IVS 수료증, 프로젝트 우수상, 모범상, 정보처리기사, ISTQB CTFL 원본 PDF
 
-원본 요구사양, 교육 내부 자료, 외부 라이브러리 및 비공개 소스는 공개하지 않습니다. 포트폴리오 페이지에는 직접 수행한 역할, 구조, 대표 문제 해결, 검증 결과와 문제 해결 과정을 포트폴리오용으로 재구성해 제공합니다.
+## 저장소 구조
 
-## 배포 주소
+```text
+.
+├── index.html                    # 포트폴리오 페이지
+├── assets/
+│   ├── images/black-box/         # Black Box Testing 실제 화면
+│   └── evidence/                 # 자격·수상 PDF와 썸네일
+└── tests/test_portfolio.py       # 콘텐츠·접근성 회귀 테스트
+```
 
-GitHub Pages 설정 후 아래 주소로 공개됩니다.
+## 로컬 실행
 
-`https://jb-cho55.github.io/portfolio`
+별도 빌드 과정이 없는 정적 웹사이트입니다.
 
-## GitHub Pages 설정
+```bash
+python -m http.server 8000
+```
 
-1. 저장소의 **Settings**로 이동
-2. 왼쪽 메뉴에서 **Pages** 선택
-3. **Build and deployment**의 Source를 `Deploy from a branch`로 선택
-4. Branch를 `main`, 폴더를 `/(root)`로 지정
-5. **Save** 클릭
+브라우저에서 `http://localhost:8000`으로 접속합니다.
 
-## 수정 방법
+## 테스트
 
-사이트의 문구, 스타일, 모바일 메뉴, 프로젝트 상세 펼침/접기 기능은 저장소 루트의 `index.html` 한 파일에 포함되어 있습니다.
+```bash
+python -m unittest discover -s tests -v
+```
 
-## 실제 프로젝트 화면 및 증빙
+## 공개 범위
 
-Black Box Testing 상세 영역에는 실제 CANoe·CAPL·Panel·결함 근거 화면을 사용합니다. 자격·수상 섹션의 썸네일을 클릭하면 업로드한 원본 PDF가 새 탭에서 열립니다.
+프로젝트 원본 저장소와 소스 코드는 비공개로 유지합니다. 포트폴리오에는 공개 가능한 실제 수행 화면과 사용자가 공개를 승인한 원본 자격·수상 PDF만 포함합니다.
