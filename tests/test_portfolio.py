@@ -159,6 +159,15 @@ class PortfolioContentTests(unittest.TestCase):
         self.assertIn("detail.hidden", self.html)
         self.assertIn("button.textContent", self.html)
 
+    def test_typography_and_readability_requirements(self):
+        compact = self.html.replace(" ", "")
+        self.assertIn("pretendard/dist/web/static/pretendard.css", self.html)
+        self.assertIn('font-family:"Pretendard","NotoSansKR","MalgunGothic"', compact)
+        self.assertIn("font-size:13px", compact)
+        self.assertGreaterEqual(compact.count("max-width:48rem"), 2)
+        self.assertIn("color:#667085", compact)
+        self.assertNotIn("font-weight:850", compact)
+
 
 if __name__ == "__main__":
     unittest.main()
