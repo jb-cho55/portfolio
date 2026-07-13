@@ -47,9 +47,117 @@ class PortfolioContentTests(unittest.TestCase):
         for label in ["프로젝트 목표", "담당 역할", "수행 내용", "주요 성과"]:
             self.assertIn(label, self.html)
 
-    def test_links_exist(self):
+    def test_public_links_do_not_expose_private_project_repositories(self):
         self.assertIn("https://github.com/jb-cho55", self.html)
-        self.assertIn("https://github.com/jb-cho55/IVS-Black-Box-Validation", self.html)
+        self.assertNotIn("IVS-Black-Box-Validation", self.html)
+        self.assertNotIn("IVS-Black-Box-Testing", self.html)
+        self.assertNotIn("Bootloader_Design_For_OTA", self.html)
+
+    def test_two_project_cards_are_present_in_order(self):
+        black_box = self.html.index("IVS Black Box Testing")
+        bootloader = self.html.index("OTA를 위한 Bootloader 설계")
+        self.assertLess(black_box, bootloader)
+        self.assertGreaterEqual(self.html.count('class="project-card"'), 2)
+
+    def test_project_detail_controls_are_accessible(self):
+        self.assertEqual(self.html.count("프로젝트 상세 보기"), 2)
+        for control_id in ["black-box-details", "bootloader-details"]:
+            self.assertIn(f'aria-controls="{control_id}"', self.html)
+            self.assertIn(f'id="{control_id}"', self.html)
+        self.assertGreaterEqual(self.html.count('aria-expanded="false"'), 2)
+        self.assertGreaterEqual(self.html.count("hidden"), 2)
+
+    def test_black_box_detail_contains_qa_evidence(self):
+        for content in [
+            "요구사양 기반 시험",
+            "정적 결함 4건",
+            "동적 결함 11건",
+            "IGN 50 Cycle",
+            "Steering Timing",
+            "기대 결과",
+            "실제 결과",
+        ]:
+            self.assertIn(content, self.html)
+
+    def test_black_box_detail_uses_neutral_scope_label(self):
+        self.assertIn("수행 범위", self.html)
+        self.assertNotIn("본인 수행 범위", self.html)
+        self.assertNotIn(
+            "원본 요구사양과 내부 자료는 제외하고, 직접 수행한 테스트 환경·결함 분석·개선 방향만 포트폴리오용으로 재구성했습니다.",
+            self.html,
+        )
+
+    def test_black_box_gallery_uses_actual_project_pngs(self):
+        gallery = [
+            ("assets/images/black-box/network_setup.png", "CANoe Network 구성"),
+            ("assets/images/black-box/automation_test_environment.png", "CAPL 자동화 테스트 환경"),
+            ("assets/images/black-box/panel_trace.png", "Panel 및 Trace 화면"),
+            ("assets/images/black-box/test_environment.png", "Black Box Test Environment"),
+            ("assets/images/black-box/defect_batt_percent_15.png", "Batt Percent 15% Test Result"),
+        ]
+        for path, caption in gallery:
+            self.assertIn(f'src="{path}"', self.html)
+            self.assertIn(f'href="{path}"', self.html)
+            self.assertIn(caption, self.html)
+        self.assertNotIn("포트폴리오 재구성", self.html)
+        self.assertNotIn("assets/images/network_setup.svg", self.html)
+        self.assertGreaterEqual(self.html.count('loading="lazy"'), 10)
+        self.assertGreaterEqual(self.html.count("alt="), 10)
+
+    def test_credentials_include_original_pdf_evidence(self):
+        evidence = {
+            "HL만도·HL클레무브 IVS 5기 수료증": "assets/evidence/ivs_completion.pdf",
+            "Black Box Testing 프로젝트 우수상": "assets/evidence/black_box_award.pdf",
+            "IVS 5기 모범상": "assets/evidence/exemplary_award.pdf",
+            "정보처리기사": "assets/evidence/information_processing_engineer.pdf",
+            "ISTQB CTFL": "assets/evidence/istqb_ctfl.pdf",
+        }
+        for label, path in evidence.items():
+            self.assertIn(label, self.html)
+            self.assertIn(f'href="{path}"', self.html)
+        self.assertEqual(self.html.count('class="credential-evidence-card"'), 5)
+        self.assertGreaterEqual(self.html.count("원본 PDF 보기"), 5)
+        self.assertGreaterEqual(self.html.count('target="_blank"'), 11)
+        self.assertGreaterEqual(self.html.count('rel="noreferrer"'), 11)
+
+    def test_credential_thumbnails_are_accessible(self):
+        thumbnails = [
+            "assets/evidence/thumbnails/ivs_completion.webp",
+            "assets/evidence/thumbnails/black_box_award.webp",
+            "assets/evidence/thumbnails/exemplary_award.webp",
+            "assets/evidence/thumbnails/information_processing_engineer.webp",
+            "assets/evidence/thumbnails/istqb_ctfl.webp",
+        ]
+        for path in thumbnails:
+            self.assertIn(f'src="{path}"', self.html)
+        self.assertIn('class="credential-evidence-grid"', self.html)
+
+    def test_bootloader_details_use_two_development_stages(self):
+        self.assertIn("개발 단계 1 — 애플리케이션 보호 및 복구", self.html)
+        self.assertIn("개발 단계 2 — SW Binary 무결성 검증", self.html)
+        self.assertNotIn("정적 코드 리뷰", self.html)
+        self.assertNotIn("검증 범위와 한계", self.html)
+        self.assertNotIn("+0x05/-0x05", self.html)
+
+    def test_memory_alignment_error_story_is_explicit(self):
+        expected = [
+            "Memory Alignment Error",
+            "프로젝트 진행 중",
+            "Trace32",
+            "4바이트 정렬",
+            "uint32",
+            "Application → Backup",
+            "Backup → Application",
+        ]
+        detail = self.html[self.html.index('id="bootloader-details"'):]
+        positions = [detail.index(term) for term in expected]
+        self.assertEqual(positions, sorted(positions))
+
+    def test_project_detail_script_updates_accessibility_state(self):
+        self.assertIn("aria-expanded", self.html)
+        self.assertIn("상세 내용 접기", self.html)
+        self.assertIn("detail.hidden", self.html)
+        self.assertIn("button.textContent", self.html)
 
 
 if __name__ == "__main__":
