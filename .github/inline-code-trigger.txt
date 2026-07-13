@@ -1,1 +1,1 @@
-Trigger the one-time inline code typography workflow.
+Trigger the one-time inline code typography workflow after synchronize registration.
