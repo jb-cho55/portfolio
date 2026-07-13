@@ -1,0 +1,142 @@
+name: Apply typography readability updates
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/apply-typography-readability.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-typography:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Confirm typography checks fail before the change
+        shell: bash
+        run: |
+          set +e
+          python - <<'PY'
+          from pathlib import Path
+
+          html = Path('index.html').read_text(encoding='utf-8')
+          compact = html.replace(' ', '')
+          assert 'pretendard/dist/web/static/pretendard.css' in html
+          assert 'font-size:13px' in compact
+          assert 'max-width:48rem' in compact
+          assert 'color:#667085' in compact
+          assert 'font-weight:850' not in compact
+          PY
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            echo "Typography requirements already pass; refusing to apply an unnecessary patch."
+            exit 1
+          fi
+          echo "RED confirmed: the current page does not yet satisfy the typography requirements."
+
+      - name: Apply focused typography changes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          index_path = Path('index.html')
+          html = index_path.read_text(encoding='utf-8')
+
+          def replace_once(old: str, new: str) -> None:
+              global html
+              count = html.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected exactly one match, found {count}: {old[:80]!r}')
+              html = html.replace(old, new, 1)
+
+          replace_once(
+              '  <title>조정빈 | Embedded SW QA Portfolio</title>\n  <style>',
+              '  <title>조정빈 | Embedded SW QA Portfolio</title>\n'
+              '  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>\n'
+              '  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">\n'
+              '  <style>',
+          )
+
+          replace_once(
+              '''    body {
+              margin: 0;
+              color: var(--ink);
+              background: var(--surface);
+              font-family: Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif;
+              line-height: 1.7;
+              letter-spacing: -0.012em;
+              word-break: keep-all;
+            }'''.replace('              ', '  '),
+              '''    body {
+              margin: 0;
+              color: var(--ink);
+              background: var(--surface);
+              font-family: "Pretendard", "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
+              font-size: 16px;
+              font-weight: 400;
+              line-height: 1.7;
+              letter-spacing: -0.012em;
+              word-break: keep-all;
+            }'''.replace('              ', '  '),
+          )
+
+          replace_once('      font-weight: 850;\n      letter-spacing: .02em;', '      font-weight: 800;\n      letter-spacing: .02em;')
+          replace_once('      font-size: 14px;\n      font-weight: 700;\n    }\n\n    .desktop-nav a:hover,', '      font-size: 15px;\n      font-weight: 700;\n    }\n\n    .desktop-nav a:hover,')
+          replace_once('      font-size: 11px;\n      font-weight: 850;\n      letter-spacing: .14em;', '      font-size: 11px;\n      font-weight: 700;\n      letter-spacing: .14em;')
+          replace_once('      max-width: 690px;\n      margin: 0;\n      color: #c8d6e6;\n      font-size: 16px;', '      max-width: 45rem;\n      margin: 0;\n      color: #c8d6e6;\n      font-size: 17px;')
+          replace_once('      color: #b8c8da;\n      font-size: 12px;', '      color: #b8c8da;\n      font-size: 13px;')
+          replace_once('      font-size: 11px;\n      font-weight: 850;\n      letter-spacing: .1em;', '      font-size: 11px;\n      font-weight: 700;\n      letter-spacing: .1em;')
+          replace_once('      max-width: 920px;\n      margin: 0;', '      max-width: 48rem;\n      margin: 0;')
+          replace_once('      color: var(--muted);\n      font-size: 12px;\n    }\n\n    .project-details {', '      color: var(--muted);\n      font-size: 13px;\n    }\n\n    .project-details {')
+          replace_once('      color: var(--navy);\n      font-weight: 850;\n    }\n\n    .project-details dd {', '      color: var(--navy);\n      font-weight: 700;\n    }\n\n    .project-details dd {')
+          replace_once('    .project-details dd {\n      margin: 0;\n      color: #536074;\n    }', '    .project-details dd {\n      max-width: 48rem;\n      margin: 0;\n      color: #536074;\n    }')
+          replace_once('      background: transparent;\n      font-weight: 850;\n      cursor: pointer;', '      background: transparent;\n      font-weight: 700;\n      cursor: pointer;')
+          replace_once('      font-size: 13px;\n      font-weight: 750;\n      line-height: 1.9;', '      font-size: 13px;\n      font-weight: 700;\n      line-height: 1.9;')
+          replace_once('    .project-note {\n      color: var(--muted);\n      font-size: 12px;\n    }', '    .project-note {\n      color: var(--muted);\n      font-size: 13px;\n    }')
+          replace_once('      color: var(--muted);\n      font-size: 12px;\n      font-weight: 750;', '      color: var(--muted);\n      font-size: 13px;\n      font-weight: 700;')
+          replace_once('      color: #98a4b3;\n      font-size: 11px;\n      font-weight: 850;', '      color: #667085;\n      font-size: 12px;\n      font-weight: 700;')
+          replace_once('      color: var(--muted);\n      font-size: 12px;\n      text-align: right;', '      color: var(--muted);\n      font-size: 13px;\n      text-align: right;')
+          replace_once('      color: var(--blue);\n      font-size: 12px;\n      font-weight: 800;\n    }\n\n    .contact {', '      color: var(--blue);\n      font-size: 13px;\n      font-weight: 700;\n    }\n\n    .contact {')
+
+          compact = html.replace(' ', '')
+          required = [
+              'pretendard/dist/web/static/pretendard.css',
+              'font-family:"Pretendard","NotoSansKR","MalgunGothic"',
+              'font-size:13px',
+              'max-width:48rem',
+              'color:#667085',
+          ]
+          for marker in required:
+              if marker not in compact and marker not in html:
+                  raise SystemExit(f'Missing required marker after patch: {marker}')
+          if 'font-weight:850' in compact:
+              raise SystemExit('font-weight: 850 remains after patch')
+
+          index_path.write_text(html, encoding='utf-8')
+
+          test_path = Path('tests/test_portfolio.py')
+          tests = test_path.read_text(encoding='utf-8')
+          if 'def test_typography_and_readability_requirements' not in tests:
+              method = '''\n    def test_typography_and_readability_requirements(self):\n        compact = self.html.replace(" ", "")\n        self.assertIn("pretendard/dist/web/static/pretendard.css", self.html)\n        self.assertIn('font-family:"Pretendard","NotoSansKR","MalgunGothic"', compact)\n        self.assertIn("font-size:13px", compact)\n        self.assertGreaterEqual(compact.count("max-width:48rem"), 2)\n        self.assertIn("color:#667085", compact)\n        self.assertNotIn("font-weight:850", compact)\n'''
+              anchor = '\n\nif __name__ == "__main__":\n'
+              if anchor not in tests:
+                  raise SystemExit('Could not locate unittest insertion anchor')
+              tests = tests.replace(anchor, method + anchor, 1)
+              test_path.write_text(tests, encoding='utf-8')
+          PY
+
+      - name: Run portfolio tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html tests/test_portfolio.py
+          git commit -m "Improve portfolio typography and readability"
+          git push
