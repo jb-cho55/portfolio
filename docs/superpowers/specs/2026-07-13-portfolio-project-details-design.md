@@ -2,83 +2,97 @@
 
 ## 목적
 
-현대오토에버 Embedded SW QA 지원용 1페이지 포트폴리오에서 비공개 GitHub 저장소 링크를 제거하고, 채용담당자가 페이지 내부에서 프로젝트의 수행 범위와 증거를 확인할 수 있도록 프로젝트 카드 내부 펼침/접기 기능을 추가한다. 기존 Black Box Testing을 대표 프로젝트로 유지하고, OTA Bootloader를 두 번째 프로젝트로 추가한다.
+현대오토에버 Embedded SW QA 지원용 1페이지 포트폴리오에서 비공개 GitHub 저장소 링크를 제거하고, 채용담당자가 페이지 내부에서 프로젝트의 수행 범위와 기술적 근거를 확인할 수 있도록 카드 내부 펼침/접기 상세 영역을 제공한다. Black Box Testing을 대표 프로젝트로 유지하고 OTA Bootloader를 두 번째 프로젝트로 배치한다.
 
-## 정보 구조
+## Project 01 — IVS Black Box Testing
 
-### Project 01 — IVS Black Box Testing
+기존 요약 카드와 정적 결함 4건, 동적 결함 11건, CAPL 자동화 성과는 유지한다.
 
-기존 카드의 요약 정보는 유지한다. 카드 하단의 GitHub 저장소 링크는 제거하고 `프로젝트 상세 보기` 버튼으로 교체한다. 버튼을 누르면 카드 내부에 다음 내용이 펼쳐진다.
+상세 영역은 다음과 같이 수정한다.
 
-1. 테스트 흐름: 요구사양 분석 → CANoe/CANdb/Panel 환경 구성 → 수동·CAPL 자동화 시험 → 정적·동적 시험 → 결함 분석
-2. 본인 수행 범위: 요구사양 분석, CANdb 작성, Network Node 구성, CAPL 테스트 작성, Trace 분석, 결함 문서화
-3. 대표 결함: 정적 결함 4건과 동적 결함 11건 중 신호 길이, 15% 경계값, IGN 50 Cycle, Steering Timing 사례
-4. QA 관점: 기대 결과·실제 결과·재현 조건·영향도 구분과 개선 방향 제시
-5. 공개 범위: 원본 요구사양과 내부 자료는 제외하고 재구성한 포트폴리오임을 명시
+1. `본인 수행 범위` 제목을 `수행 범위`로 변경한다.
+2. 원본 요구사양과 내부 자료 제외를 설명하는 문장은 상세 영역에서 제거한다.
+3. 요구사양 분석 → CANoe·CANdb·Panel 환경 구성 → 수동·CAPL 자동화 시험 → 정적·동적 시험 → 결함 분석 흐름은 유지한다.
+4. 수행 범위에는 CANdb 작성, CANoe Network Node 구성, Panel 입력 제어, CAPL 테스트 작성, Trace 분석과 결함 문서화를 표시한다.
+5. 대표 결함에는 Signal Length 불일치, Batt Percent 15% 경계값, IGN 50 Cycle Off-by-One, Steering Timing 사례를 표시한다.
+6. 상세 영역에 실제 수행 화면 갤러리를 추가한다.
 
-### Project 02 — OTA Bootloader 설계 및 SW Binary 위변조 감지
+### Black Box Testing 이미지 갤러리
 
-Black Box Testing 아래에 동일한 시각 체계의 두 번째 프로젝트 카드를 배치한다.
+비공개 저장소에 보존된 포트폴리오용 스크린샷 중 다음 4개를 공개 포트폴리오의 로컬 자산으로 복사한다.
 
-요약 카드에는 다음 내용을 노출한다.
+- CANoe Network 구성: `network_setup.png`
+- CAPL 자동화 테스트 환경: `automation_test_environment.png`
+- Panel 및 Trace 화면: `panel_trace.png`
+- Test Result 근거: `defect_batt_percent_15.png`
 
-- 목표: OTA 업데이트 실패 또는 Binary 변경 시 기존 애플리케이션 보호·복구
+이미지는 원본 요구사양 문서 대신 테스트 환경과 결과 근거를 보강하는 용도로만 사용한다. 각 이미지에는 구체적인 대체 텍스트와 캡션을 제공한다. 데스크톱은 2열, 900px 이하에서는 1열로 배치한다.
+
+## Project 02 — OTA Bootloader 설계 및 SW Binary 위변조 감지
+
+요약 카드에는 다음 내용을 유지한다.
+
 - 대상: Infineon AURIX TC234LP 기반 ECU
-- 핵심 수행: UDS 리프로그래밍, PFlash erase/write, Backup·Restore, SHA-256 무결성 검사
-- 대표 문제 해결: Flash Loader source buffer 정렬 Trap 원인 분석 및 개선
-- 기술: C, CAN, ISO-TP, UDS, MCAL, PFlash, SHA-256, Trace32
+- 목표: OTA 업데이트 실패 또는 Binary 변경 시 기존 애플리케이션 보호·복구
+- 핵심 기술: UDS 리프로그래밍, PFlash erase/write, Backup·Restore, SHA-256, Trace32
 
-`프로젝트 상세 보기`를 누르면 다음 내용이 펼쳐진다.
+상세 영역에서는 기존 `정적 코드 리뷰`와 `검증 범위와 한계` 블록을 제거한다. 교육 과제 번호를 나열하지 않고 구현 목적에 따라 두 개발 단계로 통합한다.
 
-1. 시스템 구조: Tester → CAN/ISO-TP → BswCom → BswDcm → RTE → ECU 추상화 → MCAL → Flash
-2. 리프로그래밍 흐름: Programming Session → SecurityAccess → Erase/Backup → 0x34 → 0x36 → 0x37 → 무결성 확인 → ECUReset
-3. 본인 수행 범위: 메모리 경계 설계, 진단 서비스 연결, Flash 관리, 무결성 검사, Binary 변환, 디버깅, 사후 정적 리뷰
-4. 대표 문제 해결: 4바이트 정렬 조건을 만족하도록 `uint32` 기반 버퍼로 변경
-5. 정적 리뷰 발견사항: ISO-TP 길이·순번 검증, TransferData 상한, 접근 제어, valid pattern 기록 순서, 고정 키 방식의 한계
-6. 검증 범위와 한계: 현재 저장소는 실행 가능한 전체 프로젝트가 아니며, 게시 소스·메타데이터 기반 정적 확인 범위만 주장
+### 개발 단계 1 — 애플리케이션 보호 및 복구
 
-## 상호작용 설계
+OTA 업데이트 중 전송 중단이나 Flash 쓰기 실패가 발생해도 기존 애플리케이션을 보호할 수 있도록 Backup·Erase·Restore 흐름을 구현했다. Application Primary를 Backup 영역으로 복사하고, 부팅 시 `valid pattern`을 확인해 유효하지 않은 애플리케이션이면 Backup을 Primary로 복구하도록 구성한 내용을 설명한다.
 
-- 각 카드에는 독립적인 `프로젝트 상세 보기` 버튼을 둔다.
-- 버튼은 `button` 요소로 구현하고 `aria-expanded`, `aria-controls`를 사용한다.
-- 초기 상태는 접힘이다.
-- 클릭 시 해당 카드의 상세 영역만 펼치고 버튼 문구를 `상세 내용 접기`로 변경한다.
-- JavaScript가 비활성화된 환경에서도 요약 카드의 핵심 정보는 모두 확인할 수 있어야 한다.
-- 상세 영역은 기존 카드 내부에 이어지며 모달이나 별도 페이지를 사용하지 않는다.
+### 개발 단계 2 — SW Binary 무결성 검증
 
-## 시각 설계
+애플리케이션 데이터의 SHA-256 계산값과 서명 영역의 32바이트 저장값을 비교하는 무결성 검사를 구현했다. 이후 교육용 고정 키와 Application 데이터를 결합한 SHA-256 검사로 확장한 흐름을 설명한다. HMAC이나 비대칭 전자서명으로 표현하지 않는다.
 
+### 대표 문제 해결 — Memory Alignment Error
+
+프로젝트의 Backup·Restore 기능을 구현하는 과정에서 Flash 쓰기 중 Memory Alignment Error로 인한 Trap을 발견하고 디버깅한 흐름으로 설명한다.
+
+1. Backup·Restore 진행 중 `FlsLoader_Write` 호출 경로에서 Trap 발생
+2. Trace32의 Trap 관련 레지스터와 Flash Loader 인수 확인
+3. `uint8` source buffer가 Flash Loader의 4바이트 정렬 조건을 보장하지 않는 원인 확인
+4. 저장 버퍼를 `uint32` 배열로 변경하고 바이트 단위 처리는 `uint8*`로 참조
+5. Application → Backup과 Backup → Application 경로에 동일한 수정 적용
+
+설명은 문제 발생 → 원인 추적 → 수정 → 적용 범위 순서로 구성하며, 단순 결과보다 개발 중 직접 발견하고 해결한 디버깅 역량이 드러나도록 한다.
+
+## 상호작용 및 시각 설계
+
+- 각 프로젝트 카드는 독립적인 `프로젝트 상세 보기` 버튼을 사용한다.
+- 버튼은 `aria-expanded`, `aria-controls`를 사용하며 초기 상태는 접힘이다.
+- 클릭 시 해당 카드만 펼치고 문구를 `상세 내용 접기`로 변경한다.
 - 기존 흰색·남색·파란색 기업형 디자인을 유지한다.
-- 프로젝트 간 구분을 위해 카드 사이에 충분한 수직 여백을 둔다.
-- 상세 영역은 연한 배경과 상단 경계선으로 요약 영역과 구분한다.
-- 상세 내용은 긴 문단보다 2열 정보 블록, 짧은 목록, 단계형 흐름을 사용한다.
-- 900px 이하에서는 모든 상세 블록을 1열로 전환한다.
-- 과도한 애니메이션은 사용하지 않고 높이 변화와 투명도 전환만 짧게 적용하거나, 접근성 설정에 따라 애니메이션을 제거한다.
+- 상세 설명은 2열 정보 블록으로 구성하고 900px 이하에서는 1열로 전환한다.
+- 이미지 갤러리는 `loading="lazy"`를 적용하고 가로 비율을 유지한다.
+- 모달, 별도 페이지, 프레임워크는 추가하지 않는다.
 
 ## 구현 범위
 
-- `index.html`: 두 프로젝트 카드, 펼침/접기 마크업, CSS, JavaScript 추가
-- `tests/test_portfolio.py`: 비공개 GitHub 프로젝트 링크 제거, 두 프로젝트 존재 여부, 상세 버튼과 접근성 속성, OTA 핵심 내용 검증
-- `README.md`: 프로젝트 구성을 Black Box Testing + OTA Bootloader로 갱신
-
-별도 이미지 파일은 추가하지 않는다. 시스템 구조와 리프로그래밍 흐름은 텍스트 기반 흐름도로 표현해 로딩과 유지보수 부담을 줄인다.
+- `index.html`: Black Box 문구 수정, 이미지 갤러리, OTA 개발 단계 2개, Memory Alignment Error 문제 해결 흐름 반영
+- `assets/images/`: 공개 가능한 Black Box Testing 스크린샷 4개 추가
+- `tests/test_portfolio.py`: 제거 문구, 신규 제목, 개발 단계, Memory Alignment Error, 이미지 경로와 접근성 검증
+- `README.md`: 실제 프로젝트 화면 갤러리와 OTA 단계형 설명 추가를 반영
 
 ## 검증 기준
 
-1. Black Box Testing 카드에 외부 프로젝트 저장소 링크가 없다.
-2. Black Box Testing과 OTA Bootloader 카드 모두 `프로젝트 상세 보기` 버튼을 가진다.
-3. 각 버튼은 올바른 `aria-expanded`와 `aria-controls`를 가진다.
-4. 클릭 시 대상 상세 영역만 펼쳐지고 버튼 문구와 접근성 상태가 함께 변경된다.
-5. OTA 카드에 UDS, Backup·Restore, SHA-256, Trace32 정렬 Trap, 정적 코드 리뷰가 표시된다.
-6. Black Box Testing 카드에 정적 4건, 동적 11건, CAPL 자동화, 요구사양 기반 시험이 표시된다.
-7. 900px 이하에서 프로젝트와 상세 영역이 단일 열로 표시된다.
-8. 기존 학력·교육·자격·수상 및 직무 역량 섹션은 유지된다.
-9. Python 단위 테스트가 모두 통과한다.
+1. `본인 수행 범위`가 존재하지 않고 `수행 범위`가 표시된다.
+2. Black Box 상세 영역에 제거 요청 문장이 존재하지 않는다.
+3. Black Box 상세 영역에 CANoe, CAPL 자동화, Panel·Trace, Test Result 이미지 4개가 표시된다.
+4. 모든 이미지에 `alt`, 캡션, `loading="lazy"`가 적용된다.
+5. OTA 상세 영역에 `개발 단계 1 — 애플리케이션 보호 및 복구`가 표시된다.
+6. OTA 상세 영역에 `개발 단계 2 — SW Binary 무결성 검증`이 표시된다.
+7. `정적 코드 리뷰`와 `검증 범위와 한계` 블록이 존재하지 않는다.
+8. 대표 문제 해결 제목과 본문에 `Memory Alignment Error`가 표시된다.
+9. 문제 해결 설명이 프로젝트 진행 중 발견 → Trace32 분석 → 4바이트 정렬 원인 → `uint32` 버퍼 수정 순서로 구성된다.
+10. 두 프로젝트의 펼침/접기와 모바일 단일 열 배치가 유지된다.
+11. Python 단위 테스트가 모두 통과한다.
 
 ## 제외 범위
 
 - Private 저장소 공개 전환
-- 저장소 Collaborator 자동 초대
-- 외부 프로젝트 상세 페이지 생성
+- 원본 요구사양이나 교육 내부 자료 공개
+- OTA 프로젝트 4의 `+0x05/-0x05` 변환 설명
+- 기존 정적 코드 리뷰 발견사항과 빌드·재시험 한계 문구
 - 모달, 라우팅, 프레임워크 도입
-- 실제 ECU 재시험 결과 또는 공개되지 않은 요구사양 추가
