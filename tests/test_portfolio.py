@@ -118,7 +118,8 @@ class PortfolioContentTests(unittest.TestCase):
             "Application → Backup",
             "Backup → Application",
         ]
-        positions = [self.html.index(term) for term in expected]
+        detail = self.html[self.html.index('id="bootloader-details"'):]
+        positions = [detail.index(term) for term in expected]
         self.assertEqual(positions, sorted(positions))
 
     def test_project_detail_script_updates_accessibility_state(self):
