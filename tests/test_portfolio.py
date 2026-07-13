@@ -79,18 +79,47 @@ class PortfolioContentTests(unittest.TestCase):
         ]:
             self.assertIn(content, self.html)
 
-    def test_bootloader_project_contains_embedded_qa_evidence(self):
-        for content in [
-            "Infineon AURIX TC234LP",
-            "UDS 리프로그래밍",
-            "Backup·Restore",
-            "SHA-256",
+    def test_black_box_detail_uses_neutral_scope_label(self):
+        self.assertIn("수행 범위", self.html)
+        self.assertNotIn("본인 수행 범위", self.html)
+        self.assertNotIn(
+            "원본 요구사양과 내부 자료는 제외하고, 직접 수행한 테스트 환경·결함 분석·개선 방향만 포트폴리오용으로 재구성했습니다.",
+            self.html,
+        )
+
+    def test_black_box_gallery_contains_accessible_local_evidence(self):
+        gallery = [
+            ("assets/images/network_setup.svg", "CANoe Network 구성"),
+            ("assets/images/automation_test_environment.svg", "CAPL 자동화 테스트 환경"),
+            ("assets/images/panel_trace.svg", "Panel 및 Trace 화면"),
+            ("assets/images/defect_batt_percent_15.svg", "Test Result 근거"),
+        ]
+        for path, caption in gallery:
+            self.assertIn(f'src="{path}"', self.html)
+            self.assertIn(caption, self.html)
+        self.assertGreaterEqual(self.html.count('loading="lazy"'), 4)
+        self.assertGreaterEqual(self.html.count("<figcaption>"), 4)
+        self.assertGreaterEqual(self.html.count("alt="), 4)
+
+    def test_bootloader_details_use_two_development_stages(self):
+        self.assertIn("개발 단계 1 — 애플리케이션 보호 및 복구", self.html)
+        self.assertIn("개발 단계 2 — SW Binary 무결성 검증", self.html)
+        self.assertNotIn("정적 코드 리뷰", self.html)
+        self.assertNotIn("검증 범위와 한계", self.html)
+        self.assertNotIn("+0x05/-0x05", self.html)
+
+    def test_memory_alignment_error_story_is_explicit(self):
+        expected = [
+            "Memory Alignment Error",
+            "프로젝트 진행 중",
             "Trace32",
             "4바이트 정렬",
-            "정적 코드 리뷰",
-            "현재 ECU에서 재시험하지 않음",
-        ]:
-            self.assertIn(content, self.html)
+            "uint32",
+            "Application → Backup",
+            "Backup → Application",
+        ]
+        positions = [self.html.index(term) for term in expected]
+        self.assertEqual(positions, sorted(positions))
 
     def test_project_detail_script_updates_accessibility_state(self):
         self.assertIn("aria-expanded", self.html)
