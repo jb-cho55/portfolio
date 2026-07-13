@@ -47,9 +47,56 @@ class PortfolioContentTests(unittest.TestCase):
         for label in ["프로젝트 목표", "담당 역할", "수행 내용", "주요 성과"]:
             self.assertIn(label, self.html)
 
-    def test_links_exist(self):
+    def test_public_links_do_not_expose_private_project_repositories(self):
         self.assertIn("https://github.com/jb-cho55", self.html)
-        self.assertIn("https://github.com/jb-cho55/IVS-Black-Box-Validation", self.html)
+        self.assertNotIn("IVS-Black-Box-Validation", self.html)
+        self.assertNotIn("IVS-Black-Box-Testing", self.html)
+        self.assertNotIn("Bootloader_Design_For_OTA", self.html)
+
+    def test_two_project_cards_are_present_in_order(self):
+        black_box = self.html.index("IVS Black Box Testing")
+        bootloader = self.html.index("OTA를 위한 Bootloader 설계")
+        self.assertLess(black_box, bootloader)
+        self.assertGreaterEqual(self.html.count('class="project-card"'), 2)
+
+    def test_project_detail_controls_are_accessible(self):
+        self.assertEqual(self.html.count("프로젝트 상세 보기"), 2)
+        for control_id in ["black-box-details", "bootloader-details"]:
+            self.assertIn(f'aria-controls="{control_id}"', self.html)
+            self.assertIn(f'id="{control_id}"', self.html)
+        self.assertGreaterEqual(self.html.count('aria-expanded="false"'), 2)
+        self.assertGreaterEqual(self.html.count("hidden"), 2)
+
+    def test_black_box_detail_contains_qa_evidence(self):
+        for content in [
+            "요구사양 기반 시험",
+            "정적 결함 4건",
+            "동적 결함 11건",
+            "IGN 50 Cycle",
+            "Steering Timing",
+            "기대 결과",
+            "실제 결과",
+        ]:
+            self.assertIn(content, self.html)
+
+    def test_bootloader_project_contains_embedded_qa_evidence(self):
+        for content in [
+            "Infineon AURIX TC234LP",
+            "UDS 리프로그래밍",
+            "Backup·Restore",
+            "SHA-256",
+            "Trace32",
+            "4바이트 정렬",
+            "정적 코드 리뷰",
+            "현재 ECU에서 재시험하지 않음",
+        ]:
+            self.assertIn(content, self.html)
+
+    def test_project_detail_script_updates_accessibility_state(self):
+        self.assertIn("aria-expanded", self.html)
+        self.assertIn("상세 내용 접기", self.html)
+        self.assertIn("detail.hidden", self.html)
+        self.assertIn("button.textContent", self.html)
 
 
 if __name__ == "__main__":
