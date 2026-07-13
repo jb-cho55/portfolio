@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   update-typography:
-    if: github.event.issue.title == 'Apply portfolio typography readability updates v2'
+    if: github.event.issue.title == 'Apply portfolio typography readability updates v3'
     runs-on: ubuntu-latest
     steps:
       - name: Check out main branch
@@ -18,42 +18,29 @@ jobs:
         with:
           ref: main
 
-      - name: Confirm typography checks fail before the change
+      - name: Apply focused typography changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
         shell: bash
         run: |
           set +e
-          python - <<'PY'
-          from pathlib import Path
-
-          html = Path('index.html').read_text(encoding='utf-8')
-          compact = html.replace(' ', '')
-          assert 'pretendard/dist/web/static/pretendard.css' in html
-          assert 'max-width:48rem' in compact
-          assert 'color:#667085' in compact
-          assert 'font-weight:850' not in compact
-          PY
-          status=$?
-          set -e
-          if [ "$status" -eq 0 ]; then
-            echo "Typography requirements already pass; refusing to apply an unnecessary patch."
-            exit 1
-          fi
-          echo "RED confirmed: the current page does not yet satisfy the typography requirements."
-
-      - name: Apply focused typography changes
-        run: |
-          python - <<'PY'
+          python - <<'PY' 2>&1 | tee /tmp/patch.log
           from pathlib import Path
           import re
 
           index_path = Path('index.html')
           html = index_path.read_text(encoding='utf-8')
+          compact_before = html.replace(' ', '')
+          assert 'pretendard/dist/web/static/pretendard.css' not in html
+          assert 'font-weight:850' in compact_before
+          print('RED confirmed: typography requirements are absent before the patch.')
 
           def replace_once(old: str, new: str) -> None:
               global html
               count = html.count(old)
               if count != 1:
-                  raise SystemExit(f'Expected exactly one match, found {count}: {old[:100]!r}')
+                  raise RuntimeError(f'Expected exactly one match, found {count}: {old[:100]!r}')
               html = html.replace(old, new, 1)
 
           def update_rule(selector: str, replacements: list[tuple[str, str]]) -> None:
@@ -61,13 +48,13 @@ jobs:
               pattern = re.compile(rf'(?P<rule>{re.escape(selector)}\s*\{{.*?\n    \}})', re.S)
               matches = list(pattern.finditer(html))
               if len(matches) != 1:
-                  raise SystemExit(f'Expected one CSS rule for {selector!r}, found {len(matches)}')
+                  raise RuntimeError(f'Expected one CSS rule for {selector!r}, found {len(matches)}')
               match = matches[0]
               rule = match.group('rule')
               for old, new in replacements:
                   count = rule.count(old)
                   if count != 1:
-                      raise SystemExit(
+                      raise RuntimeError(
                           f'Expected one property match in {selector!r}, found {count}: {old!r}'
                       )
                   rule = rule.replace(old, new, 1)
@@ -128,9 +115,9 @@ jobs:
           ]
           for marker in required:
               if marker not in compact and marker not in html:
-                  raise SystemExit(f'Missing required marker after patch: {marker}')
+                  raise RuntimeError(f'Missing required marker after patch: {marker}')
           if 'font-weight:850' in compact:
-              raise SystemExit('font-weight: 850 remains after patch')
+              raise RuntimeError('font-weight: 850 remains after patch')
 
           index_path.write_text(html, encoding='utf-8')
 
@@ -140,30 +127,52 @@ jobs:
               method = '''\n    def test_typography_and_readability_requirements(self):\n        compact = self.html.replace(" ", "")\n        self.assertIn("pretendard/dist/web/static/pretendard.css", self.html)\n        self.assertIn('font-family:"Pretendard","NotoSansKR","MalgunGothic"', compact)\n        self.assertIn("font-size:13px", compact)\n        self.assertGreaterEqual(compact.count("max-width:48rem"), 2)\n        self.assertIn("color:#667085", compact)\n        self.assertNotIn("font-weight:850", compact)\n'''
               anchor = '\n\nif __name__ == "__main__":\n'
               if anchor not in tests:
-                  raise SystemExit('Could not locate unittest insertion anchor')
+                  raise RuntimeError('Could not locate unittest insertion anchor')
               tests = tests.replace(anchor, method + anchor, 1)
               test_path.write_text(tests, encoding='utf-8')
+          print('Patch completed.')
           PY
+          status=${PIPESTATUS[0]}
+          set -e
+          if [ "$status" -ne 0 ]; then
+            details=$(tail -c 3500 /tmp/patch.log)
+            gh issue comment "$ISSUE_NUMBER" --body "Typography patch failed:\n\n\`\`\`text\n${details}\n\`\`\`"
+            exit "$status"
+          fi
 
       - name: Run portfolio tests
-        run: python -m unittest discover -s tests -v
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        shell: bash
+        run: |
+          set +e
+          python -m unittest discover -s tests -v 2>&1 | tee /tmp/tests.log
+          status=${PIPESTATUS[0]}
+          set -e
+          if [ "$status" -ne 0 ]; then
+            details=$(tail -c 3500 /tmp/tests.log)
+            gh issue comment "$ISSUE_NUMBER" --body "Portfolio tests failed:\n\n\`\`\`text\n${details}\n\`\`\`"
+            exit "$status"
+          fi
 
       - name: Commit and push changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html tests/test_portfolio.py
           git commit -m "Improve portfolio typography and readability"
-          git push origin HEAD:main
-
-      - name: Report success
-        if: success()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh issue comment "${{ github.event.issue.number }}" --body "Typography and readability changes applied; all portfolio tests passed."
-
-      - name: Report failure
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh issue comment "${{ github.event.issue.number }}" --body "Typography update workflow failed. Review the Actions log for the failing step."
+          set +e
+          git push origin HEAD:main 2>&1 | tee /tmp/push.log
+          status=${PIPESTATUS[0]}
+          set -e
+          if [ "$status" -ne 0 ]; then
+            details=$(tail -c 3500 /tmp/push.log)
+            gh issue comment "$ISSUE_NUMBER" --body "Typography commit could not be pushed:\n\n\`\`\`text\n${details}\n\`\`\`"
+            exit "$status"
+          fi
+          gh issue comment "$ISSUE_NUMBER" --body "Typography and readability changes applied; all portfolio tests passed."
