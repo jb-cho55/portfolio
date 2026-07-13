@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   update-typography:
-    if: github.event.issue.title == 'Apply portfolio typography readability updates v3'
+    if: github.event.issue.title == 'Apply portfolio typography readability updates v4'
     runs-on: ubuntu-latest
     steps:
       - name: Check out main branch
@@ -47,9 +47,16 @@ jobs:
               global html
               pattern = re.compile(rf'(?P<rule>{re.escape(selector)}\s*\{{.*?\n    \}})', re.S)
               matches = list(pattern.finditer(html))
-              if len(matches) != 1:
-                  raise RuntimeError(f'Expected one CSS rule for {selector!r}, found {len(matches)}')
-              match = matches[0]
+              candidates = [
+                  match for match in matches
+                  if all(old in match.group('rule') for old, _ in replacements)
+              ]
+              if len(candidates) != 1:
+                  raise RuntimeError(
+                      f'Expected one matching CSS rule for {selector!r}, '
+                      f'found {len(candidates)} candidates among {len(matches)} rules'
+                  )
+              match = candidates[0]
               rule = match.group('rule')
               for old, new in replacements:
                   count = rule.count(old)
