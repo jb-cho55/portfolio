@@ -1,20 +1,21 @@
 name: Apply typography readability updates
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/apply-typography-readability.yml
+  issues:
+    types: [opened]
 
 permissions:
   contents: write
 
 jobs:
   update-typography:
+    if: github.event.issue.title == 'Apply portfolio typography readability updates'
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
+      - name: Check out main branch
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Confirm typography checks fail before the change
         shell: bash
@@ -139,4 +140,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html tests/test_portfolio.py
           git commit -m "Improve portfolio typography and readability"
-          git push
+          git push origin HEAD:main
