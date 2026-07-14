@@ -1,26 +1,19 @@
-name: Run one-time portfolio update
+name: Verify portfolio update
 
 on:
-  issues:
-    types: [opened]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
 
 permissions:
-  contents: write
-  issues: read
+  contents: read
 
 jobs:
-  apply-update:
-    if: github.event.issue.title == '[automation] Apply Vehicle Embedded SW positioning'
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out update branch
+      - name: Check out pull request
         uses: actions/checkout@v4
-        with:
-          ref: update/vehicle-embedded-sw-positioning
-          fetch-depth: 0
-
-      - name: Apply approved update
-        run: python tools/apply_vehicle_embedded_sw_positioning.py
 
       - name: Run portfolio tests
         run: python -m unittest discover -s tests -v
@@ -35,14 +28,3 @@ jobs:
           grep -q "디버깅 및 결함 원인 분석" index.html
           ! grep -q "Embedded SW QA Portfolio" index.html
           ! grep -q "Embedded SW QA Engineer" index.html
-
-      - name: Commit verified branch changes
-        shell: bash
-        run: |
-          rm -f tools/apply_vehicle_embedded_sw_positioning.py
-          rm -f .github/workflows/apply-vehicle-embedded-sw-positioning.yml
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html tests/test_portfolio.py tools/apply_vehicle_embedded_sw_positioning.py .github/workflows/apply-vehicle-embedded-sw-positioning.yml
-          git commit -m "refactor: position portfolio for vehicle embedded SW"
-          git push origin update/vehicle-embedded-sw-positioning
