@@ -12,11 +12,34 @@ class PortfolioContentTests(unittest.TestCase):
         self.assertIn("ISTQB CTFL", self.html)
         self.assertIn("Black Box Testing 프로젝트 우수상", self.html)
         self.assertIn(
-            "국민대학교 자동차IT융합학과에서 자동차·전자·소프트웨어를 학습하고, CANoe/CAPL 기반 차량 SW 테스트 설계와 자동화 검증을 수행했습니다.",
+            "국민대학교 자동차IT융합학과에서 자동차·전자·소프트웨어를 학습하고, AURIX 기반 Embedded SW 구현과 CANoe/CAPL 기반 차량 SW 검증을 수행했습니다.",
             self.html,
         )
         self.assertNotIn("융합 지식을 쌓고", self.html)
         self.assertNotIn("분석해 왔습니다", self.html)
+
+    def test_vehicle_embedded_sw_positioning_and_competencies(self):
+        self.assertIn("Vehicle Embedded SW Portfolio", self.html)
+        self.assertIn("Vehicle Embedded SW Engineer", self.html)
+        self.assertNotIn("Embedded SW QA Portfolio", self.html)
+        self.assertNotIn("Embedded SW QA Engineer", self.html)
+        expected = [
+            "차량 SW 개발과 검증 프로젝트에서 수행한 설계·구현·테스트·문제 해결 역량을 중심으로 정리했습니다.",
+            "EMBEDDED IMPLEMENTATION",
+            "Embedded C 기반 ECU 기능 구현",
+            "AURIX 환경에서 UDS Bootloader, Flash Backup·Restore, SHA-256 무결성 검사 기능을 구현했습니다.",
+            "VEHICLE COMMUNICATION",
+            "차량 통신 및 진단 프로토콜 활용",
+            "CAN·ISO-TP·UDS 통신 흐름을 이해하고 진단 서비스와 ECU 리프로그래밍 절차에 적용했습니다.",
+            "TEST ENGINEERING",
+            "요구사양 기반 테스트 설계·자동화",
+            "요구사양을 테스트 조건과 판정 기준으로 구조화하고 CANoe/CAPL로 반복 시험을 자동화했습니다.",
+            "DEBUGGING &amp; ANALYSIS",
+            "디버깅 및 결함 원인 분석",
+            "CAN Trace와 Trace32를 활용해 통신 동작과 Memory Alignment 오류의 재현 조건과 원인을 분석했습니다.",
+        ]
+        for content in expected:
+            self.assertIn(content, self.html)
 
     def test_project_is_prioritized_before_core_fit(self):
         self.assertLess(self.html.index('id="projects"'), self.html.index('id="core-fit"'))
