@@ -1,0 +1,125 @@
+name: Diagnose GitHub Pages deployment
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+  pages: write
+
+jobs:
+  diagnose:
+    if: github.event.issue.title == '[diagnostic] GitHub Pages stale deployment'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Compare repository and deployed page
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        shell: bash
+        run: |
+          set -u
+
+          site_url="https://jb-cho55.github.io/portfolio/"
+          body_file="$(mktemp)"
+          header_file="$(mktemp)"
+          report_file="$(mktemp)"
+
+          repo_new_count=$(grep -c 'Vehicle Embedded SW Engineer' index.html || true)
+          repo_old_count=$(grep -c 'Embedded SW QA Engineer' index.html || true)
+
+          fetch_live() {
+            local suffix="$1"
+            curl -fsSL \
+              -H 'Cache-Control: no-cache' \
+              -H 'Pragma: no-cache' \
+              -D "$header_file" \
+              "${site_url}?diagnostic=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${suffix}" \
+              -o "$body_file"
+          }
+
+          fetch_result="success"
+          if ! fetch_live initial; then
+            fetch_result="failed"
+          fi
+
+          live_new_count=$(grep -c 'Vehicle Embedded SW Engineer' "$body_file" 2>/dev/null || true)
+          live_old_count=$(grep -c 'Embedded SW QA Engineer' "$body_file" 2>/dev/null || true)
+          last_modified=$(grep -i '^last-modified:' "$header_file" | tr -d '\r' || true)
+          etag=$(grep -i '^etag:' "$header_file" | tr -d '\r' || true)
+          age=$(grep -i '^age:' "$header_file" | tr -d '\r' || true)
+
+          pages_info=$(gh api "repos/${GITHUB_REPOSITORY}/pages" 2>&1 || true)
+          latest_build=$(gh api "repos/${GITHUB_REPOSITORY}/pages/builds/latest" 2>&1 || true)
+          rebuild_result="not requested"
+
+          if [ "$live_new_count" -eq 0 ]; then
+            rebuild_result=$(gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds" 2>&1 || true)
+
+            for attempt in $(seq 1 36); do
+              sleep 10
+              if fetch_live "$attempt"; then
+                live_new_count=$(grep -c 'Vehicle Embedded SW Engineer' "$body_file" || true)
+                live_old_count=$(grep -c 'Embedded SW QA Engineer' "$body_file" || true)
+                if [ "$live_new_count" -gt 0 ]; then
+                  break
+                fi
+              fi
+            done
+          fi
+
+          final_state="STALE"
+          if [ "$live_new_count" -gt 0 ]; then
+            final_state="UPDATED"
+          fi
+
+          cat > "$report_file" <<EOF
+          ## GitHub Pages deployment diagnostic
+
+          - Final state: **${final_state}**
+          - Repository `main` new title count: `${repo_new_count}`
+          - Repository `main` old title count: `${repo_old_count}`
+          - Live page new title count: `${live_new_count}`
+          - Live page old title count: `${live_old_count}`
+          - Initial live fetch: `${fetch_result}`
+          - ${last_modified:-last-modified header: unavailable}
+          - ${etag:-etag header: unavailable}
+          - ${age:-age header: unavailable}
+
+          <details>
+          <summary>Pages configuration</summary>
+
+          ```json
+          ${pages_info}
+          ```
+          </details>
+
+          <details>
+          <summary>Latest Pages build</summary>
+
+          ```json
+          ${latest_build}
+          ```
+          </details>
+
+          <details>
+          <summary>Rebuild request result</summary>
+
+          ```text
+          ${rebuild_result}
+          ```
+          </details>
+          EOF
+
+          gh issue comment "$ISSUE_NUMBER" --body-file "$report_file"
+
+          if [ "$final_state" != "UPDATED" ]; then
+            exit 1
+          fi
