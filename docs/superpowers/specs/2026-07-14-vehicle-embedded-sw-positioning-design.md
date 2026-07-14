@@ -47,6 +47,6 @@ Reposition the portfolio from an Embedded SW QA-only presentation to a balanced 
 
 ## Verification
 
-- Run `python -m unittest discover -s tests -v`.
+- Run `python -m unittest discover -s tests -v` in the pull-request workflow.
 - Confirm all old `Embedded SW QA Portfolio` and `Embedded SW QA Engineer` strings are removed from `index.html`.
 - Confirm the four new competency labels, titles, and descriptions appear exactly once in the competency section.
