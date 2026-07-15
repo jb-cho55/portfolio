@@ -1,8 +1,10 @@
 name: Remove hero focus copy once
 
 on:
-  issues:
-    types: [opened]
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/remove-hero-focus-once.yml
 
 permissions:
   contents: write
@@ -10,7 +12,6 @@ permissions:
 
 jobs:
   remove-copy:
-    if: github.event.issue.title == '[content] Remove hero focus copy'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -49,7 +50,7 @@ jobs:
       - name: Remove temporary workflow and publish
         env:
           GH_TOKEN: ${{ github.token }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_NUMBER: '15'
         shell: bash
         run: |
           rm .github/workflows/remove-hero-focus-once.yml
