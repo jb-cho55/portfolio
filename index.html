@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="조정빈의 Vehicle Embedded SW 기업 제출용 포트폴리오. AURIX 기반 Embedded SW 구현, 차량 통신·진단, 테스트 자동화와 디버깅 경험을 소개합니다.">
+  <meta name="description" content="조정빈의 Vehicle Embedded SW 포트폴리오. AURIX 기반 OTA Bootloader 구현과 CANoe/CAPL 기반 차량 ECU 검증 경험을 소개합니다.">
   <meta name="author" content="조정빈">
   <meta name="theme-color" content="#0b1f3a">
   <meta property="og:type" content="website">
   <meta property="og:title" content="조정빈 | Vehicle Embedded SW Portfolio">
-  <meta property="og:description" content="AURIX 기반 Embedded SW 구현, 차량 통신·진단, 테스트 자동화와 디버깅 경험을 정리한 기업 제출용 포트폴리오입니다.">
+  <meta property="og:description" content="구현·검증·문제 해결·증거를 중심으로 정리한 차량 임베디드 SW 포트폴리오입니다.">
   <title>조정빈 | Vehicle Embedded SW Portfolio</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
@@ -24,14 +24,13 @@
       --line: #dbe2ea;
       --surface: #ffffff;
       --surface-soft: #f6f8fa;
+      --success-soft: #eef8f2;
       --max: 1080px;
     }
 
     * { box-sizing: border-box; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
@@ -45,14 +44,9 @@
       word-break: keep-all;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    button {
-      font: inherit;
-    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    img { max-width: 100%; }
 
     .container {
       width: min(var(--max), calc(100% - 40px));
@@ -120,9 +114,7 @@
     }
 
     .desktop-nav a:hover,
-    .desktop-nav a:focus-visible {
-      color: var(--blue);
-    }
+    .desktop-nav a:focus-visible { color: var(--blue); }
 
     .menu-toggle {
       display: none;
@@ -146,7 +138,7 @@
     }
 
     .hero {
-      padding: 82px 0 50px;
+      padding: 82px 0 54px;
       color: #fff;
       background: linear-gradient(135deg, var(--navy-deep), var(--navy) 72%, #12335d);
     }
@@ -190,6 +182,13 @@
       font-size: 17px;
     }
 
+    .hero-focus {
+      margin: 18px 0 0;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
     .hero-actions {
       display: flex;
       flex-wrap: wrap;
@@ -208,15 +207,9 @@
       font-weight: 800;
     }
 
-    .button-primary {
-      color: #fff;
-      background: var(--blue);
-    }
-
+    .button-primary { color: #fff; background: var(--blue); }
     .button-primary:hover,
-    .button-primary:focus-visible {
-      background: var(--blue-dark);
-    }
+    .button-primary:focus-visible { background: var(--blue-dark); }
 
     .button-secondary {
       color: #fff;
@@ -259,33 +252,15 @@
       border-top: 1px solid rgba(255, 255, 255, .09);
     }
 
-    .summary-list li:first-child {
-      border-top: 0;
-    }
+    .summary-list li:first-child { border-top: 0; }
+    .summary-list strong { display: block; color: #fff; font-size: 14px; }
+    .summary-list span { display: block; margin-top: 2px; color: #b8c8da; font-size: 13px; }
 
-    .summary-list strong {
-      display: block;
-      color: #fff;
-      font-size: 14px;
-    }
-
-    .summary-list span {
-      display: block;
-      margin-top: 2px;
-      color: #b8c8da;
-      font-size: 13px;
-    }
-
-    .section {
-      padding: 76px 0;
-    }
-
-    .section-soft {
-      background: var(--surface-soft);
-    }
+    .section { padding: 76px 0; }
+    .section-soft { background: var(--surface-soft); }
 
     .section-heading {
-      max-width: 740px;
+      max-width: 760px;
       margin-bottom: 34px;
     }
 
@@ -303,17 +278,16 @@
     }
 
     .section-heading p {
+      max-width: 48rem;
       margin: 0;
       color: var(--muted);
     }
 
-    .section-kicker {
-      color: var(--blue);
-    }
+    .section-kicker { color: var(--blue); }
 
     .projects-stack {
       display: grid;
-      gap: 28px;
+      gap: 32px;
     }
 
     .project-card {
@@ -349,7 +323,7 @@
       letter-spacing: -.03em;
     }
 
-    .project-award {
+    .project-badge {
       align-self: start;
       padding: 6px 10px;
       border: 1px solid rgba(255, 255, 255, .23);
@@ -370,57 +344,119 @@
       margin: 0;
     }
 
-    .project-metrics {
+    .project-summary {
+      margin: 0;
+      padding: 4px 30px;
+    }
+
+    .project-summary > div {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: 84px 1fr;
+      gap: 20px;
+      padding: 13px 0;
       border-bottom: 1px solid var(--line);
-      background: #fbfcfd;
     }
 
-    .project-metric {
-      padding: 20px 18px;
-      border-left: 1px solid var(--line);
+    .project-summary dt {
+      color: var(--navy);
+      font-weight: 800;
     }
 
-    .project-metric:first-child {
-      border-left: 0;
+    .project-summary dd {
+      max-width: 48rem;
+      margin: 0;
+      color: #536074;
     }
 
-    .project-metric strong {
+    .key-results {
+      margin: 24px 30px 0;
+      padding: 20px;
+      border: 1px solid #bcd2ef;
+      border-radius: 10px;
+      background: var(--blue-soft);
+    }
+
+    .key-results h4 {
+      margin: 0 0 12px;
+      color: var(--navy);
+      font-size: 14px;
+      letter-spacing: .04em;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .result-card {
+      min-height: 90px;
+      padding: 14px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid rgba(33, 111, 230, .16);
+    }
+
+    .result-card strong {
       display: block;
       color: var(--navy);
       font-size: 16px;
     }
 
-    .project-metric span {
+    .result-card span {
       display: block;
-      margin-top: 3px;
+      margin-top: 4px;
       color: var(--muted);
       font-size: 13px;
     }
 
-    .project-details {
-      margin: 0;
-      padding: 0 30px;
+    .artifact-section {
+      padding: 24px 30px;
     }
 
-    .project-details > div {
-      display: grid;
-      grid-template-columns: 118px 1fr;
-      gap: 22px;
-      padding: 18px 0;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .project-details dt {
+    .artifact-section h4 {
+      margin: 0 0 12px;
       color: var(--navy);
-      font-weight: 700;
+      font-size: 15px;
     }
 
-    .project-details dd {
-      max-width: 48rem;
-      margin: 0;
-      color: #536074;
+    .artifact-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .artifact-item {
+      display: block;
+      min-height: 104px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+      transition: border-color .16s ease, transform .16s ease, box-shadow .16s ease;
+    }
+
+    .artifact-item:hover,
+    .artifact-item:focus-visible {
+      border-color: #9fc0ec;
+      box-shadow: 0 8px 20px rgba(15, 35, 60, .10);
+      transform: translateY(-2px);
+      outline: none;
+    }
+
+    .artifact-item strong {
+      display: block;
+      color: var(--blue);
+      font-size: 12px;
+      letter-spacing: .04em;
+    }
+
+    .artifact-item span {
+      display: block;
+      margin-top: 5px;
+      color: #45546a;
+      font-size: 13px;
+      line-height: 1.55;
     }
 
     .project-footer {
@@ -428,7 +464,22 @@
       align-items: center;
       justify-content: space-between;
       gap: 20px;
-      padding: 22px 30px 26px;
+      padding: 0 30px 26px;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .tag-list span {
+      padding: 5px 8px;
+      border-radius: 999px;
+      color: #225ca9;
+      background: var(--blue-soft);
+      font-size: 12px;
+      font-weight: 800;
     }
 
     .project-detail-toggle {
@@ -441,13 +492,8 @@
       white-space: nowrap;
     }
 
-    .project-detail-toggle::after {
-      content: " +";
-    }
-
-    .project-detail-toggle[aria-expanded="true"]::after {
-      content: " −";
-    }
+    .project-detail-toggle::after { content: " +"; }
+    .project-detail-toggle[aria-expanded="true"]::after { content: " −"; }
 
     .project-detail-toggle:hover,
     .project-detail-toggle:focus-visible {
@@ -461,9 +507,7 @@
       background: var(--surface-soft);
     }
 
-    .project-detail-region[hidden] {
-      display: none;
-    }
+    .project-detail-region[hidden] { display: none; }
 
     .project-detail-inner {
       display: grid;
@@ -479,9 +523,7 @@
       background: #fff;
     }
 
-    .detail-block.wide {
-      grid-column: 1 / -1;
-    }
+    .detail-block.wide { grid-column: 1 / -1; }
 
     .detail-block h4 {
       margin: 0 0 8px;
@@ -496,13 +538,8 @@
       font-size: 14px;
     }
 
-    .detail-block ul {
-      padding-left: 18px;
-    }
-
-    .detail-block li + li {
-      margin-top: 5px;
-    }
+    .detail-block ul { padding-left: 18px; }
+    .detail-block li + li { margin-top: 5px; }
 
     .flow-line {
       color: #31425a;
@@ -511,9 +548,42 @@
       line-height: 1.9;
     }
 
-    .project-note {
+    .stage-list {
+      display: grid;
+      gap: 9px;
+      margin: 12px 0 0;
+      padding-left: 18px;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 14px;
+    }
+
+    .problem-flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .problem-step {
+      padding: 14px;
+      border-top: 3px solid var(--blue);
+      border-radius: 7px;
+      background: var(--blue-soft);
+      color: #394962;
+      font-size: 14px;
+    }
+
+    .problem-step strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--navy);
+    }
+
+    .problem-step code {
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: 700;
+      color: var(--navy);
     }
 
     .evidence-gallery {
@@ -525,7 +595,6 @@
     .evidence-item {
       display: block;
       overflow: hidden;
-      margin: 0;
       border: 1px solid var(--line);
       border-radius: 9px;
       background: #fff;
@@ -556,89 +625,56 @@
       font-weight: 700;
     }
 
-    .stage-list {
+    .skills-grid {
       display: grid;
-      gap: 9px;
-      margin: 12px 0 0;
-      padding-left: 18px;
-      color: var(--muted);
-      font-size: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
     }
 
-    .debug-flow {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .debug-step {
-      padding: 12px 14px;
-      border-left: 3px solid var(--blue);
-      background: var(--blue-soft);
-      color: #394962;
-      font-size: 14px;
-    }
-
-    .debug-step code {
-      font-family: inherit;
-      font-size: inherit;
-      font-weight: 700;
-      color: var(--navy);
-    }
-
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-    }
-
-    .tag-list span {
-      padding: 5px 8px;
-      border-radius: 999px;
-      color: #225ca9;
-      background: var(--blue-soft);
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .fit-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-    }
-
-    .fit-card {
-      padding: 21px;
+    .skill-card {
+      padding: 22px;
       border: 1px solid var(--line);
       border-radius: 10px;
       background: #fff;
     }
 
-    .fit-card .index {
-      display: block;
-      color: #667085;
-      font-size: 12px;
-      font-weight: 700;
+    .skill-card-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 14px;
     }
 
-    .fit-card small {
-      display: block;
-      margin-top: 7px;
-      color: var(--blue);
+    .skill-card h3 {
+      margin: 0;
+      color: var(--navy);
+      font-size: 18px;
+    }
+
+    .skill-level {
+      flex: none;
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: #225ca9;
+      background: var(--blue-soft);
       font-size: 11px;
       font-weight: 800;
     }
 
-    .fit-card h3 {
-      margin: 3px 0 7px;
-      font-size: 17px;
-    }
-
-    .fit-card p {
-      margin: 0;
+    .skill-card p {
+      margin: 9px 0 0;
       color: var(--muted);
       font-size: 14px;
     }
+
+    .skill-card ul {
+      margin: 12px 0 0;
+      padding-left: 18px;
+      color: #536074;
+      font-size: 13px;
+    }
+
+    .skill-card li + li { margin-top: 4px; }
 
     .education-grid {
       display: grid;
@@ -653,32 +689,11 @@
       background: #fff;
     }
 
-    .education-card.university {
-      grid-column: 1 / -1;
-    }
-
-    .education-card .period {
-      margin: 0 0 7px;
-      color: var(--blue);
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .education-card h3 {
-      margin: 0 0 8px;
-      font-size: 19px;
-    }
-
-    .education-card p {
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .education-card ul {
-      margin: 12px 0 0;
-      padding-left: 18px;
-      color: #556276;
-    }
+    .education-card.university { grid-column: 1 / -1; }
+    .education-card .period { margin: 0 0 7px; color: var(--blue); font-size: 12px; font-weight: 800; }
+    .education-card h3 { margin: 0 0 8px; font-size: 19px; }
+    .education-card p { margin: 0; color: var(--muted); }
+    .education-card ul { margin: 12px 0 0; padding-left: 18px; color: #556276; }
 
     .credentials-layout {
       display: grid;
@@ -691,10 +706,7 @@
       border-top: 3px solid var(--navy);
     }
 
-    .credential-group h3 {
-      margin: 0 0 10px;
-      font-size: 17px;
-    }
+    .credential-group h3 { margin: 0 0 10px; font-size: 17px; }
 
     .credential-list {
       margin: 0;
@@ -711,15 +723,8 @@
       border-bottom: 1px solid var(--line);
     }
 
-    .credential-list strong {
-      font-size: 15px;
-    }
-
-    .credential-list span {
-      color: var(--muted);
-      font-size: 13px;
-      text-align: right;
-    }
+    .credential-list strong { font-size: 15px; }
+    .credential-list span { color: var(--muted); font-size: 13px; text-align: right; }
 
     .credential-evidence-heading {
       margin: 34px 0 14px;
@@ -766,9 +771,7 @@
     }
 
     .credential-evidence-copy strong,
-    .credential-evidence-copy small {
-      display: block;
-    }
+    .credential-evidence-copy small { display: block; }
 
     .credential-evidence-copy strong {
       color: var(--navy);
@@ -796,21 +799,9 @@
       gap: 28px;
     }
 
-    .contact h2 {
-      margin: 0 0 6px;
-      font-size: clamp(24px, 3vw, 32px);
-    }
-
-    .contact p {
-      margin: 0;
-      color: #bac9da;
-    }
-
-    .contact .button {
-      color: var(--navy);
-      background: #fff;
-      white-space: nowrap;
-    }
+    .contact h2 { margin: 0 0 6px; font-size: clamp(24px, 3vw, 32px); }
+    .contact p { margin: 0; color: #bac9da; }
+    .contact .button { color: var(--navy); background: #fff; white-space: nowrap; }
 
     .site-footer {
       padding: 18px 0;
@@ -826,73 +817,28 @@
     }
 
     @media(max-width:900px) {
-      .desktop-nav {
-        display: none;
-      }
-
-      .menu-toggle {
-        display: block;
-      }
-
-      .mobile-nav.open {
-        display: block;
-      }
+      .desktop-nav { display: none; }
+      .menu-toggle { display: block; }
+      .mobile-nav.open { display: block; }
 
       .hero-layout,
-      .fit-grid,
+      .skills-grid,
       .education-grid,
       .credentials-layout {
         grid-template-columns: 1fr;
       }
 
-      .credential-evidence-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .hero {
-        padding-top: 62px;
-      }
-
-      .summary-panel {
-        max-width: 620px;
-      }
-
-      .project-header {
-        grid-template-columns: 1fr;
-      }
-
-      .project-award {
-        justify-self: start;
-      }
-
-      .project-metrics {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .project-metric:nth-child(3) {
-        border-left: 0;
-        border-top: 1px solid var(--line);
-      }
-
-      .project-metric:nth-child(4) {
-        border-top: 1px solid var(--line);
-      }
-
-      .project-detail-inner {
-        grid-template-columns: 1fr;
-      }
-
-      .detail-block.wide {
-        grid-column: auto;
-      }
-
-      .evidence-gallery {
-        grid-template-columns: 1fr;
-      }
-
-      .education-card.university {
-        grid-column: auto;
-      }
+      .summary-panel { max-width: 620px; }
+      .project-header { grid-template-columns: 1fr; }
+      .project-badge { justify-self: start; }
+      .results-grid { grid-template-columns: repeat(2, 1fr); }
+      .artifact-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .project-detail-inner { grid-template-columns: 1fr; }
+      .detail-block.wide { grid-column: auto; }
+      .problem-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .evidence-gallery { grid-template-columns: 1fr; }
+      .education-card.university { grid-column: auto; }
+      .credential-evidence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
       .project-footer,
       .contact-inner {
@@ -902,85 +848,36 @@
     }
 
     @media(max-width:600px) {
-      .container {
-        width: min(var(--max), calc(100% - 28px));
-      }
-
-      .section {
-        padding: 62px 0;
-      }
-
-      .hero h1 {
-        font-size: 39px;
-      }
-
-      .hero h1 span {
-        font-size: 27px;
-      }
+      .container { width: min(var(--max), calc(100% - 28px)); }
+      .section { padding: 62px 0; }
+      .hero { padding-top: 62px; }
+      .hero h1 { font-size: 39px; }
+      .hero h1 span { font-size: 27px; }
 
       .project-header,
       .project-intro,
+      .artifact-section,
       .project-footer {
         padding-left: 21px;
         padding-right: 21px;
       }
 
-      .project-details {
-        padding: 0 21px;
-      }
-
-      .project-details > div {
-        grid-template-columns: 1fr;
-        gap: 4px;
-      }
-
-      .project-metrics {
-        grid-template-columns: 1fr;
-      }
-
-      .project-metric {
-        border-left: 0;
-        border-top: 1px solid var(--line);
-      }
-
-      .project-metric:first-child {
-        border-top: 0;
-      }
-
-      .project-detail-inner {
-        padding-left: 21px;
-        padding-right: 21px;
-      }
-
-      .credential-list li {
-        grid-template-columns: 1fr;
-        gap: 2px;
-      }
-
-      .credential-list span {
-        text-align: left;
-      }
-
-      .footer-inner {
-        flex-direction: column;
-        gap: 3px;
-      }
-    }
-
-    @media (max-width: 620px) {
-      .credential-evidence-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .credential-evidence-card {
-        grid-template-rows: 340px auto;
-      }
+      .project-summary { padding-left: 21px; padding-right: 21px; }
+      .project-summary > div { grid-template-columns: 1fr; gap: 3px; }
+      .key-results { margin-left: 21px; margin-right: 21px; }
+      .results-grid,
+      .artifact-grid,
+      .problem-flow { grid-template-columns: 1fr; }
+      .project-detail-inner { padding-left: 21px; padding-right: 21px; }
+      .credential-list li { grid-template-columns: 1fr; gap: 2px; }
+      .credential-list span { text-align: left; }
+      .credential-evidence-grid { grid-template-columns: 1fr; }
+      .credential-evidence-card { grid-template-rows: 340px auto; }
+      .footer-inner { flex-direction: column; gap: 3px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      html {
-        scroll-behavior: auto;
-      }
+      html { scroll-behavior: auto; }
     }
   </style>
 </head>
@@ -995,8 +892,8 @@
       </a>
 
       <nav class="desktop-nav" aria-label="주요 메뉴">
-        <a href="#projects">프로젝트</a>
-        <a href="#core-fit">직무 역량</a>
+        <a href="#projects">대표 프로젝트</a>
+        <a href="#skills">기술 경험</a>
         <a href="#education">학력·교육</a>
         <a href="#credentials">자격·수상</a>
       </nav>
@@ -1005,8 +902,8 @@
     </div>
 
     <nav id="mobile-menu" class="container mobile-nav" aria-label="모바일 메뉴">
-      <a href="#projects">프로젝트</a>
-      <a href="#core-fit">직무 역량</a>
+      <a href="#projects">대표 프로젝트</a>
+      <a href="#skills">기술 경험</a>
       <a href="#education">학력·교육</a>
       <a href="#credentials">자격·수상</a>
     </nav>
@@ -1018,7 +915,8 @@
         <div>
           <p class="eyebrow">Vehicle Embedded SW Portfolio</p>
           <h1>조정빈<span>Vehicle Embedded SW Engineer</span></h1>
-          <p class="hero-copy">국민대학교 자동차IT융합학과에서 자동차·전자·소프트웨어를 학습하고, AURIX 기반 Embedded SW 구현과 CANoe/CAPL 기반 차량 SW 검증을 수행했습니다.</p>
+          <p class="hero-copy">국민대학교 자동차IT융합학과에서 자동차·전자·소프트웨어를 학습하고, AURIX 기반 ECU 기능 구현과 CANoe/CAPL 기반 차량 SW 검증을 수행했습니다.</p>
+          <p class="hero-focus">대표 증거: OTA Bootloader 구현 · 요구사양 기반 ECU 검증 · Trace32/CAN Trace 원인 분석</p>
           <div class="hero-actions">
             <a class="button button-primary" href="#projects">대표 프로젝트</a>
             <a class="button button-secondary" href="https://github.com/jb-cho55" target="_blank" rel="noreferrer">GitHub</a>
@@ -1033,8 +931,8 @@
               <span>자동차·전자·소프트웨어 융합 전공</span>
             </li>
             <li>
-              <strong>ISTQB CTFL</strong>
-              <span>Software Testing Foundation Level</span>
+              <strong>ISTQB CTFL · 정보처리기사</strong>
+              <span>테스트 기초와 소프트웨어 공학 기반</span>
             </li>
             <li>
               <strong>Black Box Testing 프로젝트 우수상</strong>
@@ -1048,98 +946,280 @@
     <section id="projects" class="section section-soft">
       <div class="container">
         <div class="section-heading">
-          <p class="section-kicker">PROJECT</p>
+          <p class="section-kicker">FEATURED CASE STUDIES</p>
           <h2>대표 프로젝트</h2>
-          <p>요구사양 기반 테스트 설계와 자동화 검증 경험, Embedded 플랫폼 구현과 문제 분석 경험을 직무 관점으로 정리했습니다.</p>
+          <p>개발 프로젝트와 검증 프로젝트를 각각 하나의 Case Study로 집중해, 목표·본인 역할·구현·검증·결과와 확인 가능한 산출물을 한 흐름으로 정리했습니다.</p>
         </div>
 
         <div class="projects-stack">
-          <article class="project-card">
+          <article class="project-card" id="bootloader-project">
             <header class="project-header">
               <div>
-                <p class="project-label">PROJECT 01 · VEHICLE SW TESTING</p>
-                <h3>CANoe/CAPL 기반 차량 ECU<br>IVS Black Box Testing</h3>
+                <p class="project-label">PROJECT 01 · EMBEDDED SW DEVELOPMENT</p>
+                <h3>OTA를 위한 Bootloader 설계 및<br>SW Binary 위변조 감지</h3>
               </div>
-              <span class="project-award">Black Box Testing 프로젝트 우수상</span>
+              <span class="project-badge">개인 프로젝트 · 개발 중심</span>
             </header>
 
             <div class="project-intro">
-              <p>차량 ECU의 Fault Detection·Recovery·Clear 요구사양을 테스트 조건과 판정 기준으로 구체화하고, 수동 시험과 CAPL 자동화 시험을 통해 요구사양 기반 시험을 수행했습니다.</p>
+              <p>Infineon AURIX TC234LP 기반 ECU에서 업데이트 실패와 Binary 변경 상황에도 기존 애플리케이션을 보호하도록 UDS 리프로그래밍, Backup·Restore, SHA-256 무결성 검사를 연결했습니다.</p>
             </div>
 
-            <div class="project-metrics" aria-label="Black Box Testing 프로젝트 핵심 결과">
-              <div class="project-metric">
-                <strong>정적 결함 4건</strong>
-                <span>요구사양·Signal 정의 불일치 확인</span>
-              </div>
-              <div class="project-metric">
-                <strong>동적 동작 결함 검출</strong>
-                <span>Detection·Recovery·Clear 조건 검증</span>
-              </div>
-              <div class="project-metric">
-                <strong>CAPL 테스트 자동화</strong>
-                <span>반복 시험과 회귀 테스트 수행</span>
-              </div>
-              <div class="project-metric">
-                <strong>프로젝트 우수상</strong>
-                <span>검증 수행 결과와 결함 분석 인정</span>
-              </div>
-            </div>
-
-            <dl class="project-details">
+            <dl class="project-summary" aria-label="OTA Bootloader 5줄 요약">
               <div>
-                <dt>프로젝트 목표</dt>
-                <dd>차량 ECU의 Fault Detection·Recovery·Clear 요구사양을 정량 기준으로 검증했습니다.</dd>
+                <dt>목표</dt>
+                <dd>불완전하거나 변경된 업데이트 이미지로의 부팅을 방지하고 정상 애플리케이션 복구 경로를 구성했습니다.</dd>
               </div>
               <div>
-                <dt>담당 역할</dt>
-                <dd>요구사양 분석, 테스트 케이스 설계, CANdb 작성, CANoe 환경 구성, CAPL 자동화, 결함 분석 및 문서화를 수행했습니다.</dd>
+                <dt>역할</dt>
+                <dd>개인 프로젝트로 메모리 영역과 진단 절차 설계, Embedded C 구현, Flash 제어, Trace32 디버깅을 전담했습니다.</dd>
               </div>
               <div>
-                <dt>수행 내용</dt>
-                <dd>전제조건·입력·기대 결과·판정 기준을 테스트 케이스로 전환하고, CAN Trace와 Signal 상태를 비교해 결함 발생 조건을 분석했습니다.</dd>
+                <dt>구현</dt>
+                <dd>UDS 0x10·0x27·0x34·0x36·0x37, Application Backup·Restore, SHA-256 비교와 실패 정책을 구현했습니다.</dd>
               </div>
               <div>
-                <dt>주요 성과</dt>
-                <dd>정적 결함 4건과 동적 결함 11건을 식별하고 재현 조건, 실제 결과, 영향도와 개선 방향을 문서화했습니다.</dd>
+                <dt>검증</dt>
+                <dd>정상 다운로드, 전송 순서 오류, 무결성 불일치, 복구 경로와 양방향 Flash Write를 시나리오별로 확인했습니다.</dd>
+              </div>
+              <div>
+                <dt>결과</dt>
+                <dd>Memory Alignment Trap의 원인을 4바이트 정렬 조건으로 특정하고 수정 후 Application→Backup→Application 복구 흐름을 재검증했습니다.</dd>
               </div>
             </dl>
 
+            <section class="key-results" aria-label="OTA Bootloader Key Results">
+              <h4>KEY RESULTS</h4>
+              <div class="results-grid">
+                <div class="result-card">
+                  <strong>UDS 7개 서비스 흐름</strong>
+                  <span>Session·Security·Download·Reset 연계</span>
+                </div>
+                <div class="result-card">
+                  <strong>Backup·Restore</strong>
+                  <span>Primary와 Backup 영역 간 복구 경로</span>
+                </div>
+                <div class="result-card">
+                  <strong>SHA-256</strong>
+                  <span>Application Binary 무결성 판정</span>
+                </div>
+                <div class="result-card">
+                  <strong>Trap 원인 해결</strong>
+                  <span>Trace32 기반 4바이트 정렬 수정</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="artifact-section" aria-label="OTA Bootloader 산출물">
+              <h4>산출물</h4>
+              <div class="artifact-grid">
+                <a class="artifact-item" href="#bootloader-implementation">
+                  <strong>CODE</strong>
+                  <span>UDS·Flash·Backup·Restore 핵심 구현 범위</span>
+                </a>
+                <a class="artifact-item" href="#bootloader-validation">
+                  <strong>TEST</strong>
+                  <span>정상·실패·복구 검증 시나리오</span>
+                </a>
+                <a class="artifact-item" href="#bootloader-flow">
+                  <strong>DOCUMENT</strong>
+                  <span>시스템 구조와 리프로그래밍 절차</span>
+                </a>
+                <a class="artifact-item" href="#bootloader-debug">
+                  <strong>DEMO</strong>
+                  <span>Trace32 기반 Trap 분석 과정</span>
+                </a>
+                <a class="artifact-item" href="assets/evidence/ivs_completion.pdf" target="_blank" rel="noreferrer">
+                  <strong>EVIDENCE</strong>
+                  <span>IVS 차량 SW 교육 수료 증빙</span>
+                </a>
+              </div>
+            </section>
+
             <footer class="project-footer">
-              <div class="tag-list" aria-label="기술 스택">
+              <div class="tag-list" aria-label="OTA Bootloader 사용 기술">
+                <span>Embedded C</span>
+                <span>AURIX TC234LP</span>
+                <span>CAN·ISO-TP</span>
+                <span>UDS</span>
+                <span>MCAL</span>
+                <span>PFlash</span>
+                <span>SHA-256</span>
+                <span>Trace32</span>
+              </div>
+              <button class="project-detail-toggle" type="button" aria-expanded="false" aria-controls="bootloader-details">프로젝트 상세 보기</button>
+            </footer>
+
+            <div id="bootloader-details" class="project-detail-region" hidden>
+              <div class="project-detail-inner">
+                <article id="bootloader-flow" class="detail-block wide">
+                  <h4>시스템 구조와 리프로그래밍 흐름</h4>
+                  <p class="flow-line">Tester → CAN·ISO-TP → BswCom → BswDcm → RTE → ECU Abstraction → MCAL → PFlash·DFlash</p>
+                  <p class="flow-line">Programming Session → SecurityAccess → Erase·Backup → RequestDownload(0x34) → TransferData(0x36) → RequestTransferExit(0x37) → SHA-256 확인 → ECUReset</p>
+                </article>
+
+                <article id="bootloader-implementation" class="detail-block">
+                  <h4>핵심 구현</h4>
+                  <ul class="stage-list">
+                    <li>Application Primary를 Backup 영역으로 복사</li>
+                    <li>Primary Erase 후 신규 SW Binary 기록</li>
+                    <li><code>valid pattern</code>과 SHA-256 결과로 실행 가능 여부 판정</li>
+                    <li>검사 실패 시 Backup을 Primary로 복구</li>
+                    <li>TransferData의 Block Sequence와 재시도 실패 정책 처리</li>
+                  </ul>
+                </article>
+
+                <article id="bootloader-validation" class="detail-block">
+                  <h4>검증 범위</h4>
+                  <ul class="stage-list">
+                    <li>정상 UDS 다운로드 및 TransferExit 완료</li>
+                    <li>Block Sequence 불일치와 전송 중단 처리</li>
+                    <li>변조 Binary의 SHA-256 불일치 판정</li>
+                    <li>Application 무효 시 Backup Restore 수행</li>
+                    <li>Reset 이후 실행 경로와 저장 데이터 확인</li>
+                  </ul>
+                </article>
+
+                <article id="bootloader-debug" class="detail-block wide">
+                  <h4>대표 문제 해결 — Memory Alignment Error</h4>
+                  <div class="problem-flow">
+                    <div class="problem-step">
+                      <strong>증상</strong>
+                      <code>FlsLoader_Write</code> 호출 중 Trap이 발생해 Backup·Restore가 중단됐습니다.
+                    </div>
+                    <div class="problem-step">
+                      <strong>원인 분석</strong>
+                      Trace32의 Trap 정보와 함수 인수를 추적해 source buffer의 정렬 조건을 점검했습니다.
+                    </div>
+                    <div class="problem-step">
+                      <strong>수정</strong>
+                      저장 버퍼를 <code>uint32</code> 배열로 변경하고 바이트 처리는 <code>uint8*</code>로 참조해 4바이트 정렬을 보장했습니다.
+                    </div>
+                    <div class="problem-step">
+                      <strong>재검증</strong>
+                      Application→Backup과 Backup→Application 양방향 Write·Read 및 SHA-256 판정을 다시 수행했습니다.
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card" id="black-box-project">
+            <header class="project-header">
+              <div>
+                <p class="project-label">PROJECT 02 · VEHICLE SW VERIFICATION</p>
+                <h3>CANoe/CAPL 기반 차량 ECU<br>IVS Black Box Validation</h3>
+              </div>
+              <span class="project-badge">프로젝트 우수상 · 검증 중심</span>
+            </header>
+
+            <div class="project-intro">
+              <p>차량 ECU의 Fault Detection·Recovery·Clear 요구사양을 테스트 가능한 조건과 판정 기준으로 전환하고, CANoe/CAPL 기반 수동·자동화 시험으로 결함을 재현하고 문서화했습니다.</p>
+            </div>
+
+            <dl class="project-summary" aria-label="Black Box Validation 5줄 요약">
+              <div>
+                <dt>목표</dt>
+                <dd>Fault 상태 전이의 경계값, 선행 조건과 시간 요구사항을 정량 기준으로 검증했습니다.</dd>
+              </div>
+              <div>
+                <dt>역할</dt>
+                <dd>요구사양 분석, 테스트 케이스 설계, CANdb·CANoe 환경 구성, CAPL 자동화, Trace 분석과 결함 문서화를 수행했습니다.</dd>
+              </div>
+              <div>
+                <dt>구현</dt>
+                <dd>전제조건·입력·기대 결과·판정 기준을 CAPL 시나리오로 구현하고 Fresh Frame 기반 타이밍 측정 유틸리티를 구성했습니다.</dd>
+              </div>
+              <div>
+                <dt>검증</dt>
+                <dd>정적 검토와 동적 시험을 병행해 Detection·Recovery·Clear, 경계값, IGN Cycle과 메시지 Timing을 확인했습니다.</dd>
+              </div>
+              <div>
+                <dt>결과</dt>
+                <dd>정적 결함 4건과 동적 결함 11건을 식별하고 재현 조건·실제 결과·영향도·개선 방향을 정리해 프로젝트 우수상을 받았습니다.</dd>
+              </div>
+            </dl>
+
+            <section class="key-results" aria-label="Black Box Validation Key Results">
+              <h4>KEY RESULTS</h4>
+              <div class="results-grid">
+                <div class="result-card">
+                  <strong>정적 결함 4건</strong>
+                  <span>Signal Length·Value·Description 불일치</span>
+                </div>
+                <div class="result-card">
+                  <strong>동적 결함 11건</strong>
+                  <span>경계값·선행 조건·Recovery·Timing</span>
+                </div>
+                <div class="result-card">
+                  <strong>CAPL 회귀 테스트</strong>
+                  <span>반복 가능한 자동화 시험 구성</span>
+                </div>
+                <div class="result-card">
+                  <strong>프로젝트 우수상</strong>
+                  <span>검증 수행과 결함 분석 결과 인정</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="artifact-section" aria-label="Black Box Validation 산출물">
+              <h4>산출물</h4>
+              <div class="artifact-grid">
+                <a class="artifact-item" href="#black-box-code">
+                  <strong>CODE</strong>
+                  <span>CAPL 자동화와 Fresh Frame 유틸리티</span>
+                </a>
+                <a class="artifact-item" href="#black-box-test">
+                  <strong>TEST</strong>
+                  <span>요구사항 기반 Test Case와 판정 결과</span>
+                </a>
+                <a class="artifact-item" href="#black-box-document">
+                  <strong>DOCUMENT</strong>
+                  <span>결함 재현 조건·영향도·개선 방향</span>
+                </a>
+                <a class="artifact-item" href="#black-box-demo">
+                  <strong>DEMO</strong>
+                  <span>CANoe Network·Panel·Trace 실행 화면</span>
+                </a>
+                <a class="artifact-item" href="assets/evidence/black_box_award.pdf" target="_blank" rel="noreferrer">
+                  <strong>EVIDENCE</strong>
+                  <span>Black Box Testing 프로젝트 우수상</span>
+                </a>
+              </div>
+            </section>
+
+            <footer class="project-footer">
+              <div class="tag-list" aria-label="Black Box Validation 사용 기술">
                 <span>CANoe</span>
                 <span>CAPL</span>
                 <span>CANdb</span>
                 <span>CAN</span>
                 <span>UDS</span>
                 <span>Black Box Testing</span>
+                <span>Trace Analysis</span>
               </div>
-              <button
-                class="project-detail-toggle"
-                type="button"
-                aria-expanded="false"
-                aria-controls="black-box-details"
-              >프로젝트 상세 보기</button>
+              <button class="project-detail-toggle" type="button" aria-expanded="false" aria-controls="black-box-details">프로젝트 상세 보기</button>
             </footer>
 
             <div id="black-box-details" class="project-detail-region" hidden>
               <div class="project-detail-inner">
-                <article class="detail-block wide">
+                <article id="black-box-test" class="detail-block wide">
                   <h4>테스트 수행 흐름</h4>
-                  <p class="flow-line">요구사양 분석 → CANoe·CANdb·Panel 환경 구성 → 수동 시험·CAPL 자동화 시험 → 정적·동적 시험 → 결함 분석 및 개선 방향 제시</p>
+                  <p class="flow-line">요구사양 분석 → CANdb·CANoe·Panel 환경 구성 → 수동 시험 → CAPL 자동화 시험 → 정적·동적 검증 → 결함 분석 및 회귀 테스트</p>
                 </article>
 
-                <article class="detail-block">
-                  <h4>수행 범위</h4>
+                <article id="black-box-code" class="detail-block">
+                  <h4>자동화 구현 범위</h4>
                   <ul>
-                    <li>CAN·UDS 요구사양과 Fault 상태 전이 조건 분석</li>
-                    <li>CANdb 작성 및 CANoe Network Node 구성</li>
-                    <li>CAPL 테스트 작성, Panel 입력 제어, Trace 분석</li>
-                    <li>기대 결과·실제 결과·재현 조건·영향도 문서화</li>
+                    <li>Detection·Recovery·Clear 테스트 시나리오</li>
+                    <li>경계값과 선행 조건 조합 입력</li>
+                    <li>CAN Signal·System Variable 기반 판정</li>
+                    <li>Fresh Frame 확인 후 타이머 시작 유틸리티</li>
                   </ul>
                 </article>
 
-                <article class="detail-block">
+                <article id="black-box-document" class="detail-block">
                   <h4>대표 검출 결과</h4>
                   <ul>
                     <li>정적 결함 4건: Signal Length, Value, Description 불일치</li>
@@ -1150,6 +1230,28 @@
                 </article>
 
                 <article class="detail-block wide">
+                  <h4>대표 문제 해결 — Fresh Frame 동기화</h4>
+                  <div class="problem-flow">
+                    <div class="problem-step">
+                      <strong>증상</strong>
+                      메시지 송신 방식 변경 후 이전 프레임을 기준으로 타이머가 시작돼 Detection 시점 판정이 흔들렸습니다.
+                    </div>
+                    <div class="problem-step">
+                      <strong>원인 분석</strong>
+                      CAN Trace Timestamp와 CAPL Flag 전환 시점을 비교해 최신 Reference Frame 수신 전 측정이 시작됨을 확인했습니다.
+                    </div>
+                    <div class="problem-step">
+                      <strong>수정</strong>
+                      <code>waitBattReference</code>·<code>waitIGNReference</code>에서 Fresh Frame을 확인한 뒤 1ms 타이머를 시작하도록 변경했습니다.
+                    </div>
+                    <div class="problem-step">
+                      <strong>재검증</strong>
+                      경계값·Timing 시나리오를 CAPL 회귀 테스트로 반복 실행해 동일 판정 기준이 유지되는지 확인했습니다.
+                    </div>
+                  </div>
+                </article>
+
+                <article id="black-box-demo" class="detail-block wide">
                   <h4>실제 수행 환경 및 Test Result</h4>
                   <div class="evidence-gallery">
                     <a class="evidence-item" href="assets/images/black-box/network_setup.png" target="_blank" rel="noreferrer">
@@ -1177,160 +1279,89 @@
               </div>
             </div>
           </article>
-
-          <article class="project-card">
-            <header class="project-header">
-              <div>
-                <p class="project-label">PROJECT 02 · EMBEDDED PLATFORM</p>
-                <h3>OTA를 위한 Bootloader 설계 및<br>SW Binary 위변조 감지</h3>
-              </div>
-              <span class="project-award">개인 프로젝트</span>
-            </header>
-
-            <div class="project-intro">
-              <p>Infineon AURIX TC234LP 기반 ECU에서 OTA 업데이트 실패나 Binary 변경이 발생했을 때 기존 애플리케이션을 보호하고 복구할 수 있도록 UDS 리프로그래밍과 무결성 검사 흐름을 설계했습니다.</p>
-            </div>
-
-            <div class="project-metrics" aria-label="OTA Bootloader 프로젝트 핵심 결과">
-              <div class="project-metric">
-                <strong>UDS 리프로그래밍</strong>
-                <span>0x34·0x36·0x37 다운로드 흐름</span>
-              </div>
-              <div class="project-metric">
-                <strong>Backup·Restore</strong>
-                <span>PFlash 애플리케이션 보호·복구</span>
-              </div>
-              <div class="project-metric">
-                <strong>SHA-256</strong>
-                <span>SW Binary 무결성 검사</span>
-              </div>
-              <div class="project-metric">
-                <strong>Trace32 원인 분석</strong>
-                <span>Flash Loader 정렬 Trap 분석</span>
-              </div>
-            </div>
-
-            <dl class="project-details">
-              <div>
-                <dt>프로젝트 목표</dt>
-                <dd>불완전하거나 변경된 업데이트 이미지로의 부팅을 방지하고 기존 애플리케이션 복구 경로를 구성했습니다.</dd>
-              </div>
-              <div>
-                <dt>담당 역할</dt>
-                <dd>메모리 경계와 UDS 절차 설계, Flash 관리, Backup·Restore, SHA-256 무결성 검사와 Trace32 디버깅을 수행했습니다.</dd>
-              </div>
-              <div>
-                <dt>수행 내용</dt>
-                <dd>Programming Session과 SecurityAccess 이후 Erase·Backup, RequestDownload, TransferData, TransferExit, 무결성 확인, ECUReset을 연결했습니다.</dd>
-              </div>
-              <div>
-                <dt>주요 성과</dt>
-                <dd>Trace32로 source buffer 정렬 문제를 특정하고 4바이트 정렬을 보장하는 버퍼 구조로 개선했습니다.</dd>
-              </div>
-            </dl>
-
-            <footer class="project-footer">
-              <div class="tag-list" aria-label="기술 스택">
-                <span>C</span>
-                <span>AURIX</span>
-                <span>CAN·ISO-TP</span>
-                <span>UDS</span>
-                <span>MCAL</span>
-                <span>PFlash</span>
-                <span>SHA-256</span>
-                <span>Trace32</span>
-              </div>
-              <button
-                class="project-detail-toggle"
-                type="button"
-                aria-expanded="false"
-                aria-controls="bootloader-details"
-              >프로젝트 상세 보기</button>
-            </footer>
-
-            <div id="bootloader-details" class="project-detail-region" hidden>
-              <div class="project-detail-inner">
-                <article class="detail-block wide">
-                  <h4>시스템 구조와 리프로그래밍 흐름</h4>
-                  <p class="flow-line">Tester → CAN·ISO-TP → BswCom → BswDcm → RTE → ECU 추상화 → MCAL → PFlash·DFlash</p>
-                  <p class="flow-line">Programming Session → SecurityAccess → Erase·Backup → RequestDownload(0x34) → TransferData(0x36) → RequestTransferExit(0x37) → SHA-256 확인 → ECUReset</p>
-                </article>
-
-                <article class="detail-block">
-                  <h4>개발 단계 1 — 애플리케이션 보호 및 복구</h4>
-                  <p>OTA 업데이트 중 전송 중단이나 Flash 쓰기 실패가 발생해도 기존 애플리케이션을 보호할 수 있도록 Backup·Erase·Restore 흐름을 구현했습니다.</p>
-                  <ul class="stage-list">
-                    <li>Application Primary를 Backup 영역으로 복사</li>
-                    <li>Primary 영역 Erase 후 신규 SW Binary 기록</li>
-                    <li>부팅 시 <code>valid pattern</code>으로 애플리케이션 유효성 확인</li>
-                    <li>유효하지 않으면 Backup을 Primary로 복구</li>
-                  </ul>
-                </article>
-
-                <article class="detail-block">
-                  <h4>개발 단계 2 — SW Binary 무결성 검증</h4>
-                  <p>Application 데이터의 SHA-256 계산값과 서명 영역의 32바이트 저장값을 비교해 Binary 변경 여부를 확인했습니다. 이후 교육용 고정 키와 Application 데이터를 결합한 SHA-256 검사 흐름으로 확장했습니다.</p>
-                  <ul class="stage-list">
-                    <li>Application Binary의 SHA-256 계산</li>
-                    <li>계산값과 32바이트 저장값 비교</li>
-                    <li>교육용 고정 키와 Application 데이터를 결합한 검사</li>
-                    <li>검사 결과에 따라 실행 또는 복구 경로 분기</li>
-                  </ul>
-                </article>
-
-                <article class="detail-block wide">
-                  <h4>대표 문제 해결 — Memory Alignment Error</h4>
-                  <p>프로젝트 진행 중 Backup·Restore 기능을 구현하면서 Flash 쓰기 경로에서 Memory Alignment Error로 인한 Trap을 발견해 디버깅했습니다.</p>
-                  <div class="debug-flow">
-                    <div class="debug-step"><strong>문제 발생</strong> — <code>FlsLoader_Write</code> 호출 과정에서 Backup·Restore가 중단되는 Trap 발생</div>
-                    <div class="debug-step"><strong>원인 추적</strong> — Trace32의 Trap 관련 레지스터와 Flash Loader 인수를 확인</div>
-                    <div class="debug-step"><strong>원인 확인</strong> — <code>uint8</code> source buffer가 Flash Loader의 4바이트 정렬 조건을 보장하지 않음</div>
-                    <div class="debug-step"><strong>수정</strong> — 저장 버퍼를 <code>uint32</code> 배열로 변경하고 바이트 처리는 <code>uint8*</code>로 참조</div>
-                    <div class="debug-step"><strong>적용 범위</strong> — Application → Backup과 Backup → Application 경로에 동일하게 적용</div>
-                  </div>
-                </article>
-              </div>
-            </div>
-          </article>
         </div>
       </div>
     </section>
 
-    <section id="core-fit" class="section">
+    <section id="skills" class="section">
       <div class="container">
         <div class="section-heading center">
-          <p class="section-kicker">CORE COMPETENCIES</p>
-          <h2>직무 역량</h2>
-          <p>차량 SW 개발과 검증 프로젝트에서 수행한 설계·구현·테스트·문제 해결 역량을 중심으로 정리했습니다.</p>
+          <p class="section-kicker">APPLIED TECHNICAL EXPERIENCE</p>
+          <h2>기술 경험 수준</h2>
+          <p>도구 이름을 나열하기보다 실제로 수행한 범위와 결과를 기준으로 경험 수준을 구분했습니다.</p>
         </div>
 
-        <div class="fit-grid">
-          <article class="fit-card">
-            <span class="index">01</span>
-            <small>EMBEDDED IMPLEMENTATION</small>
-            <h3>Embedded C 기반 ECU 기능 구현</h3>
-            <p>AURIX 환경에서 UDS Bootloader, Flash Backup·Restore, SHA-256 무결성 검사 기능을 구현했습니다.</p>
+        <div class="skills-grid">
+          <article class="skill-card">
+            <div class="skill-card-header">
+              <h3>Embedded C · AURIX</h3>
+              <span class="skill-level">프로젝트 적용</span>
+            </div>
+            <p>AURIX TC234LP에서 UDS Bootloader, Flash Backup·Restore와 SHA-256 무결성 검사 기능을 구현했습니다.</p>
+            <ul>
+              <li>메모리 영역·정렬·Flash Write 제약 반영</li>
+              <li>MCAL 기반 PFlash 제어와 Reset 흐름 연결</li>
+            </ul>
           </article>
 
-          <article class="fit-card">
-            <span class="index">02</span>
-            <small>VEHICLE COMMUNICATION</small>
-            <h3>차량 통신 및 진단 프로토콜 활용</h3>
-            <p>CAN·ISO-TP·UDS 통신 흐름을 이해하고 진단 서비스와 ECU 리프로그래밍 절차에 적용했습니다.</p>
+          <article class="skill-card">
+            <div class="skill-card-header">
+              <h3>CAN · ISO-TP · UDS</h3>
+              <span class="skill-level">프로토콜 적용</span>
+            </div>
+            <p>차량 통신과 진단 흐름을 테스트 환경과 ECU 리프로그래밍 절차에 적용했습니다.</p>
+            <ul>
+              <li>SessionControl·SecurityAccess·Download 서비스 구현</li>
+              <li>CANdb Signal과 진단 메시지 기반 시험 설계</li>
+            </ul>
           </article>
 
-          <article class="fit-card">
-            <span class="index">03</span>
-            <small>TEST ENGINEERING</small>
-            <h3>요구사양 기반 테스트 설계·자동화</h3>
-            <p>요구사양을 테스트 조건과 판정 기준으로 구조화하고 CANoe/CAPL로 반복 시험을 자동화했습니다.</p>
+          <article class="skill-card">
+            <div class="skill-card-header">
+              <h3>CANoe · CAPL</h3>
+              <span class="skill-level">자동화 구현</span>
+            </div>
+            <p>CANoe Network·Panel·Test Module을 구성하고 요구사항 기반 반복 시험을 CAPL로 자동화했습니다.</p>
+            <ul>
+              <li>경계값·상태 전이·Timing Test Case 구현</li>
+              <li>Trace와 System Variable을 이용한 Pass/Fail 판정</li>
+            </ul>
           </article>
 
-          <article class="fit-card">
-            <span class="index">04</span>
-            <small>DEBUGGING &amp; ANALYSIS</small>
-            <h3>디버깅 및 결함 원인 분석</h3>
-            <p>CAN Trace와 Trace32를 활용해 통신 동작과 Memory Alignment 오류의 재현 조건과 원인을 분석했습니다.</p>
+          <article class="skill-card">
+            <div class="skill-card-header">
+              <h3>Trace32 · CAN Trace</h3>
+              <span class="skill-level">원인 분석</span>
+            </div>
+            <p>Trap 레지스터, 함수 인수와 메시지 Timestamp를 추적해 메모리 오류와 시험 동기화 문제의 원인을 좁혔습니다.</p>
+            <ul>
+              <li>Memory Alignment Error의 재현 조건과 수정 검증</li>
+              <li>Fresh Frame 기준 타이밍 측정 로직 개선</li>
+            </ul>
+          </article>
+
+          <article class="skill-card">
+            <div class="skill-card-header">
+              <h3>AUTOSAR Classic · MCAL</h3>
+              <span class="skill-level">교육·실습 적용</span>
+            </div>
+            <p>EB tresos와 AURIX 실습에서 MCAL 모듈의 설정과 동작 흐름을 학습하고 Bootloader 프로젝트의 Flash 제어에 적용했습니다.</p>
+            <ul>
+              <li>DIO·PORT·GPT·PWM·ADC·FLS·FEE·NvM 실습</li>
+              <li>BSW–RTE–ECU Abstraction–MCAL 계층 이해</li>
+            </ul>
+          </article>
+
+          <article class="skill-card">
+            <div class="skill-card-header">
+              <h3>Software Testing</h3>
+              <span class="skill-level">자격·프로젝트 적용</span>
+            </div>
+            <p>ISTQB CTFL 기반 테스트 설계 개념을 요구사항 분석, 경계값 시험, 결함 보고와 회귀 테스트에 적용했습니다.</p>
+            <ul>
+              <li>정적 검토와 Black Box 동적 시험 수행</li>
+              <li>기대 결과·실제 결과·영향도·재현 조건 문서화</li>
+            </ul>
           </article>
         </div>
       </div>
@@ -1358,7 +1389,7 @@
             <ul>
               <li>CAN·UDS·CANoe/CAPL 기반 차량 통신 및 테스트 자동화</li>
               <li>A-SPICE, AUTOSAR Classic, 정적·동적 검증</li>
-              <li>임베디드 C, AURIX, OTA Bootloader 프로젝트</li>
+              <li>Embedded C, AURIX, OTA Bootloader 프로젝트</li>
             </ul>
           </article>
 
@@ -1424,7 +1455,7 @@
             <span class="credential-evidence-copy"><strong>IVS 5기 모범상</strong><small>원본 PDF 보기</small></span>
           </a>
           <a class="credential-evidence-card" href="assets/evidence/information_processing_engineer.pdf" target="_blank" rel="noreferrer">
-            <img src="assets/evidence/thumbnails/information_processing_engineer.webp" alt="정보처리기사 국가기술자격증 원본 PDF 첫 페이지" loading="lazy">
+            <img src="assets/evidence/thumbnails/information_processing_engineer.webp" alt="정보처리기사 자격증 원본 PDF 첫 페이지" loading="lazy">
             <span class="credential-evidence-copy"><strong>정보처리기사</strong><small>원본 PDF 보기</small></span>
           </a>
           <a class="credential-evidence-card" href="assets/evidence/istqb_ctfl.pdf" target="_blank" rel="noreferrer">
@@ -1438,50 +1469,40 @@
     <section class="contact">
       <div class="container contact-inner">
         <div>
-          <h2>프로젝트 코드와 검증 문서를 확인해 주세요.</h2>
-          <p>비공개 저장소 링크 대신, 본 페이지에서 직접 수행 범위·문제 해결·검증 결과를 확인할 수 있도록 구성했습니다.</p>
+          <h2>Vehicle Embedded SW 개발과 검증을 연결하겠습니다.</h2>
+          <p>구현 결과를 테스트 가능한 기준으로 구조화하고, 재현 가능한 증거로 설명하는 엔지니어를 지향합니다.</p>
         </div>
-        <a class="button" href="https://github.com/jb-cho55" target="_blank" rel="noreferrer">GitHub 프로필</a>
+        <a class="button" href="https://github.com/jb-cho55" target="_blank" rel="noreferrer">GitHub Profile</a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <span>© <span id="year">2026</span> JEONGBIN CHO</span>
-      <a href="#hero">맨 위로</a>
+      <span>© 2026 JEONGBIN CHO</span>
+      <span>Vehicle Embedded SW Portfolio</span>
     </div>
   </footer>
 
   <script>
-    const toggle = document.querySelector(".menu-toggle");
-    const mobileMenu = document.querySelector(".mobile-nav");
+    const menuToggle = document.querySelector(".menu-toggle");
+    const mobileMenu = document.querySelector("#mobile-menu");
 
-    toggle.addEventListener("click", () => {
-      const open = mobileMenu.classList.toggle("open");
-      toggle.setAttribute("aria-expanded", String(open));
-    });
-
-    mobileMenu.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => {
-        mobileMenu.classList.remove("open");
-        toggle.setAttribute("aria-expanded", "false");
-      });
+    menuToggle.addEventListener("click", () => {
+      const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
+      menuToggle.setAttribute("aria-expanded", String(!isOpen));
+      mobileMenu.classList.toggle("open", !isOpen);
     });
 
     document.querySelectorAll(".project-detail-toggle").forEach((button) => {
       button.addEventListener("click", () => {
         const detail = document.getElementById(button.getAttribute("aria-controls"));
-        const willExpand = button.getAttribute("aria-expanded") !== "true";
-        const collapsedLabel = "프로젝트 상세" + " 보기";
-
-        button.setAttribute("aria-expanded", String(willExpand));
-        detail.hidden = !willExpand;
-        button.textContent = willExpand ? "상세 내용 접기" : collapsedLabel;
+        const isOpen = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!isOpen));
+        detail.hidden = isOpen;
+        button.textContent = isOpen ? "프로젝트 상세 보기" : "상세 내용 접기";
       });
     });
-
-    document.getElementById("year").textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
