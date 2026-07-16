@@ -1,0 +1,58 @@
+name: Diagnose GitHub Pages deployment
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+  pages: write
+
+jobs:
+  diagnose:
+    if: github.event.issue.title == '[diagnostic] GitHub Pages stale deployment cleanup'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Mark workflow start
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment "${{ github.event.issue.number }}" --body 'Hero copy cleanup workflow started.'
+
+      - name: Remove requested hero copy
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+          target = '          <p class="hero-focus">대표 증거: OTA Bootloader 구현 · 요구사양 기반 ECU 검증 · Trace32/CAN Trace 원인 분석</p>\n'
+          if text.count(target) != 1:
+              raise SystemExit(f'expected one target paragraph, found {text.count(target)}')
+          path.write_text(text.replace(target, ''), encoding='utf-8')
+          PY
+
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Publish cleanup
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          rm .github/workflows/diagnose-github-pages.yml
+          rm -f .github/workflows/remove-hero-focus-once.yml .github/hero-copy-cleanup.trigger
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html .github/workflows/diagnose-github-pages.yml
+          git add -A .github
+          git commit -m 'content: remove hero evidence line'
+          git push origin HEAD:main
+          gh issue comment "${{ github.event.issue.number }}" --body "Hero 문구 제거와 전체 테스트를 완료했습니다. Commit: $(git rev-parse HEAD)"
+          gh issue close "${{ github.event.issue.number }}" --reason completed
