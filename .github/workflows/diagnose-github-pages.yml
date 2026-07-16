@@ -7,11 +7,10 @@ on:
 permissions:
   contents: write
   issues: write
-  pages: write
 
 jobs:
   diagnose:
-    if: github.event.issue.title == '[diagnostic] GitHub Pages stale deployment cleanup'
+    if: github.event.issue.title == '[content] Apply hero copy removal'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -19,11 +18,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
-
-      - name: Mark workflow start
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh issue comment "${{ github.event.issue.number }}" --body 'Hero copy cleanup workflow started.'
 
       - name: Remove requested hero copy
         shell: bash
@@ -38,21 +32,18 @@ jobs:
           path.write_text(text.replace(target, ''), encoding='utf-8')
           PY
 
-      - name: Run tests
+      - name: Run portfolio tests
         run: python -m unittest discover -s tests -v
 
-      - name: Publish cleanup
+      - name: Publish index only
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          rm .github/workflows/diagnose-github-pages.yml
-          rm -f .github/workflows/remove-hero-focus-once.yml .github/hero-copy-cleanup.trigger
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html .github/workflows/diagnose-github-pages.yml
-          git add -A .github
+          git add index.html
           git commit -m 'content: remove hero evidence line'
           git push origin HEAD:main
-          gh issue comment "${{ github.event.issue.number }}" --body "Hero 문구 제거와 전체 테스트를 완료했습니다. Commit: $(git rev-parse HEAD)"
+          gh issue comment "${{ github.event.issue.number }}" --body "Hero 문구를 제거했고 전체 포트폴리오 테스트를 통과했습니다. Commit: $(git rev-parse HEAD)"
           gh issue close "${{ github.event.issue.number }}" --reason completed
