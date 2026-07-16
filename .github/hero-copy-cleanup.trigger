@@ -1,1 +1,0 @@
-remove hero focus copy
