@@ -1,16 +1,16 @@
 name: Remove hero focus copy once
 
 on:
-  issues:
-    types: [opened]
+  push:
+    branches: [main]
+    paths:
+      - .github/hero-copy-cleanup.trigger
 
 permissions:
   contents: write
-  issues: write
 
 jobs:
   remove-copy:
-    if: github.event.issue.title == '[content] Remove hero focus copy retry'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -41,23 +41,15 @@ jobs:
       - name: Verify requested copy is absent
         shell: bash
         run: |
-          if grep -Fq '대표 증거: OTA Bootloader 구현 · 요구사양 기반 ECU 검증 · Trace32/CAN Trace 원인 분석' index.html; then
-            echo 'Requested hero copy is still present.'
-            exit 1
-          fi
+          ! grep -Fq '대표 증거: OTA Bootloader 구현 · 요구사양 기반 ECU 검증 · Trace32/CAN Trace 원인 분석' index.html
 
-      - name: Remove temporary workflow and publish
-        env:
-          GH_TOKEN: ${{ github.token }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
+      - name: Remove temporary files and publish
         shell: bash
         run: |
           rm .github/workflows/remove-hero-focus-once.yml
+          rm .github/hero-copy-cleanup.trigger
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html .github/workflows/remove-hero-focus-once.yml
+          git add index.html .github/workflows/remove-hero-focus-once.yml .github/hero-copy-cleanup.trigger
           git commit -m 'content: remove hero evidence line'
           git push origin HEAD:main
-          commit_sha=$(git rev-parse HEAD)
-          gh issue comment "$ISSUE_NUMBER" --body "Hero 문구를 제거했고 전체 포트폴리오 테스트를 통과했습니다. 임시 워크플로도 함께 삭제했습니다. Commit: \`${commit_sha}\`"
-          gh issue close "$ISSUE_NUMBER" --reason completed
