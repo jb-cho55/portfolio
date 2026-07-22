@@ -157,7 +157,7 @@ class PortfolioContentTests(unittest.TestCase):
         self.assertIn("detail.hidden", self.html)
         self.assertIn("button.textContent", self.html)
 
-    def test_credentials_include_original_pdf_evidence(self):
+    def test_credentials_include_redacted_pdf_evidence(self):
         evidence = {
             "HL만도·HL클레무브 IVS 5기 수료증": "assets/evidence/ivs_completion.pdf",
             "Black Box Testing 프로젝트 우수상": "assets/evidence/black_box_award.pdf",
@@ -169,6 +169,11 @@ class PortfolioContentTests(unittest.TestCase):
             self.assertIn(label, self.html)
             self.assertIn(f'href="{path}"', self.html)
         self.assertEqual(self.html.count('class="credential-evidence-card"'), 5)
+
+    def test_credential_evidence_is_labeled_as_redacted(self):
+        self.assertIn("개인정보 보호를 위해 식별번호와 검증 코드를 마스킹했습니다.", self.html)
+        self.assertEqual(self.html.count("마스킹 증빙 보기"), 5)
+        self.assertNotIn("원본 PDF 보기", self.html)
 
     def test_credential_thumbnails_are_accessible(self):
         thumbnails = [

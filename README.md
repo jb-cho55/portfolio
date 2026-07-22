@@ -12,7 +12,7 @@ CANoe/CAPL 기반 테스트 설계·자동화 검증과 AURIX 기반 OTA Bootloa
 - **OTA Bootloader**  
   UDS 리프로그래밍, Flash Backup·Restore, SHA-256 무결성 검사, Memory Alignment Error 분석
 - **자격·수상 증빙**  
-  IVS 수료증, 프로젝트 우수상, 모범상, 정보처리기사, ISTQB CTFL 원본 PDF
+  IVS 수료증, 프로젝트 우수상, 모범상, 정보처리기사, ISTQB CTFL 개인정보 마스킹 증빙 PDF
 
 ## 저장소 구조
 
@@ -21,7 +21,7 @@ CANoe/CAPL 기반 테스트 설계·자동화 검증과 AURIX 기반 OTA Bootloa
 ├── index.html                    # 포트폴리오 페이지
 ├── assets/
 │   ├── images/black-box/         # Black Box Testing 실제 화면
-│   └── evidence/                 # 자격·수상 PDF와 썸네일
+│   └── evidence/                 # 개인정보 마스킹 자격·수상 PDF와 썸네일
 └── tests/test_portfolio.py       # 콘텐츠·접근성 회귀 테스트
 ```
 
@@ -43,4 +43,4 @@ python -m unittest discover -s tests -v
 
 ## 공개 범위
 
-프로젝트 원본 저장소와 소스 코드는 비공개로 유지합니다. 포트폴리오에는 공개 가능한 실제 수행 화면과 사용자가 공개를 승인한 원본 자격·수상 PDF만 포함합니다.
+프로젝트 원본 저장소와 소스 코드는 비공개로 유지합니다. 포트폴리오에는 공개 가능한 실제 수행 화면과 식별번호·검증 코드를 마스킹한 자격·수상 PDF만 포함합니다.
