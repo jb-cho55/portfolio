@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 760" role="img" aria-labelledby="memory-map-title memory-map-desc">
+<title id="memory-map-title">AURIX TC234LP Bootloader Memory Map</title>
+<desc id="memory-map-desc">Bootloader, interrupt and trap table, application primary, valid pattern, backup, and DFlash regions with actual addresses and backup restore arrows.</desc>
+<style>.t{font:700 18px Arial,sans-serif;fill:#0b1f3a}.s{font:14px Arial,sans-serif;fill:#45546a}.r{stroke:#0b1f3a;stroke-width:2;rx:10}.a{stroke:#216fe6;stroke-width:4;fill:none;marker-end:url(#m)}.label{font:700 14px Arial,sans-serif;fill:#216fe6}</style>
+<defs><marker id="m" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#216fe6"/></marker></defs>
+<text x="40" y="38" class="t">PFlash cached address space</text>
+<rect x="40" y="60" width="920" height="86" fill="#dcecff" class="r"/><text x="65" y="92" class="t">Bootloader User</text><text x="65" y="119" class="s">0x80000000–0x80025FFF · 152 KiB · RESET 0x80000020</text>
+<rect x="40" y="158" width="920" height="72" fill="#c8dcf5" class="r"/><text x="65" y="187" class="t">INTTAB + Trap Table</text><text x="65" y="213" class="s">0x80026000–0x80027FFF · INTTAB 0x80026000 · BTV 0x80027800</text>
+<rect x="40" y="260" width="920" height="116" fill="#e9f2ff" class="r"/><text x="65" y="296" class="t">Application Primary</text><text x="65" y="324" class="s">User: 0x80100000–0x8017DFFF · 504 KiB</text><text x="65" y="350" class="s">Application INTTAB: 0x8017E000–0x8017FFDF</text>
+<rect x="40" y="388" width="920" height="66" fill="#fff3c9" class="r"/><text x="65" y="416" class="t">Valid Pattern</text><text x="65" y="440" class="s">0x8017FFE0–0x8017FFFF · 32 B</text>
+<rect x="40" y="486" width="920" height="96" fill="#dff4e8" class="r"/><text x="65" y="520" class="t">Application Backup</text><text x="65" y="548" class="s">0x80180000–0x801FFFFF · 512 KiB</text>
+<path d="M740 360 C880 390 880 455 740 500" class="a"/><text x="755" y="421" class="label">EA_AppToBackup()</text>
+<path d="M260 500 C120 470 120 390 260 360" class="a"/><text x="85" y="421" class="label">EA_AppRestore()</text>
+<text x="40" y="632" class="t">DFlash</text>
+<rect x="40" y="650" width="430" height="72" fill="#f1f3f6" class="r"/><text x="60" y="679" class="t">Bank 0</text><text x="60" y="705" class="s">0xAF000000–0xAF01FFFF · 128 KiB</text>
+<rect x="530" y="650" width="430" height="72" fill="#f1f3f6" class="r"/><text x="550" y="679" class="t">Bank 1</text><text x="550" y="705" class="s">0xAF100000–0xAF103FFF · 16 KiB</text>
+</svg>
