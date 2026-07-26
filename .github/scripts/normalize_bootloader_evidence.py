@@ -7,10 +7,9 @@ def from_main(path: str) -> str:
     return subprocess.check_output(["git", "show", f"origin/main:{path}"], text=True)
 
 
-def one(text: str, old: str, new: str, label: str) -> str:
-    count = text.count(old)
-    if count != 1:
-        raise SystemExit(f"{label}: expected one match, found {count}")
+def first(text: str, old: str, new: str, label: str) -> str:
+    if old not in text:
+        raise SystemExit(f"{label}: marker not found")
     return text.replace(old, new, 1)
 
 
@@ -47,7 +46,7 @@ metadata_css = '''
       line-height: 1.45;
     }
 '''
-index = one(index, "    .project-summary {", metadata_css + "\n    .project-summary {", "metadata css")
+index = first(index, "    .project-summary {", metadata_css + "\n    .project-summary {", "metadata css")
 responsive_css = '''
     @media (max-width: 900px) {
       .project-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -61,7 +60,7 @@ responsive_css = '''
       }
     }
 '''
-index = one(index, "  </style>", responsive_css + "\n  </style>", "responsive css")
+index = first(index, "  </style>", responsive_css + "\n  </style>", "responsive css")
 
 boot_marker = '<dl class="project-summary" aria-label="OTA Bootloader 5줄 요약">'
 boot_meta = '''<dl class="project-meta" aria-label="OTA Bootloader 프로젝트 메타데이터">
@@ -73,7 +72,7 @@ boot_meta = '''<dl class="project-meta" aria-label="OTA Bootloader 프로젝트 
           </dl>
 
           '''
-index = one(index, boot_marker, boot_meta + boot_marker, "bootloader metadata")
+index = first(index, boot_marker, boot_meta + boot_marker, "bootloader metadata")
 
 black_marker = '<dl class="project-summary" aria-label="Black Box Validation 5줄 요약">'
 black_meta = '''<dl class="project-meta" aria-label="Black Box Validation 프로젝트 메타데이터">
@@ -85,8 +84,8 @@ black_meta = '''<dl class="project-meta" aria-label="Black Box Validation 프로
           </dl>
 
           '''
-index = one(index, black_marker, black_meta + black_marker, "black box metadata")
-index = one(index, '<span class="project-badge">프로젝트 우수상 · 검증 중심</span>', '<span class="project-badge">개인 프로젝트 · 검증 중심</span>', "black box badge")
+index = first(index, black_marker, black_meta + black_marker, "black box metadata")
+index = first(index, '<span class="project-badge">프로젝트 우수상 · 검증 중심</span>', '<span class="project-badge">개인 프로젝트 · 검증 중심</span>', "black box badge")
 
 prefix, projects = index.split('id="bootloader-project"', 1)
 boot, suffix = projects.split('id="black-box-project"', 1)
@@ -105,12 +104,12 @@ changes = [
     ('Trace32 기반 Trap 분석 과정', 'Alignment Trap 분석과 양방향 복구 재검증'),
 ]
 for old, new in changes:
-    boot = one(boot, old, new, old)
+    boot = first(boot, old, new, old)
 index = prefix + 'id="bootloader-project"' + boot + 'id="black-box-project"' + suffix
 Path("index.html").write_text(index, encoding="utf-8")
 
 tests = from_main("tests/test_portfolio.py")
-pattern = re.compile(r'    def test_artifacts_are_unified_by_five_categories\(self\):\n(?:        .*\n)+?(?=    def )')
+pattern = re.compile(r'    def test_artifacts_are_unified_by_five_categories\(self\):\n.*?(?=    def )', re.S)
 replacement = '''    def test_project_artifact_sections_have_project_specific_evidence(self):
         self.assertEqual(self.html.count('class="artifact-section"'), 2)
         bootloader = self.html[self.html.index('id="bootloader-project"'):self.html.index('id="black-box-project"')]
@@ -130,6 +129,8 @@ for path in [
     "assets/site.css",
     ".github/workflows/normalize-bootloader-evidence.yml",
     ".github/workflows/normalize-bootloader-evidence-v2.yml",
+    ".github/workflows/normalize-bootloader-evidence-v3.yml",
+    ".github/workflows/normalize-bootloader-evidence-v4.yml",
     ".github/scripts/normalize_bootloader_evidence.py",
     "docs/.normalize-trigger",
     "docs/.normalize-trigger-2",
