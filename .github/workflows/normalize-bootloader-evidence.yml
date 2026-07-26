@@ -1,0 +1,239 @@
+name: Normalize Bootloader Evidence Diff
+
+on:
+  push:
+    branches:
+      - agent/bootloader-evidence
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/bootloader-evidence
+          fetch-depth: 0
+
+      - name: Restore main files and apply minimal patches
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+
+          def from_main(path: str) -> str:
+              return subprocess.check_output(
+                  ["git", "show", f"origin/main:{path}"], text=True
+              )
+
+          def replace_once(text: str, old: str, new: str, label: str) -> str:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{label}: expected one match, found {count}")
+              return text.replace(old, new, 1)
+
+          index = from_main("index.html")
+
+          css_anchor = '''    .project-intro p {
+            max-width: 48rem;
+            margin: 0;
+          }
+
+          .project-summary {'''
+          css_replacement = '''    .project-intro p {
+            max-width: 48rem;
+            margin: 0;
+          }
+
+          .project-meta {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 1px;
+            margin: 0;
+            padding: 0 30px;
+            background: var(--line);
+            border-bottom: 1px solid var(--line);
+          }
+
+          .project-meta > div {
+            min-width: 0;
+            padding: 15px 14px;
+            background: #fff;
+          }
+
+          .project-meta dt {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .04em;
+          }
+
+          .project-meta dd {
+            margin: 3px 0 0;
+            color: var(--navy);
+            font-size: 13px;
+            font-weight: 750;
+            line-height: 1.45;
+          }
+
+          .project-summary {'''
+          index = replace_once(index, css_anchor, css_replacement, "metadata css")
+
+          desktop_anchor = '''      .project-header { grid-template-columns: 1fr; }
+                .project-badge { justify-self: start; }
+                .results-grid { grid-template-columns: repeat(2, 1fr); }'''
+          desktop_replacement = '''      .project-header { grid-template-columns: 1fr; }
+                .project-badge { justify-self: start; }
+                .project-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+                .results-grid { grid-template-columns: repeat(2, 1fr); }'''
+          index = replace_once(index, desktop_anchor, desktop_replacement, "desktop metadata css")
+
+          mobile_anchor = '''      .project-summary { padding-left: 21px; padding-right: 21px; }
+                .project-summary > div { grid-template-columns: 1fr; gap: 3px; }'''
+          mobile_replacement = '''      .project-meta {
+                  grid-template-columns: 1fr;
+                  padding-left: 21px;
+                  padding-right: 21px;
+                }
+                .project-summary { padding-left: 21px; padding-right: 21px; }
+                .project-summary > div { grid-template-columns: 1fr; gap: 3px; }'''
+          index = replace_once(index, mobile_anchor, mobile_replacement, "mobile metadata css")
+
+          boot_intro = '''            <div class="project-intro">
+                        <p>Infineon AURIX TC234LP 기반 ECU에서 업데이트 실패와 Binary 변경 상황에도 기존 애플리케이션을 보호하도록 UDS 리프로그래밍, Backup·Restore, SHA-256 무결성 검사를 연결했습니다.</p>
+                      </div>
+
+                      <dl class="project-summary" aria-label="OTA Bootloader 5줄 요약">'''
+          boot_intro_new = '''            <div class="project-intro">
+                        <p>Infineon AURIX TC234LP 기반 ECU에서 업데이트 실패와 Binary 변경 상황에도 기존 애플리케이션을 보호하도록 UDS 리프로그래밍, Backup·Restore, SHA-256 무결성 검사를 연결했습니다.</p>
+                      </div>
+
+                      <dl class="project-meta" aria-label="OTA Bootloader 프로젝트 메타데이터">
+                        <div><dt>유형</dt><dd>개인 프로젝트</dd></div>
+                        <div><dt>수행 기간</dt><dd>2026.03.03–2026.03.24</dd></div>
+                        <div><dt>팀 규모</dt><dd>1명</dd></div>
+                        <div><dt>기여도</dt><dd>100%</dd></div>
+                        <div><dt>담당 범위</dt><dd>설계·구현·디버깅·검증 전담</dd></div>
+                      </dl>
+
+                      <dl class="project-summary" aria-label="OTA Bootloader 5줄 요약">'''
+          index = replace_once(index, boot_intro, boot_intro_new, "bootloader metadata")
+
+          old_artifacts = '''            <section class="artifact-section" aria-label="OTA Bootloader 산출물">
+                        <h4>산출물</h4>
+                        <div class="artifact-grid">
+                          <a class="artifact-item" href="#bootloader-implementation">
+                            <strong>CODE</strong>
+                            <span>UDS·Flash·Backup·Restore 핵심 구현 범위</span>
+                          </a>
+                          <a class="artifact-item" href="#bootloader-validation">
+                            <strong>TEST</strong>
+                            <span>정상·실패·복구 검증 시나리오</span>
+                          </a>
+                          <a class="artifact-item" href="#bootloader-flow">
+                            <strong>DOCUMENT</strong>
+                            <span>시스템 구조와 리프로그래밍 절차</span>
+                          </a>
+                          <a class="artifact-item" href="#bootloader-debug">
+                            <strong>DEMO</strong>
+                            <span>Trace32 기반 Trap 분석 과정</span>
+                          </a>
+                          <a class="artifact-item" href="assets/evidence/ivs_completion.pdf" target="_blank" rel="noreferrer">
+                            <strong>EVIDENCE</strong>
+                            <span>IVS 차량 SW 교육 수료 증빙</span>
+                          </a>
+                        </div>
+                      </section>'''
+          new_artifacts = '''            <section class="artifact-section" aria-label="OTA Bootloader 산출물">
+                        <h4>산출물</h4>
+                        <div class="artifact-grid">
+                          <a class="artifact-item" href="artifacts/bootloader/memory-map.html" target="_blank" rel="noreferrer">
+                            <strong>MEMORY MAP</strong>
+                            <span>실제 주소 기반 PFlash·Backup·Valid Pattern 구조</span>
+                          </a>
+                          <a class="artifact-item" href="artifacts/bootloader/uds-sequence.html" target="_blank" rel="noreferrer">
+                            <strong>UDS SEQUENCE</strong>
+                            <span>정상 리프로그래밍과 무결성 실패·Restore 흐름</span>
+                          </a>
+                          <a class="artifact-item" href="artifacts/bootloader/test-results.html" target="_blank" rel="noreferrer">
+                            <strong>TEST RESULTS</strong>
+                            <span>테스트 케이스·실제 결과·근거 연결표</span>
+                          </a>
+                          <a class="artifact-item" href="artifacts/bootloader/trace32-restore.html" target="_blank" rel="noreferrer">
+                            <strong>TRACE32 · RESTORE</strong>
+                            <span>Alignment Trap 분석과 양방향 복구 재검증</span>
+                          </a>
+                          <a class="artifact-item" href="assets/evidence/ivs_completion.pdf" target="_blank" rel="noreferrer">
+                            <strong>EVIDENCE</strong>
+                            <span>IVS 차량 SW 교육 수료 증빙</span>
+                          </a>
+                        </div>
+                      </section>'''
+          index = replace_once(index, old_artifacts, new_artifacts, "bootloader artifact links")
+
+          index = replace_once(
+              index,
+              '<span class="project-badge">프로젝트 우수상 · 검증 중심</span>',
+              '<span class="project-badge">개인 프로젝트 · 검증 중심</span>',
+              "black box badge",
+          )
+
+          black_intro = '''            <div class="project-intro">
+                        <p>차량 ECU의 Fault Detection·Recovery·Clear 요구사양을 테스트 가능한 조건과 판정 기준으로 전환하고, CANoe/CAPL 기반 수동·자동화 시험으로 결함을 재현하고 문서화했습니다.</p>
+                      </div>
+
+                      <dl class="project-summary" aria-label="Black Box Validation 5줄 요약">'''
+          black_intro_new = '''            <div class="project-intro">
+                        <p>차량 ECU의 Fault Detection·Recovery·Clear 요구사양을 테스트 가능한 조건과 판정 기준으로 전환하고, CANoe/CAPL 기반 수동·자동화 시험으로 결함을 재현하고 문서화했습니다.</p>
+                      </div>
+
+                      <dl class="project-meta" aria-label="Black Box Validation 프로젝트 메타데이터">
+                        <div><dt>유형</dt><dd>개인 프로젝트</dd></div>
+                        <div><dt>수행 기간</dt><dd>2026.03.19–2026.03.23</dd></div>
+                        <div><dt>팀 규모</dt><dd>1명</dd></div>
+                        <div><dt>기여도</dt><dd>100%</dd></div>
+                        <div><dt>담당 범위</dt><dd>요구분석·설계·자동화·결함 분석 전담</dd></div>
+                      </dl>
+
+                      <dl class="project-summary" aria-label="Black Box Validation 5줄 요약">'''
+          index = replace_once(index, black_intro, black_intro_new, "black box metadata")
+          Path("index.html").write_text(index, encoding="utf-8")
+
+          tests = from_main("tests/test_portfolio.py")
+          old_test = '''    def test_artifacts_are_unified_by_five_categories(self):
+                  self.assertEqual(self.html.count('class="artifact-section"'), 2)
+                  for category in ["CODE", "TEST", "DOCUMENT", "DEMO", "EVIDENCE"]:
+                      self.assertEqual(self.html.count(f"<strong>{category}</strong>"), 2)
+          '''
+          new_test = '''    def test_project_artifact_sections_have_project_specific_evidence(self):
+                  self.assertEqual(self.html.count('class="artifact-section"'), 2)
+                  bootloader = self.html[self.html.index('id="bootloader-project"'):self.html.index('id="black-box-project"')]
+                  for label in ["MEMORY MAP", "UDS SEQUENCE", "TEST RESULTS", "TRACE32 · RESTORE", "EVIDENCE"]:
+                      self.assertIn(f"<strong>{label}</strong>", bootloader)
+                  black_box = self.html[self.html.index('id="black-box-project"'):]
+                  for label in ["CODE", "TEST", "DOCUMENT", "DEMO", "EVIDENCE"]:
+                      self.assertIn(f"<strong>{label}</strong>", black_box)
+          '''
+          tests = replace_once(tests, old_test, new_test, "portfolio artifact test")
+          Path("tests/test_portfolio.py").write_text(tests, encoding="utf-8")
+
+          Path("assets/site.css").unlink(missing_ok=True)
+          Path(".github/workflows/normalize-bootloader-evidence.yml").unlink(missing_ok=True)
+          PY
+
+      - name: Verify tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Commit normalized files
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html tests/test_portfolio.py assets/site.css .github/workflows/normalize-bootloader-evidence.yml
+          git commit -m "refactor: preserve portfolio source structure"
+          git push origin HEAD:agent/bootloader-evidence
