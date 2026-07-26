@@ -29,21 +29,19 @@ class PortfolioContentTests(unittest.TestCase):
         self.assertEqual(self.html.count('class="key-results"'), 2)
         self.assertEqual(self.html.count("<h4>KEY RESULTS</h4>"), 2)
         for result in [
-            "UDS 7개 서비스 흐름",
-            "Backup·Restore",
-            "SHA-256",
-            "Trap 원인 해결",
-            "정적 결함 4건",
-            "동적 결함 11건",
-            "CAPL 회귀 테스트",
-            "프로젝트 우수상",
+            "UDS 7개 서비스 흐름", "Backup·Restore", "SHA-256", "Trap 원인 해결",
+            "정적 결함 4건", "동적 결함 11건", "CAPL 회귀 테스트", "프로젝트 우수상",
         ]:
             self.assertIn(result, self.html)
 
-    def test_artifacts_are_unified_by_five_categories(self):
+    def test_project_artifact_sections_have_project_specific_evidence(self):
         self.assertEqual(self.html.count('class="artifact-section"'), 2)
-        for category in ["CODE", "TEST", "DOCUMENT", "DEMO", "EVIDENCE"]:
-            self.assertEqual(self.html.count(f"<strong>{category}</strong>"), 2)
+        bootloader = self.html[self.html.index('id="bootloader-project"'):self.html.index('id="black-box-project"')]
+        for label in ["MEMORY MAP", "UDS SEQUENCE", "TEST RESULTS", "TRACE32 · RESTORE", "EVIDENCE"]:
+            self.assertIn(f"<strong>{label}</strong>", bootloader)
+        black_box = self.html[self.html.index('id="black-box-project"'):]
+        for label in ["CODE", "TEST", "DOCUMENT", "DEMO", "EVIDENCE"]:
+            self.assertIn(f"<strong>{label}</strong>", black_box)
 
     def test_private_project_repositories_are_not_exposed(self):
         self.assertIn("https://github.com/jb-cho55", self.html)
@@ -58,13 +56,8 @@ class PortfolioContentTests(unittest.TestCase):
 
     def test_bootloader_case_study_contains_implementation_and_validation_scope(self):
         expected = [
-            "UDS 0x10·0x27·0x34·0x36·0x37",
-            "Application Backup·Restore",
-            "SHA-256 비교",
-            "정상 다운로드",
-            "전송 순서 오류",
-            "무결성 불일치",
-            "양방향 Flash Write",
+            "UDS 0x10·0x27·0x34·0x36·0x37", "Application Backup·Restore", "SHA-256 비교",
+            "정상 다운로드", "전송 순서 오류", "무결성 불일치", "양방향 Flash Write",
         ]
         bootloader = self.html[self.html.index('id="bootloader-project"'):self.html.index('id="black-box-project"')]
         for content in expected:
@@ -72,29 +65,14 @@ class PortfolioContentTests(unittest.TestCase):
 
     def test_bootloader_alignment_story_follows_required_order(self):
         detail = self.html[self.html.index('id="bootloader-debug"'):self.html.index('id="black-box-project"')]
-        expected = [
-            "증상",
-            "FlsLoader_Write",
-            "원인 분석",
-            "Trace32",
-            "수정",
-            "uint32",
-            "재검증",
-            "Application→Backup",
-        ]
+        expected = ["증상", "FlsLoader_Write", "원인 분석", "Trace32", "수정", "uint32", "재검증", "Application→Backup"]
         positions = [detail.index(term) for term in expected]
         self.assertEqual(positions, sorted(positions))
 
     def test_black_box_case_study_contains_test_evidence(self):
         expected = [
-            "Fault Detection·Recovery·Clear",
-            "정적 결함 4건",
-            "동적 결함 11건",
-            "IGN 50 Cycle",
-            "Steering Timing",
-            "기대 결과",
-            "실제 결과",
-            "영향도",
+            "Fault Detection·Recovery·Clear", "정적 결함 4건", "동적 결함 11건", "IGN 50 Cycle",
+            "Steering Timing", "기대 결과", "실제 결과", "영향도",
         ]
         black_box = self.html[self.html.index('id="black-box-project"'):]
         for content in expected:
@@ -102,16 +80,7 @@ class PortfolioContentTests(unittest.TestCase):
 
     def test_black_box_fresh_frame_story_follows_required_order(self):
         detail = self.html[self.html.index("대표 문제 해결 — Fresh Frame 동기화"):]
-        expected = [
-            "증상",
-            "이전 프레임",
-            "원인 분석",
-            "CAN Trace Timestamp",
-            "수정",
-            "waitBattReference",
-            "재검증",
-            "CAPL 회귀 테스트",
-        ]
+        expected = ["증상", "이전 프레임", "원인 분석", "CAN Trace Timestamp", "수정", "waitBattReference", "재검증", "CAPL 회귀 테스트"]
         positions = [detail.index(term) for term in expected]
         self.assertEqual(positions, sorted(positions))
 
@@ -133,13 +102,7 @@ class PortfolioContentTests(unittest.TestCase):
         self.assertIn("<h2>기술 경험 수준</h2>", self.html)
         for level in ["프로젝트 적용", "프로토콜 적용", "자동화 구현", "원인 분석", "교육·실습 적용", "자격·프로젝트 적용"]:
             self.assertIn(level, self.html)
-        for evidence in [
-            "UDS Bootloader",
-            "Trace와 System Variable",
-            "Trap 레지스터",
-            "EB tresos",
-            "ISTQB CTFL 기반",
-        ]:
+        for evidence in ["UDS Bootloader", "Trace와 System Variable", "Trap 레지스터", "EB tresos", "ISTQB CTFL 기반"]:
             self.assertIn(evidence, self.html)
 
     def test_skill_section_is_not_a_plain_tool_list(self):
@@ -177,10 +140,8 @@ class PortfolioContentTests(unittest.TestCase):
 
     def test_credential_thumbnails_are_accessible(self):
         thumbnails = [
-            "assets/evidence/thumbnails/ivs_completion.webp",
-            "assets/evidence/thumbnails/black_box_award.webp",
-            "assets/evidence/thumbnails/exemplary_award.webp",
-            "assets/evidence/thumbnails/information_processing_engineer.webp",
+            "assets/evidence/thumbnails/ivs_completion.webp", "assets/evidence/thumbnails/black_box_award.webp",
+            "assets/evidence/thumbnails/exemplary_award.webp", "assets/evidence/thumbnails/information_processing_engineer.webp",
             "assets/evidence/thumbnails/istqb_ctfl.webp",
         ]
         for path in thumbnails:
