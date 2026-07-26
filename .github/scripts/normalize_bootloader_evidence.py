@@ -63,7 +63,8 @@ responsive_css = '''
 '''
 index = one(index, "  </style>", responsive_css + "\n  </style>", "responsive css")
 
-boot_meta = '''          <dl class="project-meta" aria-label="OTA Bootloader 프로젝트 메타데이터">
+boot_marker = '<dl class="project-summary" aria-label="OTA Bootloader 5줄 요약">'
+boot_meta = '''<dl class="project-meta" aria-label="OTA Bootloader 프로젝트 메타데이터">
             <div><dt>유형</dt><dd>개인 프로젝트</dd></div>
             <div><dt>수행 기간</dt><dd>2026.03.03–2026.03.24</dd></div>
             <div><dt>팀 규모</dt><dd>1명</dd></div>
@@ -71,9 +72,11 @@ boot_meta = '''          <dl class="project-meta" aria-label="OTA Bootloader 프
             <div><dt>담당 범위</dt><dd>설계·구현·디버깅·검증 전담</dd></div>
           </dl>
 
-'''
-index = one(index, '          <dl class="project-summary" aria-label="OTA Bootloader 5줄 요약">', boot_meta + '          <dl class="project-summary" aria-label="OTA Bootloader 5줄 요약">', "bootloader metadata")
-black_meta = '''          <dl class="project-meta" aria-label="Black Box Validation 프로젝트 메타데이터">
+          '''
+index = one(index, boot_marker, boot_meta + boot_marker, "bootloader metadata")
+
+black_marker = '<dl class="project-summary" aria-label="Black Box Validation 5줄 요약">'
+black_meta = '''<dl class="project-meta" aria-label="Black Box Validation 프로젝트 메타데이터">
             <div><dt>유형</dt><dd>개인 프로젝트</dd></div>
             <div><dt>수행 기간</dt><dd>2026.03.19–2026.03.23</dd></div>
             <div><dt>팀 규모</dt><dd>1명</dd></div>
@@ -81,8 +84,8 @@ black_meta = '''          <dl class="project-meta" aria-label="Black Box Validat
             <div><dt>담당 범위</dt><dd>요구분석·설계·자동화·결함 분석 전담</dd></div>
           </dl>
 
-'''
-index = one(index, '          <dl class="project-summary" aria-label="Black Box Validation 5줄 요약">', black_meta + '          <dl class="project-summary" aria-label="Black Box Validation 5줄 요약">', "black box metadata")
+          '''
+index = one(index, black_marker, black_meta + black_marker, "black box metadata")
 index = one(index, '<span class="project-badge">프로젝트 우수상 · 검증 중심</span>', '<span class="project-badge">개인 프로젝트 · 검증 중심</span>', "black box badge")
 
 prefix, projects = index.split('id="bootloader-project"', 1)
