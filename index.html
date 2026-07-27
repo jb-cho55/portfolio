@@ -344,6 +344,45 @@
       margin: 0;
     }
 
+
+    .project-meta {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 1px;
+      margin: 0;
+      padding: 0 30px;
+      background: var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .project-meta > div {
+      min-width: 0;
+      padding: 15px 14px;
+      background: #fff;
+    }
+
+    .project-meta dt {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+
+    .project-meta dd {
+      margin: 3px 0 0;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 750;
+      line-height: 1.45;
+    }
+
+    .debug-step code {
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
     .project-summary {
       margin: 0;
       padding: 4px 30px;
@@ -886,6 +925,19 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
     }
+
+    @media (max-width: 900px) {
+      .project-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 600px) {
+      .project-meta {
+        grid-template-columns: 1fr;
+        padding-left: 21px;
+        padding-right: 21px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -971,7 +1023,15 @@
               <p>Infineon AURIX TC234LP 기반 ECU에서 업데이트 실패와 Binary 변경 상황에도 기존 애플리케이션을 보호하도록 UDS 리프로그래밍, Backup·Restore, SHA-256 무결성 검사를 연결했습니다.</p>
             </div>
 
-            <dl class="project-summary" aria-label="OTA Bootloader 5줄 요약">
+            <dl class="project-meta" aria-label="OTA Bootloader 프로젝트 메타데이터">
+            <div><dt>유형</dt><dd>개인 프로젝트</dd></div>
+            <div><dt>수행 기간</dt><dd>2026.03.03–2026.03.24</dd></div>
+            <div><dt>팀 규모</dt><dd>1명</dd></div>
+            <div><dt>기여도</dt><dd>100%</dd></div>
+            <div><dt>담당 범위</dt><dd>설계·구현·디버깅·검증 전담</dd></div>
+          </dl>
+
+          <dl class="project-summary" aria-label="OTA Bootloader 5줄 요약">
               <div>
                 <dt>목표</dt>
                 <dd>불완전하거나 변경된 업데이트 이미지로의 부팅을 방지하고 정상 애플리케이션 복구 경로를 구성했습니다.</dd>
@@ -1019,21 +1079,21 @@
             <section class="artifact-section" aria-label="OTA Bootloader 산출물">
               <h4>산출물</h4>
               <div class="artifact-grid">
-                <a class="artifact-item" href="#bootloader-implementation">
-                  <strong>CODE</strong>
-                  <span>UDS·Flash·Backup·Restore 핵심 구현 범위</span>
+                <a class="artifact-item" href="artifacts/bootloader/memory-map.html" target="_blank" rel="noreferrer">
+                  <strong>MEMORY MAP</strong>
+                  <span>실제 주소 기반 PFlash·Backup·Valid Pattern 구조</span>
                 </a>
-                <a class="artifact-item" href="#bootloader-validation">
-                  <strong>TEST</strong>
-                  <span>정상·실패·복구 검증 시나리오</span>
+                <a class="artifact-item" href="artifacts/bootloader/uds-sequence.html" target="_blank" rel="noreferrer">
+                  <strong>UDS SEQUENCE</strong>
+                  <span>정상 리프로그래밍과 무결성 실패·Restore 흐름</span>
                 </a>
-                <a class="artifact-item" href="#bootloader-flow">
-                  <strong>DOCUMENT</strong>
-                  <span>시스템 구조와 리프로그래밍 절차</span>
+                <a class="artifact-item" href="artifacts/bootloader/test-results.html" target="_blank" rel="noreferrer">
+                  <strong>TEST RESULTS</strong>
+                  <span>테스트 케이스·실제 결과·근거 연결표</span>
                 </a>
-                <a class="artifact-item" href="#bootloader-debug">
-                  <strong>DEMO</strong>
-                  <span>Trace32 기반 Trap 분석 과정</span>
+                <a class="artifact-item" href="artifacts/bootloader/trace32-restore.html" target="_blank" rel="noreferrer">
+                  <strong>TRACE32 · RESTORE</strong>
+                  <span>Alignment Trap 분석과 양방향 복구 재검증</span>
                 </a>
                 <a class="artifact-item" href="assets/evidence/ivs_completion.pdf" target="_blank" rel="noreferrer">
                   <strong>EVIDENCE</strong>
@@ -1089,19 +1149,19 @@
                 <article id="bootloader-debug" class="detail-block wide">
                   <h4>대표 문제 해결 — Memory Alignment Error</h4>
                   <div class="problem-flow">
-                    <div class="problem-step">
+                    <div class="problem-step debug-step">
                       <strong>증상</strong>
                       <code>FlsLoader_Write</code> 호출 중 Trap이 발생해 Backup·Restore가 중단됐습니다.
                     </div>
-                    <div class="problem-step">
+                    <div class="problem-step debug-step">
                       <strong>원인 분석</strong>
                       Trace32의 Trap 정보와 함수 인수를 추적해 source buffer의 정렬 조건을 점검했습니다.
                     </div>
-                    <div class="problem-step">
+                    <div class="problem-step debug-step">
                       <strong>수정</strong>
                       저장 버퍼를 <code>uint32</code> 배열로 변경하고 바이트 처리는 <code>uint8*</code>로 참조해 4바이트 정렬을 보장했습니다.
                     </div>
-                    <div class="problem-step">
+                    <div class="problem-step debug-step">
                       <strong>재검증</strong>
                       Application→Backup과 Backup→Application 양방향 Write·Read 및 SHA-256 판정을 다시 수행했습니다.
                     </div>
@@ -1117,14 +1177,22 @@
                 <p class="project-label">PROJECT 02 · VEHICLE SW VERIFICATION</p>
                 <h3>CANoe/CAPL 기반 차량 ECU<br>IVS Black Box Validation</h3>
               </div>
-              <span class="project-badge">프로젝트 우수상 · 검증 중심</span>
+              <span class="project-badge">개인 프로젝트 · 검증 중심</span>
             </header>
 
             <div class="project-intro">
               <p>차량 ECU의 Fault Detection·Recovery·Clear 요구사양을 테스트 가능한 조건과 판정 기준으로 전환하고, CANoe/CAPL 기반 수동·자동화 시험으로 결함을 재현하고 문서화했습니다.</p>
             </div>
 
-            <dl class="project-summary" aria-label="Black Box Validation 5줄 요약">
+            <dl class="project-meta" aria-label="Black Box Validation 프로젝트 메타데이터">
+            <div><dt>유형</dt><dd>개인 프로젝트</dd></div>
+            <div><dt>수행 기간</dt><dd>2026.03.19–2026.03.23</dd></div>
+            <div><dt>팀 규모</dt><dd>1명</dd></div>
+            <div><dt>기여도</dt><dd>100%</dd></div>
+            <div><dt>담당 범위</dt><dd>요구분석·설계·자동화·결함 분석 전담</dd></div>
+          </dl>
+
+          <dl class="project-summary" aria-label="Black Box Validation 5줄 요약">
               <div>
                 <dt>목표</dt>
                 <dd>Fault 상태 전이의 경계값, 선행 조건과 시간 요구사항을 정량 기준으로 검증했습니다.</dd>

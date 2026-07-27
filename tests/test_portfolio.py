@@ -40,10 +40,14 @@ class PortfolioContentTests(unittest.TestCase):
         ]:
             self.assertIn(result, self.html)
 
-    def test_artifacts_are_unified_by_five_categories(self):
+    def test_project_artifact_sections_have_project_specific_evidence(self):
         self.assertEqual(self.html.count('class="artifact-section"'), 2)
-        for category in ["CODE", "TEST", "DOCUMENT", "DEMO", "EVIDENCE"]:
-            self.assertEqual(self.html.count(f"<strong>{category}</strong>"), 2)
+        bootloader = self.html[self.html.index('id="bootloader-project"'):self.html.index('id="black-box-project"')]
+        for label in ["MEMORY MAP", "UDS SEQUENCE", "TEST RESULTS", "TRACE32 · RESTORE", "EVIDENCE"]:
+            self.assertIn(f"<strong>{label}</strong>", bootloader)
+        black_box = self.html[self.html.index('id="black-box-project"'):]
+        for label in ["CODE", "TEST", "DOCUMENT", "DEMO", "EVIDENCE"]:
+            self.assertIn(f"<strong>{label}</strong>", black_box)
 
     def test_private_project_repositories_are_not_exposed(self):
         self.assertIn("https://github.com/jb-cho55", self.html)
