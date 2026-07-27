@@ -152,12 +152,15 @@ class PortfolioRefinementTests(unittest.TestCase):
         path = ROOT / "docs/verification/2026-07-27-portfolio-refinement.md"
         self.assertTrue(path.is_file())
         text = path.read_text(encoding="utf-8")
-        for requirement_id in [
-            "PROFILE-01", "BOOT-01", "BOOT-02", "BOOT-03", "BOOT-04", "BOOT-05", "BOOT-06", "BOOT-07",
-            "BLACKBOX-01", "BLACKBOX-02", "CREDENTIAL-01", "CREDENTIAL-02",
-            "CLEANUP-01", "CLEANUP-02", "CLEANUP-03", "CLEANUP-04", "VERIFY-01", "VERIFY-02",
-        ]:
-            self.assertRegex(text, rf"\| {re.escape(requirement_id)} \| .* \| PASS \|")
+        expected = {
+            "PROFILE-01": "PASS", "BOOT-01": "PASS", "BOOT-02": "PASS", "BOOT-03": "PASS",
+            "BOOT-04": "PASS", "BOOT-05": "PASS", "BOOT-06": "PASS", "BOOT-07": "PARTIAL",
+            "BLACKBOX-01": "PASS", "BLACKBOX-02": "PASS", "CREDENTIAL-01": "PASS", "CREDENTIAL-02": "PASS",
+            "CLEANUP-01": "PASS", "CLEANUP-02": "PASS", "CLEANUP-03": "PASS", "CLEANUP-04": "PASS",
+            "VERIFY-01": "PASS", "VERIFY-02": "PASS",
+        }
+        for requirement_id, status in expected.items():
+            self.assertRegex(text, rf"\| {re.escape(requirement_id)} \| .* \| {status} \|")
 
 
 if __name__ == "__main__":

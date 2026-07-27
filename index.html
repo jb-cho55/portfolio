@@ -974,7 +974,7 @@
         <div>
           <p class="eyebrow">Vehicle Embedded SW Portfolio</p>
           <h1>조정빈<span>Vehicle Embedded SW Engineer</span></h1>
-          <p class="hero-copy">국민대학교 자동차IT융합학과에서 자동차·전자·소프트웨어를 학습하고, AURIX 기반 ECU 기능 구현과 CANoe/CAPL 기반 차량 SW 검증을 수행했습니다.</p>
+          <p class="hero-copy">국민대학교 자동차IT융합학과와 HL만도·HL클레무브 부트캠프를 통해 차량 HW·SW 전반의 전문지식을 습득했습니다.</p>
           <div class="hero-actions">
             <a class="button button-primary" href="#projects">대표 프로젝트</a>
             <a class="button button-secondary" href="https://github.com/jb-cho55" target="_blank" rel="noreferrer">GitHub</a>
@@ -1121,7 +1121,7 @@
                 <article id="bootloader-flow" class="detail-block wide">
                   <h4>시스템 구조와 리프로그래밍 흐름</h4>
                   <p class="flow-line">Tester → CAN·ISO-TP → BswCom → BswDcm → RTE → ECU Abstraction → MCAL → PFlash·DFlash</p>
-                  <p class="flow-line">Programming Session → SecurityAccess → Erase·Backup → RequestDownload(0x34) → TransferData(0x36) → RequestTransferExit(0x37) → SHA-256 확인 → ECUReset</p>
+                  <p class="flow-line">Programming Session · DiagnosticSessionControl(0x10) → SecurityAccess(0x27) → Erase·Backup · RoutineControl(0x31) → RequestDownload(0x34) → TransferData(0x36) → RequestTransferExit(0x37) → SHA-256 확인 → ECUReset(0x11)</p>
                 </article>
 
                 <article id="bootloader-implementation" class="detail-block">
@@ -1165,6 +1165,27 @@
                       <strong>재검증</strong>
                       Application→Backup과 Backup→Application 양방향 Write·Read 및 SHA-256 판정을 다시 수행했습니다.
                     </div>
+                  </div>
+                </article>
+
+                <article id="bootloader-evidence" class="detail-block wide">
+                  <h4>디버깅 이미지 및 산출물 바로가기</h4>
+                  <p>Notion의 Memory Alignment Error 기록에 남은 코드·PC·BTV·Breakpoint 값을 로컬 이미지와 독립 산출물로 정리했습니다.</p>
+                  <div class="artifact-grid" aria-label="Bootloader 상세 산출물 바로가기">
+                    <a class="artifact-item" href="artifacts/bootloader/memory-map.html" target="_blank" rel="noreferrer"><strong>MEMORY MAP</strong><span>링크 스크립트 주소 기반 메모리 구조</span></a>
+                    <a class="artifact-item" href="artifacts/bootloader/uds-sequence.html" target="_blank" rel="noreferrer"><strong>UDS SEQUENCE</strong><span>SID별 리프로그래밍 및 Restore 흐름</span></a>
+                    <a class="artifact-item" href="artifacts/bootloader/test-results.html" target="_blank" rel="noreferrer"><strong>TEST RESULTS</strong><span>테스트 케이스와 판정 근거</span></a>
+                    <a class="artifact-item" href="artifacts/bootloader/trace32-restore.html" target="_blank" rel="noreferrer"><strong>TRACE32 · RESTORE</strong><span>Alignment 분석과 복구 확인</span></a>
+                  </div>
+                  <div class="evidence-gallery">
+                    <a class="evidence-item" href="assets/images/bootloader/alignment-trap.png" target="_blank" rel="noreferrer">
+                      <img src="assets/images/bootloader/alignment-trap.png" alt="Notion 디버깅 기록의 EA_AppToBackup과 FlsLoader_Write 호출 흐름을 정리한 이미지" loading="lazy">
+                      <span class="evidence-caption">EA_AppToBackup · FlsLoader_Write 정렬 분석</span>
+                    </a>
+                    <a class="evidence-item" href="assets/images/bootloader/alignment-breakpoint.png" target="_blank" rel="noreferrer">
+                      <img src="assets/images/bootloader/alignment-breakpoint.png" alt="Notion 디버깅 기록의 Trace32 PC BTV Breakpoint 값을 정리한 이미지" loading="lazy">
+                      <span class="evidence-caption">Trace32 PC · BTV · Trap Breakpoint</span>
+                    </a>
                   </div>
                 </article>
               </div>
@@ -1240,19 +1261,19 @@
             <section class="artifact-section" aria-label="Black Box Validation 산출물">
               <h4>산출물</h4>
               <div class="artifact-grid">
-                <a class="artifact-item" href="#black-box-code">
+                <a class="artifact-item" href="artifacts/black-box/index.html#code" target="_blank" rel="noreferrer">
                   <strong>CODE</strong>
                   <span>CAPL 자동화와 Fresh Frame 유틸리티</span>
                 </a>
-                <a class="artifact-item" href="#black-box-test">
+                <a class="artifact-item" href="artifacts/black-box/index.html#test" target="_blank" rel="noreferrer">
                   <strong>TEST</strong>
                   <span>요구사항 기반 Test Case와 판정 결과</span>
                 </a>
-                <a class="artifact-item" href="#black-box-document">
+                <a class="artifact-item" href="artifacts/black-box/index.html#document" target="_blank" rel="noreferrer">
                   <strong>DOCUMENT</strong>
                   <span>결함 재현 조건·영향도·개선 방향</span>
                 </a>
-                <a class="artifact-item" href="#black-box-demo">
+                <a class="artifact-item" href="artifacts/black-box/index.html#demo" target="_blank" rel="noreferrer">
                   <strong>DEMO</strong>
                   <span>CANoe Network·Panel·Trace 실행 화면</span>
                 </a>
@@ -1517,25 +1538,25 @@
         <h3 class="credential-evidence-heading">증빙 자료</h3>
         <p class="credential-evidence-note">개인정보 보호를 위해 식별번호와 검증 코드를 마스킹했습니다.</p>
         <div class="credential-evidence-grid">
-          <a class="credential-evidence-card" href="assets/evidence/ivs_completion.pdf" target="_blank" rel="noreferrer">
+          <a class="credential-evidence-card" href="assets/evidence/thumbnails/ivs_completion.webp" target="_blank" rel="noreferrer">
             <img src="assets/evidence/thumbnails/ivs_completion.webp" alt="HL만도·HL클레무브 IVS 5기 수료증 개인정보 마스킹 PDF 첫 페이지" loading="lazy">
-            <span class="credential-evidence-copy"><strong>HL만도·HL클레무브 IVS 5기 수료증</strong><small>마스킹 증빙 보기</small></span>
+            <span class="credential-evidence-copy"><strong>HL만도·HL클레무브 IVS 5기 수료증</strong><small>확대 이미지 보기</small></span>
           </a>
-          <a class="credential-evidence-card" href="assets/evidence/black_box_award.pdf" target="_blank" rel="noreferrer">
+          <a class="credential-evidence-card" href="assets/evidence/thumbnails/black_box_award.webp" target="_blank" rel="noreferrer">
             <img src="assets/evidence/thumbnails/black_box_award.webp" alt="Black Box Testing 프로젝트 우수상 개인정보 마스킹 PDF 첫 페이지" loading="lazy">
-            <span class="credential-evidence-copy"><strong>Black Box Testing 프로젝트 우수상</strong><small>마스킹 증빙 보기</small></span>
+            <span class="credential-evidence-copy"><strong>Black Box Testing 프로젝트 우수상</strong><small>확대 이미지 보기</small></span>
           </a>
-          <a class="credential-evidence-card" href="assets/evidence/exemplary_award.pdf" target="_blank" rel="noreferrer">
+          <a class="credential-evidence-card" href="assets/evidence/thumbnails/exemplary_award.webp" target="_blank" rel="noreferrer">
             <img src="assets/evidence/thumbnails/exemplary_award.webp" alt="IVS 5기 모범상 개인정보 마스킹 PDF 첫 페이지" loading="lazy">
-            <span class="credential-evidence-copy"><strong>IVS 5기 모범상</strong><small>마스킹 증빙 보기</small></span>
+            <span class="credential-evidence-copy"><strong>IVS 5기 모범상</strong><small>확대 이미지 보기</small></span>
           </a>
-          <a class="credential-evidence-card" href="assets/evidence/information_processing_engineer.pdf" target="_blank" rel="noreferrer">
+          <a class="credential-evidence-card" href="assets/evidence/thumbnails/information_processing_engineer.webp" target="_blank" rel="noreferrer">
             <img src="assets/evidence/thumbnails/information_processing_engineer.webp" alt="정보처리기사 자격증 개인정보 마스킹 PDF 첫 페이지" loading="lazy">
-            <span class="credential-evidence-copy"><strong>정보처리기사</strong><small>마스킹 증빙 보기</small></span>
+            <span class="credential-evidence-copy"><strong>정보처리기사</strong><small>확대 이미지 보기</small></span>
           </a>
-          <a class="credential-evidence-card" href="assets/evidence/istqb_ctfl.pdf" target="_blank" rel="noreferrer">
+          <a class="credential-evidence-card" href="assets/evidence/thumbnails/istqb_ctfl.webp" target="_blank" rel="noreferrer">
             <img src="assets/evidence/thumbnails/istqb_ctfl.webp" alt="ISTQB CTFL 자격증 개인정보 마스킹 PDF 첫 페이지" loading="lazy">
-            <span class="credential-evidence-copy"><strong>ISTQB CTFL</strong><small>마스킹 증빙 보기</small></span>
+            <span class="credential-evidence-copy"><strong>ISTQB CTFL</strong><small>확대 이미지 보기</small></span>
           </a>
         </div>
       </div>

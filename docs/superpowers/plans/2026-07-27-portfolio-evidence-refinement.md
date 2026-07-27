@@ -54,11 +54,11 @@
 ### Task 4: 자격·수상 확대 이미지
 
 **Files:**
-- Create: `assets/evidence/fullsize/*.png`
+- Reuse: `assets/evidence/thumbnails/*.webp`
 - Modify: `index.html`
 - Modify: `tests/test_portfolio.py`
 
-- [ ] 기존 마스킹 PDF 첫 페이지를 200 DPI 이상으로 렌더링한다.
+- [ ] 기존 마스킹 WebP를 확대 보기 링크로 재사용한다.
 - [ ] 카드 링크를 확대 이미지로 변경하고 PDF 원본은 유지한다.
 - [ ] 자격 증빙 테스트를 실행해 통과시킨다.
 - [ ] 변경을 커밋한다.

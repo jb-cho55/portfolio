@@ -10,8 +10,8 @@ class PortfolioContentTests(unittest.TestCase):
     def test_vehicle_embedded_sw_positioning(self):
         self.assertIn("Vehicle Embedded SW Portfolio", self.html)
         self.assertIn("Vehicle Embedded SW Engineer", self.html)
-        self.assertIn("AURIX 기반 ECU 기능 구현", self.html)
-        self.assertIn("CANoe/CAPL 기반 차량 SW 검증", self.html)
+        self.assertIn("국민대학교 자동차IT융합학과와 HL만도·HL클레무브 부트캠프", self.html)
+        self.assertIn("차량 HW·SW 전반의 전문지식", self.html)
         self.assertNotIn("Embedded SW QA Engineer", self.html)
 
     def test_featured_projects_are_limited_to_two_and_bootloader_is_first(self):
@@ -161,13 +161,13 @@ class PortfolioContentTests(unittest.TestCase):
         self.assertIn("detail.hidden", self.html)
         self.assertIn("button.textContent", self.html)
 
-    def test_credentials_include_redacted_pdf_evidence(self):
+    def test_credentials_open_redacted_image_evidence(self):
         evidence = {
-            "HL만도·HL클레무브 IVS 5기 수료증": "assets/evidence/ivs_completion.pdf",
-            "Black Box Testing 프로젝트 우수상": "assets/evidence/black_box_award.pdf",
-            "IVS 5기 모범상": "assets/evidence/exemplary_award.pdf",
-            "정보처리기사": "assets/evidence/information_processing_engineer.pdf",
-            "ISTQB CTFL": "assets/evidence/istqb_ctfl.pdf",
+            "HL만도·HL클레무브 IVS 5기 수료증": "assets/evidence/thumbnails/ivs_completion.webp",
+            "Black Box Testing 프로젝트 우수상": "assets/evidence/thumbnails/black_box_award.webp",
+            "IVS 5기 모범상": "assets/evidence/thumbnails/exemplary_award.webp",
+            "정보처리기사": "assets/evidence/thumbnails/information_processing_engineer.webp",
+            "ISTQB CTFL": "assets/evidence/thumbnails/istqb_ctfl.webp",
         }
         for label, path in evidence.items():
             self.assertIn(label, self.html)
@@ -176,7 +176,7 @@ class PortfolioContentTests(unittest.TestCase):
 
     def test_credential_evidence_is_labeled_as_redacted(self):
         self.assertIn("개인정보 보호를 위해 식별번호와 검증 코드를 마스킹했습니다.", self.html)
-        self.assertEqual(self.html.count("마스킹 증빙 보기"), 5)
+        self.assertEqual(self.html.count("확대 이미지 보기"), 5)
         self.assertNotIn("원본 PDF 보기", self.html)
 
     def test_credential_thumbnails_are_accessible(self):
