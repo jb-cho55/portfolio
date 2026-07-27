@@ -12,7 +12,7 @@
 | BOOT-07 | Notion 기록의 코드·PC·BTV·Breakpoint 값을 로컬 이미지화. 원본 스크린샷 바이너리는 커넥터 제약으로 미포함 | PARTIAL |
 | BLACKBOX-01 | CODE·TEST·DOCUMENT·DEMO 통합 산출물 페이지 생성 | PASS |
 | BLACKBOX-02 | 메인 네 버튼을 통합 페이지 앵커로 연결 | PASS |
-| CREDENTIAL-01 | 기존 마스킹 WebP 이미지 존재·크기 확인 | PASS |
+| CREDENTIAL-01 | 마스킹 PDF 첫 페이지를 200 DPI PNG로 렌더링하고 최소 1100×1600 해상도 확인 | PASS |
 | CREDENTIAL-02 | 카드 클릭 대상을 PDF에서 확대 이미지로 변경 | PASS |
 | CLEANUP-01 | HTML 로컬 href/src 참조 검사 적용 | PASS |
 | CLEANUP-02 | 과거 Superpowers 문서 제거: `docs/superpowers/plans/2026-07-12-corporate-portfolio-redesign.md`, `docs/superpowers/plans/2026-07-13-portfolio-project-content-refinement.md`, `docs/superpowers/plans/2026-07-13-portfolio-project-details.md`, `docs/superpowers/plans/2026-07-13-real-assets-and-evidence.md`, `docs/superpowers/plans/2026-07-14-vehicle-embedded-sw-positioning.md`, `docs/superpowers/plans/2026-07-15-project-case-studies.md`, `docs/superpowers/plans/2026-07-26-bootloader-evidence.md`, `docs/superpowers/specs/2026-07-12-corporate-portfolio-design.md`, `docs/superpowers/specs/2026-07-12-enterprise-portfolio-redesign-design.md`, `docs/superpowers/specs/2026-07-13-portfolio-project-details-design.md`, `docs/superpowers/specs/2026-07-13-portfolio-real-assets-and-evidence-design.md`, `docs/superpowers/specs/2026-07-14-vehicle-embedded-sw-positioning-design.md`, `docs/superpowers/specs/2026-07-15-project-case-study-structure-design.md`, `docs/superpowers/specs/2026-07-26-bootloader-evidence-design.md` | PASS |

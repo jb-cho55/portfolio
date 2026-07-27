@@ -1,5 +1,6 @@
 from pathlib import Path
 import re
+import struct
 import unittest
 
 
@@ -132,12 +133,17 @@ class PortfolioRefinementTests(unittest.TestCase):
             "istqb_ctfl",
         ]
         for name in names:
-            image = ROOT / f"assets/evidence/thumbnails/{name}.webp"
+            image = ROOT / f"assets/evidence/fullsize/{name}.png"
             pdf = ROOT / f"assets/evidence/{name}.pdf"
             self.assertTrue(image.is_file(), str(image))
             self.assertTrue(pdf.is_file(), str(pdf))
-            self.assertGreater(image.stat().st_size, 10_000)
-            self.assertIn(f'href="assets/evidence/thumbnails/{name}.webp"', self.index)
+            self.assertGreater(image.stat().st_size, 20_000)
+            data = image.read_bytes()
+            self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
+            width, height = struct.unpack(">II", data[16:24])
+            self.assertGreaterEqual(min(width, height), 1100)
+            self.assertGreaterEqual(max(width, height), 1600)
+            self.assertIn(f'href="assets/evidence/fullsize/{name}.png"', self.index)
         credentials = self.index[self.index.index('id="credentials"'):]
         self.assertNotRegex(credentials, r'class="credential-evidence-card" href="[^"]+\.pdf"')
         self.assertEqual(credentials.count("확대 이미지 보기"), 5)

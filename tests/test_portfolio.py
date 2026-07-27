@@ -163,11 +163,11 @@ class PortfolioContentTests(unittest.TestCase):
 
     def test_credentials_open_redacted_image_evidence(self):
         evidence = {
-            "HL만도·HL클레무브 IVS 5기 수료증": "assets/evidence/thumbnails/ivs_completion.webp",
-            "Black Box Testing 프로젝트 우수상": "assets/evidence/thumbnails/black_box_award.webp",
-            "IVS 5기 모범상": "assets/evidence/thumbnails/exemplary_award.webp",
-            "정보처리기사": "assets/evidence/thumbnails/information_processing_engineer.webp",
-            "ISTQB CTFL": "assets/evidence/thumbnails/istqb_ctfl.webp",
+            "HL만도·HL클레무브 IVS 5기 수료증": "assets/evidence/fullsize/ivs_completion.png",
+            "Black Box Testing 프로젝트 우수상": "assets/evidence/fullsize/black_box_award.png",
+            "IVS 5기 모범상": "assets/evidence/fullsize/exemplary_award.png",
+            "정보처리기사": "assets/evidence/fullsize/information_processing_engineer.png",
+            "ISTQB CTFL": "assets/evidence/fullsize/istqb_ctfl.png",
         }
         for label, path in evidence.items():
             self.assertIn(label, self.html)
