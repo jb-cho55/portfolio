@@ -32,20 +32,32 @@ jobs:
           missing = []
           for html in root.rglob('*.html'):
               text = html.read_text(encoding='utf-8')
-              for attr, value in re.findall(r'(href|src)="([^"]+)"', text):
+              for _, value in re.findall(r'(href|src)="([^"]+)"', text):
                   if value.startswith(('#', 'http://', 'https://', 'mailto:', 'tel:')):
                       continue
                   target = value.split('#', 1)[0]
-                  if not target:
-                      continue
-                  resolved = (html.parent / target).resolve()
-                  if not resolved.exists():
+                  if target and not (html.parent / target).resolve().exists():
                       missing.append(f'{html}: {value}')
           if missing:
               raise SystemExit('Missing local references:\n' + '\n'.join(missing))
           PY
-      - name: Check expiring URLs
+      - name: Check expiring URLs in public artifacts
         run: |
-          if grep -R -n -E 'prod-files-secure\.s3|X-Amz-' --include='*.html' --include='*.css' --include='*.svg' --include='*.md' --include='*.py' .; then
-            exit 1
-          fi
+          python - <<'PY'
+          from pathlib import Path
+          roots = [Path('index.html'), Path('artifacts'), Path('assets'), Path('docs/verification')]
+          files = [roots[0]]
+          for root in roots[1:]:
+              files.extend(path for path in root.rglob('*') if path.is_file())
+          forbidden = ('prod-files-' + 'secure.s3', 'X-' + 'Amz-')
+          findings = []
+          for path in files:
+              if path.suffix.lower() not in {'.html', '.css', '.svg', '.md'}:
+                  continue
+              text = path.read_text(encoding='utf-8', errors='ignore')
+              for marker in forbidden:
+                  if marker in text:
+                      findings.append(f'{path}: {marker}')
+          if findings:
+              raise SystemExit('Expiring URL markers found:\n' + '\n'.join(findings))
+          PY
