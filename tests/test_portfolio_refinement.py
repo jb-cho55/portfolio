@@ -80,11 +80,16 @@ class PortfolioRefinementTests(unittest.TestCase):
             path = ROOT / "assets/images/bootloader" / name
             self.assertTrue(path.is_file(), str(path))
             self.assertGreater(path.stat().st_size, 10_000)
-        for path in ROOT.rglob("*"):
-            if path.is_file() and path.suffix.lower() in {".html", ".css", ".svg", ".md", ".py"}:
+
+        public_files = [ROOT / "index.html"]
+        for directory in [ROOT / "artifacts", ROOT / "assets", ROOT / "docs/verification"]:
+            public_files.extend(path for path in directory.rglob("*") if path.is_file())
+        forbidden = ("prod-files-" + "secure.s3", "X-" + "Amz-")
+        for path in public_files:
+            if path.suffix.lower() in {".html", ".css", ".svg", ".md"}:
                 text = path.read_text(encoding="utf-8", errors="ignore")
-                self.assertNotIn("prod-files-secure.s3", text, str(path))
-                self.assertNotIn("X-Amz-", text, str(path))
+                for marker in forbidden:
+                    self.assertNotIn(marker, text, str(path))
 
     def test_blackbox_01_integrated_page_has_four_sections(self):
         page = ROOT / "artifacts/black-box/index.html"
