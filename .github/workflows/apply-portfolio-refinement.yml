@@ -32,6 +32,20 @@ jobs:
         run: python -m pip install --disable-pip-version-check pillow==11.3.0
       - name: Apply ID-based changes
         run: python .github/scripts/apply_portfolio_refinement.py
+      - name: Align legacy positioning test
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('tests/test_portfolio.py')
+          text = path.read_text(encoding='utf-8')
+          old = '''        self.assertIn("AURIX 기반 ECU 기능 구현", self.html)
+          self.assertIn("CANoe/CAPL 기반 차량 SW 검증", self.html)'''
+          new = '''        self.assertIn("국민대학교 자동차IT융합학과와 HL만도·HL클레무브 부트캠프", self.html)
+          self.assertIn("차량 HW·SW 전반의 전문지식", self.html)'''
+          if text.count(old) != 1:
+              raise SystemExit(f'legacy positioning assertion count: {text.count(old)}')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
       - name: Check local HTML asset references
