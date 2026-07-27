@@ -1,0 +1,61 @@
+name: Apply Portfolio Refinement
+
+on:
+  push:
+    branches:
+      - agent/portfolio-evidence-refinement
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, 'apply portfolio evidence refinement') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/portfolio-evidence-refinement
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install image dependency
+        run: python -m pip install --disable-pip-version-check pillow==11.3.0
+      - name: Apply ID-based changes
+        run: python .github/scripts/apply_portfolio_refinement.py
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Check local HTML asset references
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          missing = []
+          for html in Path('.').rglob('*.html'):
+              text = html.read_text(encoding='utf-8')
+              for _, value in re.findall(r'(href|src)="([^"]+)"', text):
+                  if value.startswith(('#', 'http://', 'https://', 'mailto:', 'tel:')):
+                      continue
+                  target = value.split('#', 1)[0]
+                  if target and not (html.parent / target).resolve().exists():
+                      missing.append(f'{html}: {value}')
+          if missing:
+              raise SystemExit('Missing local references:\n' + '\n'.join(missing))
+          PY
+      - name: Check expiring URLs
+        run: |
+          if grep -R -n -E 'prod-files-secure\.s3|X-Amz-' --include='*.html' --include='*.css' --include='*.svg' --include='*.md' --include='*.py' .; then
+            exit 1
+          fi
+      - name: Remove one-time automation
+        run: rm .github/scripts/apply_portfolio_refinement.py .github/workflows/apply-portfolio-refinement.yml
+      - name: Commit applied changes
+        run: |
+          git config user.name "portfolio-refinement-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: apply portfolio evidence refinement"
+          git push origin HEAD:agent/portfolio-evidence-refinement
