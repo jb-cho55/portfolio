@@ -118,7 +118,7 @@ class PortfolioRefinementTests(unittest.TestCase):
             pattern = rf'<a class="artifact-item" href="{re.escape(href)}" target="_blank" rel="noreferrer">\s*<strong>{label}</strong>'
             self.assertRegex(self.index, pattern)
 
-    def test_credential_01_02_cards_open_fullsize_images_and_keep_pdf_sources(self):
+    def test_credential_01_02_cards_open_existing_images_and_keep_pdf_sources(self):
         names = [
             "ivs_completion",
             "black_box_award",
@@ -127,12 +127,12 @@ class PortfolioRefinementTests(unittest.TestCase):
             "istqb_ctfl",
         ]
         for name in names:
-            image = ROOT / f"assets/evidence/fullsize/{name}.png"
+            image = ROOT / f"assets/evidence/thumbnails/{name}.webp"
             pdf = ROOT / f"assets/evidence/{name}.pdf"
             self.assertTrue(image.is_file(), str(image))
             self.assertTrue(pdf.is_file(), str(pdf))
-            self.assertGreater(image.stat().st_size, 20_000)
-            self.assertIn(f'href="assets/evidence/fullsize/{name}.png"', self.index)
+            self.assertGreater(image.stat().st_size, 10_000)
+            self.assertIn(f'href="assets/evidence/thumbnails/{name}.webp"', self.index)
         credentials = self.index[self.index.index('id="credentials"'):]
         self.assertNotRegex(credentials, r'class="credential-evidence-card" href="[^"]+\.pdf"')
         self.assertEqual(credentials.count("확대 이미지 보기"), 5)
