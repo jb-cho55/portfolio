@@ -1,30 +1,80 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="실제 PC·BTV·Breakpoint 주소와 EA_AppToBackup·EA_AppRestore 코드를 기반으로 Memory Alignment Error와 Restore 재검증을 정리했습니다."><title>Trace32 Debugging & Restore | Bootloader Evidence</title><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"><link rel="stylesheet" href="../../assets/bootloader/shared.css"></head><body><a class="skip-link" href="#main">본문 바로가기</a><main id="main" class="artifact-page"><header class="artifact-header"><a class="back-link" href="../../index.html#bootloader-project">← 포트폴리오로 돌아가기</a><p class="eyebrow">BOOTLOADER EVIDENCE 04</p><h1>Trace32 Debugging & Restore</h1><p>실제 PC·BTV·Breakpoint 주소와 EA_AppToBackup·EA_AppRestore 코드를 기반으로 Memory Alignment Error와 Restore 재검증을 정리했습니다.</p><dl class="meta-grid" aria-label="프로젝트 메타데이터"><div><dt>유형</dt><dd>개인 프로젝트</dd></div><div><dt>기간</dt><dd>2026.03.03–2026.03.24</dd></div><div><dt>팀 규모</dt><dd>1명</dd></div><div><dt>기여도</dt><dd>100%</dd></div><div><dt>환경</dt><dd>AURIX TC234LP · Embedded C · Trace32</dd></div></dl></header><section class="panel"><h2>Trace32 디버깅 흐름</h2><ol class="steps"><li id="symptom"><strong>1. 증상</strong>SID 0x31 RoutineControl의 <code>RCOR_EraseMemory_App</code> 처리에서 <code>EA_AppToBackup()</code> 호출 이후 ECU가 CAN 응답을 더 이상 보내지 않았습니다.</li><li id="breakpoint-analysis"><strong>2. 함수 Breakpoint</strong><code>Break.Set EA_AppToBackup</code> 후 함수 진입과 <code>FlsLoader_Write()</code> 인수를 추적했습니다.</li><li><strong>3. PC·BTV 관찰</strong><code>PC = 0x7000EC24</code>, <code>BTV = 0x80027800</code>을 확인했습니다. 해당 순간 PC가 Trap Vector 자체에 있지 않아 active trap decoder가 즉시 예외를 표시하지 않았습니다.</li><li><strong>4. Trap Vector 범위 Breakpoint</strong><code>Break.Set 0x80027800++0xFF /Program /Onchip</code>으로 Trap Table 범위를 직접 감시했습니다.</li><li id="alignment-root-cause"><strong>5. 원인</strong>Flash Loader가 요구하는 source buffer 정렬 조건과 <code>static uint8 copyBuf[MEMORY_COPY_CHUNK_SIZE]</code>의 실제 배치가 맞지 않아 Memory Alignment Error가 발생한 것으로 특정했습니다.</li><li id="alignment-fix"><strong>6. 수정</strong><code>uint32</code> backing array로 4바이트 정렬을 확보하고 <code>uint8*</code> view로 byte 단위 복사를 유지했습니다.</li><li id="restore-results"><strong>7. 재검증</strong>Application→Backup과 Backup→Application 양방향 Write·Read, read-back, SHA-256 판정을 다시 수행했습니다.</li></ol></section><section class="panel"><h2>정렬 수정 전후 코드</h2><h3>수정 전</h3><pre><code>void EA_AppToBackup(P_uint8 errorResult)
-{
-    uint32 offset;
-    uint32 remainSize;
-    uint32 copySize;
-    static uint8 copyBuf[MEMORY_COPY_CHUNK_SIZE];
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="CANoe와 Trace32 실제 캡처를 기반으로 Memory Alignment Error의 발생 주소, 원인 분석과 Restore 재검증을 정리했습니다.">
+  <title>Trace32 Debugging & Restore | Bootloader Evidence</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link rel="stylesheet" href="../../assets/bootloader/shared.css">
+  <style>
+    .evidence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.evidence-card{overflow:hidden;border:1px solid var(--line);border-radius:10px;background:#fff}.evidence-card img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#eef2f7}.evidence-card div{padding:14px}.evidence-card strong{display:block;color:var(--navy);font-size:14px}.evidence-card p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.6}@media(max-width:720px){.evidence-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문 바로가기</a>
+  <main id="main" class="artifact-page">
+    <header class="artifact-header">
+      <a class="back-link" href="../../index.html#bootloader-project">← 포트폴리오로 돌아가기</a>
+      <p class="eyebrow">BOOTLOADER EVIDENCE 04</p>
+      <h1>Trace32 Debugging & Restore</h1>
+      <p><code>SID 0x31 RoutineControl</code> 처리 중 발생한 CAN 응답 중단을 Trace32의 함수 Breakpoint, Register·Variable View와 DMI Trap 정보로 추적했습니다. <code>copyBuf</code>, <code>A5</code>, <code>DEADD</code>가 동일한 비정렬 주소 <code>0x7000240D</code>를 가리키는 것을 확인해 <code>FlsLoader_Write()</code> source buffer의 4바이트 정렬 위반을 원인으로 특정했습니다.</p>
+      <dl class="meta-grid" aria-label="프로젝트 메타데이터"><div><dt>유형</dt><dd>개인 프로젝트</dd></div><div><dt>기간</dt><dd>2026.03.03–2026.03.24</dd></div><div><dt>팀 규모</dt><dd>1명</dd></div><div><dt>기여도</dt><dd>100%</dd></div><div><dt>환경</dt><dd>AURIX TC234LP · Embedded C · CANoe · Trace32</dd></div></dl>
+    </header>
 
-    memcpy(copyBuf,
-           (const void *)(MEMORY_ADDRESS_APPLICATION + offset),
-           copySize);
+    <section class="panel">
+      <h2>Trace32 디버깅 흐름</h2>
+      <ol class="steps">
+        <li><strong>1. 증상</strong><code>SID 0x31 RoutineControl</code>의 <code>RCOR_EraseMemory_App</code> 처리에서 <code>EA_AppToBackup()</code> 호출 이후 ECU의 CAN 응답이 중단됐습니다.</li>
+        <li><strong>2. 함수 Breakpoint</strong><code>Break.Set EA_AppToBackup</code> 후 함수 진입과 <code>FlsLoader_Write()</code> 인수를 추적했습니다.</li>
+        <li><strong>3. Source address 확인</strong>Variable View의 <code>copyBuf</code>와 Register <code>A5</code>가 모두 <code>0x7000240D</code>를 가리키는 것을 확인했습니다.</li>
+        <li><strong>4. Alignment Trap 확인</strong>DMI에서 <code>ALN Error</code>와 <code>DEADD = 0x7000240D</code>를 확인해 오류 주소를 교차 검증했습니다.</li>
+        <li><strong>5. Trap Vector 포착</strong><code>Break.Set 0x80027800++0xFF /Program /Onchip</code> 적용 후 <code>BTV = 0x80027800</code>, <code>PC = 0x80027840</code> 상태를 확인했습니다.</li>
+        <li><strong>6. 원인</strong><code>static uint8 copyBuf[]</code>의 실제 배치가 Flash Loader의 4바이트 source buffer 정렬 조건을 충족하지 못한 것으로 특정했습니다.</li>
+        <li><strong>7. 수정·재검증</strong><code>uint32</code> backing array와 <code>uint8*</code> view를 적용한 뒤 Application→Backup→Application 양방향 Write·Read와 SHA-256 판정을 다시 수행했습니다.</li>
+      </ol>
+    </section>
 
-    *errorResult = (uint8)FlsLoader_Write(
-        MEMORY_ADDRESS_BACKUP + offset,
-        copySize,
-        copyBuf);
-}</code></pre><h3>수정 후 핵심</h3><pre><code>static uint32 copyBufAligned[
+    <section class="panel">
+      <h2>실제 디버깅 근거</h2>
+      <p>아래 화면은 실제 프로젝트 수행 중 CANoe와 Trace32에서 수집했습니다. UDS 요청·응답, 함수 인수, Register, Variable View와 DMI 상태를 함께 비교해 Memory Alignment Error의 발생 주소와 원인을 확인했습니다.</p>
+      <div class="evidence-grid">
+        <article class="evidence-card"><a href="../../assets/images/bootloader/uds-routinecontrol-trace.png" target="_blank" rel="noreferrer"><img src="../../assets/images/bootloader/uds-routinecontrol-trace.png" alt="CANoe UDS RoutineControl 요청 응답 Trace"></a><div><strong>UDS 응답 흐름</strong><p>DiagnosticSessionControl(0x10), SecurityAccess(0x27), RoutineControl(0x31)의 요청·응답과 중단 구간을 확인했습니다.</p></div></article>
+        <article class="evidence-card"><a href="../../assets/images/bootloader/alignment-address-trace.png" target="_blank" rel="noreferrer"><img src="../../assets/images/bootloader/alignment-address-trace.png" alt="copyBuf A5 alignment error address Trace32 화면"></a><div><strong>Source address 추적</strong><p><code>copyBuf</code> 시작 주소와 <code>A5</code>, Trace32 오류 표시가 <code>0x7000240D</code>로 일치했습니다.</p></div></article>
+        <article class="evidence-card"><a href="../../assets/images/bootloader/alignment-trap-dmi.png" target="_blank" rel="noreferrer"><img src="../../assets/images/bootloader/alignment-trap-dmi.png" alt="DMI ALN Error DEADD 0x7000240D 화면"></a><div><strong>DMI Trap 분석</strong><p><code>ALN Error</code>와 <code>DEADD = 0x7000240D</code>를 확인해 정렬 위반 주소를 교차 검증했습니다.</p></div></article>
+        <article class="evidence-card"><a href="../../assets/images/bootloader/trap-vector-breakpoint.png" target="_blank" rel="noreferrer"><img src="../../assets/images/bootloader/trap-vector-breakpoint.png" alt="BTV 0x80027800 PC 0x80027840 Trap Vector Breakpoint 화면"></a><div><strong>Trap Vector Breakpoint</strong><p><code>BTV = 0x80027800</code>, <code>PC = 0x80027840</code>을 확인해 Trap Vector 범위 진입을 직접 포착했습니다.</p></div></article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>정렬 수정 전후 코드</h2>
+      <h3>수정 전</h3>
+      <pre><code>static uint8 copyBuf[MEMORY_COPY_CHUNK_SIZE];
+
+memcpy(copyBuf,
+       (const void *)(MEMORY_ADDRESS_APPLICATION + offset),
+       copySize);
+
+*errorResult = (uint8)FlsLoader_Write(
+    MEMORY_ADDRESS_BACKUP + offset,
+    copySize,
+    copyBuf);</code></pre>
+      <h3>수정 후 핵심</h3>
+      <pre><code>static uint32 copyBufAligned[
     MEMORY_COPY_CHUNK_SIZE / sizeof(uint32)
 ];
 uint8 *copyBuf = (uint8 *)copyBufAligned;
 
 /* uint32 backing storage: 4-byte alignment
- * uint8* view: byte-wise memcpy compatibility */</code></pre></section><section class="panel" id="backup-flow"><h2>Backup·Restore 실제 호출 구조</h2><div class="table-wrap"><table><caption>양방향 Flash 복구 절차</caption><thead><tr><th>방향</th><th>Erase</th><th>Source</th><th>Destination</th><th>검증</th></tr></thead><tbody><tr><td>Application Primary → Backup</td><td>PFLASH_AREA_APPICATION_SECONDARY</td><td>MEMORY_ADDRESS_APPLICATION + offset</td><td>MEMORY_ADDRESS_BACKUP + offset</td><td>Write return, read-back, SHA-256</td></tr><tr><td>Backup → Application Primary</td><td>PFLASH_AREA_APPICATION_PRIMARY</td><td>MEMORY_ADDRESS_BACKUP + offset</td><td>MEMORY_ADDRESS_APPLICATION + offset</td><td>Write return, read-back, SHA-256</td></tr></tbody></table></div><pre><code>EA_AppToBackup()
-→ EA_erasePflashBlock(PFLASH_AREA_APPICATION_SECONDARY)
-→ memcpy(Application, aligned RAM buffer)
-→ FlsLoader_Write(Backup)
+ * uint8* view: byte-wise memcpy compatibility */</code></pre>
+    </section>
 
-EA_AppRestore()
-→ EA_erasePflashBlock(PFLASH_AREA_APPICATION_PRIMARY)
-→ memcpy(Backup, aligned RAM buffer)
-→ FlsLoader_Write(Application)</code></pre><p class="callout warning">첨부 화면은 연결된 Notion에서 만료형 URL로 제공되어 정적 파일로 내보내지 못했습니다. 따라서 허위 스크린샷은 만들지 않고 개인 프로젝트 기록에 남은 실제 주소, 함수명, Trace32 명령, 코드와 관찰 결과를 그대로 공개했습니다.</p></section><section class="panel"><h2>관찰 결과</h2><div class="table-wrap"><table><caption>디버깅 전후 결과</caption><thead><tr><th>항목</th><th>수정 전</th><th>수정 후</th></tr></thead><tbody><tr><td>RoutineControl 응답</td><td>Backup 단계에서 CAN 응답 중단</td><td>Backup·Erase 흐름 진행</td></tr><tr><td>Flash source buffer</td><td>uint8 배열의 정렬 보장 불명확</td><td>uint32 backing으로 4바이트 정렬 명시</td></tr><tr><td>복구</td><td>FlsLoader_Write() 단계 중단</td><td>Primary↔Backup 양방향 Write·Read 재검증</td></tr><tr><td>무결성</td><td>복구 경로 완료 전 판정 불가</td><td>SHA-256 비교 재수행</td></tr></tbody></table></div></section></main></body></html>
+    <section class="panel">
+      <h2>Backup·Restore 재검증</h2>
+      <div class="table-wrap"><table><caption>양방향 Flash 복구 절차</caption><thead><tr><th>방향</th><th>Erase</th><th>Source</th><th>Destination</th><th>검증</th></tr></thead><tbody><tr><td>Application Primary → Backup</td><td>PFLASH_AREA_APPICATION_SECONDARY</td><td>MEMORY_ADDRESS_APPLICATION + offset</td><td>MEMORY_ADDRESS_BACKUP + offset</td><td>Write return, read-back, SHA-256</td></tr><tr><td>Backup → Application Primary</td><td>PFLASH_AREA_APPICATION_PRIMARY</td><td>MEMORY_ADDRESS_BACKUP + offset</td><td>MEMORY_ADDRESS_APPLICATION + offset</td><td>Write return, read-back, SHA-256</td></tr></tbody></table></div>
+      <p class="callout">정렬 수정 후 Application Primary→Backup과 Backup→Application Primary 양방향 Flash Write·Read, UDS 응답 흐름과 SHA-256 판정을 다시 확인했습니다.</p>
+    </section>
+  </main>
+</body>
+</html>

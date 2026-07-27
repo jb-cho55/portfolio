@@ -76,11 +76,33 @@ class PortfolioRefinementTests(unittest.TestCase):
             r'id="restore-label"[^>]*x="3[0-9]{2}"[^>]*y="4[6-9][0-9]"',
         )
 
-    def test_boot_07_alignment_images_are_local_and_expiring_urls_are_absent(self):
-        for name in ["alignment-trap.png", "alignment-breakpoint.png"]:
+    def test_boot_07_real_trace32_images_and_analysis_are_present(self):
+        names = [
+            "uds-routinecontrol-trace.png",
+            "alignment-address-trace.png",
+            "alignment-trap-dmi.png",
+            "trap-vector-breakpoint.png",
+            "alignment-trap.png",
+            "alignment-breakpoint.png",
+        ]
+        for name in names:
             path = ROOT / "assets/images/bootloader" / name
             self.assertTrue(path.is_file(), str(path))
             self.assertGreater(path.stat().st_size, 10_000)
+            self.assertEqual(path.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
+
+        trace_page = (ROOT / "artifacts/bootloader/trace32-restore.html").read_text(encoding="utf-8")
+        for item in [
+            "uds-routinecontrol-trace.png",
+            "alignment-address-trace.png",
+            "alignment-trap-dmi.png",
+            "trap-vector-breakpoint.png",
+            "0x7000240D",
+            "ALN Error",
+            "BTV = 0x80027800",
+            "PC = 0x80027840",
+        ]:
+            self.assertIn(item, trace_page)
 
         public_files = [ROOT / "index.html"]
         for directory in [ROOT / "artifacts", ROOT / "assets", ROOT / "docs/verification"]:
@@ -148,11 +170,9 @@ class PortfolioRefinementTests(unittest.TestCase):
         self.assertNotRegex(credentials, r'class="credential-evidence-card" href="[^"]+\.pdf"')
         self.assertEqual(credentials.count("확대 이미지 보기"), 5)
 
-    def test_cleanup_02_keeps_only_current_superpowers_documents(self):
-        plans = sorted(p.name for p in (ROOT / "docs/superpowers/plans").glob("*.md"))
-        specs = sorted(p.name for p in (ROOT / "docs/superpowers/specs").glob("*.md"))
-        self.assertEqual(plans, ["2026-07-27-portfolio-evidence-refinement.md"])
-        self.assertEqual(specs, ["2026-07-27-portfolio-evidence-refinement-design.md"])
+    def test_cleanup_02_removes_superpowers_working_documents(self):
+        superpowers = ROOT / "docs/superpowers"
+        self.assertFalse(superpowers.exists(), str(superpowers))
 
     def test_verify_02_has_id_based_verification_record(self):
         path = ROOT / "docs/verification/2026-07-27-portfolio-refinement.md"
@@ -160,7 +180,7 @@ class PortfolioRefinementTests(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         expected = {
             "PROFILE-01": "PASS", "BOOT-01": "PASS", "BOOT-02": "PASS", "BOOT-03": "PASS",
-            "BOOT-04": "PASS", "BOOT-05": "PASS", "BOOT-06": "PASS", "BOOT-07": "PARTIAL",
+            "BOOT-04": "PASS", "BOOT-05": "PASS", "BOOT-06": "PASS", "BOOT-07": "PASS",
             "BLACKBOX-01": "PASS", "BLACKBOX-02": "PASS", "CREDENTIAL-01": "PASS", "CREDENTIAL-02": "PASS",
             "CLEANUP-01": "PASS", "CLEANUP-02": "PASS", "CLEANUP-03": "PASS", "CLEANUP-04": "PASS",
             "VERIFY-01": "PASS", "VERIFY-02": "PASS",
