@@ -45,6 +45,13 @@ metadata_css = '''
       font-weight: 750;
       line-height: 1.45;
     }
+
+    .debug-step code {
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: 700;
+      color: var(--navy);
+    }
 '''
 index = first(index, "    .project-summary {", metadata_css + "\n    .project-summary {", "metadata css")
 responsive_css = '''
@@ -105,6 +112,7 @@ changes = [
 ]
 for old, new in changes:
     boot = first(boot, old, new, old)
+boot = boot.replace('class="problem-step"', 'class="problem-step debug-step"')
 index = prefix + 'id="bootloader-project"' + boot + 'id="black-box-project"' + suffix
 Path("index.html").write_text(index, encoding="utf-8")
 
