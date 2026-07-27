@@ -10,7 +10,7 @@
 <rect x="40" y="388" width="920" height="66" fill="#fff3c9" class="r"/><text x="65" y="416" class="t">Valid Pattern</text><text x="65" y="440" class="s">0x8017FFE0–0x8017FFFF · 32 B</text>
 <rect x="40" y="486" width="920" height="96" fill="#dff4e8" class="r"/><text x="65" y="520" class="t">Application Backup</text><text x="65" y="548" class="s">0x80180000–0x801FFFFF · 512 KiB</text>
 <path d="M740 360 C880 390 880 455 740 500" class="a"/><text x="755" y="421" class="label">EA_AppToBackup()</text>
-<path d="M260 500 C120 470 120 390 260 360" class="a"/><text x="85" y="421" class="label">EA_AppRestore()</text>
+<path id="restore-arrow" d="M300 500 C210 485 210 390 300 360" class="a"/><text id="restore-label" x="320" y="475" class="label">EA_AppRestore()</text>
 <text x="40" y="632" class="t">DFlash</text>
 <rect x="40" y="650" width="430" height="72" fill="#f1f3f6" class="r"/><text x="60" y="679" class="t">Bank 0</text><text x="60" y="705" class="s">0xAF000000–0xAF01FFFF · 128 KiB</text>
 <rect x="530" y="650" width="430" height="72" fill="#f1f3f6" class="r"/><text x="550" y="679" class="t">Bank 1</text><text x="550" y="705" class="s">0xAF100000–0xAF103FFF · 16 KiB</text>

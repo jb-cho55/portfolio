@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CANoe/CAPL 기반 IVS Black Box Validation의 코드, 테스트, 결함 문서와 수행 화면을 정리했습니다.">
+  <title>Black Box Validation Artifacts</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link rel="stylesheet" href="../../assets/bootloader/shared.css">
+  <style>
+    .artifact-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.artifact-nav a{padding:8px 12px;border:1px solid var(--line);border-radius:8px;color:var(--blue);font-size:13px;font-weight:800;text-decoration:none}.artifact-nav a:hover,.artifact-nav a:focus-visible{background:var(--blue-soft)}.gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.gallery a{display:block;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;text-decoration:none}.gallery img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#eef2f7}.gallery span{display:block;padding:10px 12px;color:var(--muted);font-size:13px;font-weight:700}.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric{padding:16px;border:1px solid var(--line);border-radius:9px;background:#fff}.metric strong{display:block;color:var(--navy);font-size:20px}.metric span{color:var(--muted);font-size:13px}@media(max-width:700px){.gallery,.metric-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문 바로가기</a>
+  <main id="main" class="artifact-page">
+    <header class="artifact-header">
+      <a class="back-link" href="../../index.html#black-box-project">← 포트폴리오로 돌아가기</a>
+      <p class="eyebrow">BLACK BOX VALIDATION ARTIFACTS</p>
+      <h1>CANoe/CAPL 기반 차량 ECU 검증</h1>
+      <p>요구사항을 테스트 조건과 판정 기준으로 전환한 과정부터 CAPL 자동화, 결함 기록, 실제 수행 화면까지 한 페이지에서 확인할 수 있습니다.</p>
+      <dl class="meta-grid" aria-label="Black Box Validation 프로젝트 메타데이터"><div><dt>유형</dt><dd>개인 프로젝트</dd></div><div><dt>기간</dt><dd>2026.03.19–2026.03.23</dd></div><div><dt>팀 규모</dt><dd>1명</dd></div><div><dt>기여도</dt><dd>100%</dd></div><div><dt>환경</dt><dd>CANoe · CAPL · CANdb</dd></div></dl>
+      <nav class="artifact-nav" aria-label="산출물 섹션"><a href="#code">CODE</a><a href="#test">TEST</a><a href="#document">DOCUMENT</a><a href="#demo">DEMO</a></nav>
+    </header>
+
+    <section id="code" class="panel">
+      <h2>CODE</h2>
+      <p>Fresh Frame 수신을 확인한 뒤 측정 타이머를 시작하도록 CAPL 테스트 유틸리티를 구성했습니다.</p>
+      <pre><code>waitBattReference();
+waitIGNReference();
+
+// Fresh reference frame confirmed
+setTimer(detectionTimer, 1);</code></pre>
+      <ul class="source-list"><li>Detection·Recovery·Clear 시나리오 자동화</li><li>CAN Signal·System Variable 기반 기대값 판정</li><li>경계값과 선행 조건 조합 입력</li></ul>
+    </section>
+
+    <section id="test" class="panel">
+      <h2>TEST</h2>
+      <div class="metric-grid"><div class="metric"><strong>4건</strong><span>정적 결함</span></div><div class="metric"><strong>11건</strong><span>동적 결함</span></div><div class="metric"><strong>CAPL</strong><span>반복 회귀 테스트</span></div></div>
+      <div class="table-wrap"><table><caption>대표 테스트와 실제 판정</caption><thead><tr><th>테스트</th><th>요구 기준</th><th>실제 결과</th><th>판정</th></tr></thead><tbody><tr><td>Batt Percent 경계값</td><td>15% 조건 반영</td><td>15%에서 Fault 미검출</td><td><span class="status status-pass">결함 검출</span></td></tr><tr><td>IGN Cycle</td><td>50 Cycle 경계</td><td>Off-by-One 동작 확인</td><td><span class="status status-pass">결함 검출</span></td></tr><tr><td>Steering Timing</td><td>50±10ms</td><td>약 1000±10ms</td><td><span class="status status-pass">결함 검출</span></td></tr></tbody></table></div>
+    </section>
+
+    <section id="document" class="panel">
+      <h2>DOCUMENT</h2>
+      <p>각 결함을 재현 조건, 기대 결과, 실제 결과, 영향도와 개선 방향으로 문서화했습니다.</p>
+      <div class="evidence-grid"><article class="evidence-card"><strong>정적 검토</strong><p>Signal Length, Value, Description 불일치 4건을 식별했습니다.</p></article><article class="evidence-card"><strong>동적 시험</strong><p>경계값, 선행 조건, Recovery, Timing 오류 11건을 식별했습니다.</p></article><article class="evidence-card"><strong>재현 가능성</strong><p>CAN Trace Timestamp와 입력 조건을 기준으로 동일 현상을 반복 확인했습니다.</p></article><article class="evidence-card"><strong>회귀 기준</strong><p>Fresh Frame 수신 이후 측정을 시작하도록 판정 기준을 고정했습니다.</p></article></div>
+    </section>
+
+    <section id="demo" class="panel">
+      <h2>DEMO</h2>
+      <p>실제 CANoe 프로젝트 구성과 자동화 시험, Panel·Trace, 결함 결과 화면입니다.</p>
+      <div class="gallery">
+        <a href="../../assets/images/black-box/network_setup.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/network_setup.png" alt="CANoe Network 구성 화면"><span>CANoe Network 구성</span></a>
+        <a href="../../assets/images/black-box/automation_test_environment.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/automation_test_environment.png" alt="CAPL 자동화 테스트 환경"><span>CAPL 자동화 테스트 환경</span></a>
+        <a href="../../assets/images/black-box/panel_trace.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/panel_trace.png" alt="CANoe Panel 및 Trace 화면"><span>Panel 및 Trace 화면</span></a>
+        <a href="../../assets/images/black-box/test_environment.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/test_environment.png" alt="Black Box 테스트 환경"><span>Black Box Test Environment</span></a>
+        <a href="../../assets/images/black-box/defect_batt_percent_15.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/defect_batt_percent_15.png" alt="Batt Percent 15% 결함 결과"><span>Batt Percent 15% Test Result</span></a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
