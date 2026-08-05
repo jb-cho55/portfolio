@@ -3,6 +3,8 @@ import re
 import struct
 import unittest
 
+from portfolio_sections import card
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -11,7 +13,8 @@ class PortfolioRefinementTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.index = (ROOT / "index.html").read_text(encoding="utf-8")
-        cls.memory_map = (ROOT / "artifacts/bootloader/memory-map.html").read_text(encoding="utf-8")
+        cls.evidence = (ROOT / "artifacts/bootloader/index.html").read_text(encoding="utf-8")
+        cls.black_box_page = (ROOT / "artifacts/black-box/index.html").read_text(encoding="utf-8")
         cls.memory_svg = (ROOT / "assets/bootloader/memory-map.svg").read_text(encoding="utf-8")
 
     def test_profile_01_mentions_both_education_sources_and_vehicle_hw_sw(self):
@@ -21,27 +24,27 @@ class PortfolioRefinementTests(unittest.TestCase):
         )
         self.assertIn(expected, self.index)
 
-    def test_boot_01_detail_has_capture_gallery_and_artifact_shortcuts(self):
-        detail = self.index[
-            self.index.index('id="bootloader-details"'):
-            self.index.index('id="black-box-project"')
-        ]
-        for path in [
-            "artifacts/bootloader/memory-map.html",
-            "artifacts/bootloader/uds-sequence.html",
-            "artifacts/bootloader/test-results.html",
-            "artifacts/bootloader/trace32-restore.html",
-            "assets/images/bootloader/alignment-trap.png",
-            "assets/images/bootloader/alignment-breakpoint.png",
-        ]:
-            self.assertIn(path, detail)
+    def test_boot_01_trace32_captures_live_on_the_evidence_page(self):
+        """디버깅 캡처는 산출물 페이지 한 곳에만 (메인의 사본 2장은 동일 해시라 삭제)."""
+        for name in ["uds-routinecontrol-trace", "alignment-address-trace",
+                     "alignment-trap-dmi", "trap-vector-breakpoint"]:
+            path = f"assets/images/bootloader/{name}.png"
             self.assertTrue((ROOT / path).is_file(), path)
+            self.assertIn(f"../../{path}", self.evidence)
+        for removed in ["alignment-trap.png", "alignment-breakpoint.png"]:
+            self.assertFalse((ROOT / "assets/images/bootloader" / removed).exists(), removed)
+
+    def test_boot_01b_artifact_links_appear_exactly_once(self):
+        """같은 곳으로 가는 링크 그리드가 카드 안에서 두 번 반복되면 안 된다."""
+        bootloader = card(self.index, "bootloader-project")
+        for sid in ["memory-map", "uds", "test", "trace32"]:
+            self.assertEqual(
+                bootloader.count(f'href="artifacts/bootloader/index.html#{sid}"'), 1,
+                f"#{sid} 링크가 카드 안에서 중복됨",
+            )
 
     def test_boot_02_reprogramming_flow_names_uds_services_and_sids(self):
-        flow = self.index[
-            self.index.index('id="bootloader-flow"'):
-            self.index.index('id="bootloader-implementation"')
-        ]
+        flow = self.evidence[self.evidence.index('id="overview"'):]
         for item in [
             "DiagnosticSessionControl(0x10)",
             "SecurityAccess(0x27)",
@@ -56,17 +59,17 @@ class PortfolioRefinementTests(unittest.TestCase):
     def test_boot_03_05_06_memory_map_copy_matches_request(self):
         self.assertIn(
             "Bootloader용 링크 스크립트의 주소와 크기를 기준으로 시각화했습니다.",
-            self.memory_map,
+            self.evidence,
         )
-        self.assertIn("<h2>근거</h2>", self.memory_map)
-        self.assertNotIn("<h2>링커 근거</h2>", self.memory_map)
+        self.assertIn("<h3>근거</h3>", self.evidence)
+        self.assertNotIn("링커 근거", self.evidence)
         self.assertIn(
             "Bootloader 링크 설정에서 Application과 Backup은 <code>reserved rom</code>으로 선언되어 "
             "Bootloader 코드가 해당 영역에 배치되지 않습니다. SHA-256은 이 프로젝트에서 Binary 변경 여부를 "
             "판단하는 무결성 검사로 사용했습니다.",
-            self.memory_map,
+            self.evidence,
         )
-        self.assertNotIn("양산 수준 코드 서명", self.memory_map)
+        self.assertNotIn("양산 수준 코드 서명", self.evidence)
 
     def test_boot_04_restore_label_has_dedicated_non_overlapping_position(self):
         self.assertIn('id="restore-label"', self.memory_svg)
@@ -82,8 +85,6 @@ class PortfolioRefinementTests(unittest.TestCase):
             "alignment-address-trace.png",
             "alignment-trap-dmi.png",
             "trap-vector-breakpoint.png",
-            "alignment-trap.png",
-            "alignment-breakpoint.png",
         ]
         for name in names:
             path = ROOT / "assets/images/bootloader" / name
@@ -91,7 +92,7 @@ class PortfolioRefinementTests(unittest.TestCase):
             self.assertGreater(path.stat().st_size, 10_000)
             self.assertEqual(path.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
 
-        trace_page = (ROOT / "artifacts/bootloader/trace32-restore.html").read_text(encoding="utf-8")
+        trace_page = self.evidence
         for item in [
             "uds-routinecontrol-trace.png",
             "alignment-address-trace.png",
@@ -143,7 +144,7 @@ class PortfolioRefinementTests(unittest.TestCase):
             "DEMO": "artifacts/black-box/index.html#demo",
         }
         for label, href in expected.items():
-            pattern = rf'<a class="artifact-item" href="{re.escape(href)}" target="_blank" rel="noreferrer">\s*<strong>{label}</strong>'
+            pattern = rf'<a class="artifact-item" href="{re.escape(href)}">\s*<strong>{label}</strong>'
             self.assertRegex(self.index, pattern)
 
     def test_credential_01_02_cards_open_existing_images_and_keep_pdf_sources(self):

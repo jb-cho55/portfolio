@@ -9,6 +9,12 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="조정빈 | Vehicle Embedded SW Portfolio">
   <meta property="og:description" content="구현·검증·문제 해결·증거를 중심으로 정리한 차량 임베디드 SW 포트폴리오입니다.">
+  <meta property="og:url" content="https://jb-cho55.github.io/portfolio/">
+  <meta property="og:image" content="https://jb-cho55.github.io/portfolio/assets/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="조정빈 · 차량 SW 검증과 임베디드 SW 개발 포트폴리오 카드">
+  <meta name="twitter:card" content="summary_large_image">
   <title>조정빈 | Vehicle Embedded SW Portfolio</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
@@ -68,6 +74,55 @@
       background: #fff;
       box-shadow: 0 8px 24px rgba(8, 24, 44, .16);
     }
+
+    /* 사이드 섹션 레일 — 상단 내비를 가릴 만큼 넓은 화면에서만 */
+    .section-rail {
+      position: fixed;
+      right: max(16px, calc((100vw - var(--max)) / 2 - 152px));
+      top: 50%;
+      z-index: 40;
+      display: none;
+      transform: translateY(-50%);
+      gap: 1px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .93);
+      box-shadow: 0 8px 24px rgba(8, 24, 44, .07);
+      backdrop-filter: blur(8px);
+    }
+
+    .section-rail a {
+      display: grid;
+      grid-template-columns: 16px auto;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 2px;
+      color: #46536a;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.35;
+      white-space: nowrap;
+    }
+
+    .section-rail a::before {
+      content: "";
+      width: 10px;
+      height: 2px;
+      border-radius: 2px;
+      background: #c2ccd8;
+      transition: width .18s ease, background .18s ease;
+    }
+
+    .section-rail a:hover,
+    .section-rail a:focus-visible { color: var(--navy); }
+    .section-rail a:hover::before { background: var(--navy); }
+
+    .section-rail a[aria-current="true"] { color: var(--blue); }
+    .section-rail a[aria-current="true"]::before { width: 16px; background: var(--blue); }
+
+    @media (min-width: 1400px) { .section-rail { display: grid; } }
+    @media (prefers-reduced-motion: reduce) { .section-rail a::before { transition: none; } }
 
     .site-header {
       position: sticky;
@@ -345,15 +400,18 @@
     }
 
 
+    /* 구분선은 셀 테두리로 — 컨테이너를 회색으로 두면 좌우 padding이 잘린 띠처럼 보인다 */
     .project-meta {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 1px;
+      grid-template-columns: repeat(5, minmax(max-content, 1fr));
+      align-items: center;
       margin: 0;
       padding: 0 30px;
-      background: var(--line);
+      background: #fff;
       border-bottom: 1px solid var(--line);
     }
+
+    .project-meta > div + div { border-left: 1px solid var(--line); }
 
     .project-meta > div {
       min-width: 0;
@@ -374,13 +432,6 @@
       font-size: 13px;
       font-weight: 750;
       line-height: 1.45;
-    }
-
-    .debug-step code {
-      font-family: inherit;
-      font-size: inherit;
-      font-weight: 700;
-      color: var(--navy);
     }
 
     .project-summary {
@@ -465,6 +516,11 @@
       gap: 9px;
     }
 
+    /* 산출물은 5개라 5열이지만 기타 프로젝트는 3개 — 좁은 폭 규칙은 아래 미디어쿼리에 맡긴다 */
+    @media (min-width: 901px) {
+      .other-projects .artifact-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
     .artifact-item {
       display: block;
       min-height: 104px;
@@ -498,6 +554,15 @@
       line-height: 1.55;
     }
 
+    .project-more {
+      color: var(--blue);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .project-more:hover,
+    .project-more:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+
     .project-footer {
       display: flex;
       align-items: center;
@@ -519,149 +584,6 @@
       background: var(--blue-soft);
       font-size: 12px;
       font-weight: 800;
-    }
-
-    .project-detail-toggle {
-      padding: 7px 0;
-      border: 0;
-      color: var(--blue);
-      background: transparent;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .project-detail-toggle::after { content: " +"; }
-    .project-detail-toggle[aria-expanded="true"]::after { content: " −"; }
-
-    .project-detail-toggle:hover,
-    .project-detail-toggle:focus-visible {
-      color: var(--blue-dark);
-      text-decoration: underline;
-      text-underline-offset: 4px;
-    }
-
-    .project-detail-region {
-      border-top: 1px solid var(--line);
-      background: var(--surface-soft);
-    }
-
-    .project-detail-region[hidden] { display: none; }
-
-    .project-detail-inner {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      padding: 26px 30px 30px;
-    }
-
-    .detail-block {
-      padding: 18px;
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      background: #fff;
-    }
-
-    .detail-block.wide { grid-column: 1 / -1; }
-
-    .detail-block h4 {
-      margin: 0 0 8px;
-      color: var(--navy);
-      font-size: 15px;
-    }
-
-    .detail-block p,
-    .detail-block ul {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .detail-block ul { padding-left: 18px; }
-    .detail-block li + li { margin-top: 5px; }
-
-    .flow-line {
-      color: #31425a;
-      font-size: 13px;
-      font-weight: 700;
-      line-height: 1.9;
-    }
-
-    .stage-list {
-      display: grid;
-      gap: 9px;
-      margin: 12px 0 0;
-      padding-left: 18px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .problem-flow {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .problem-step {
-      padding: 14px;
-      border-top: 3px solid var(--blue);
-      border-radius: 7px;
-      background: var(--blue-soft);
-      color: #394962;
-      font-size: 14px;
-    }
-
-    .problem-step strong {
-      display: block;
-      margin-bottom: 5px;
-      color: var(--navy);
-    }
-
-    .problem-step code {
-      font-family: inherit;
-      font-size: inherit;
-      font-weight: 700;
-      color: var(--navy);
-    }
-
-    .evidence-gallery {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .evidence-item {
-      display: block;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      background: #fff;
-      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
-    }
-
-    .evidence-item:hover,
-    .evidence-item:focus-visible {
-      border-color: #9fc0ec;
-      box-shadow: 0 10px 24px rgba(15, 35, 60, .12);
-      transform: translateY(-2px);
-      outline: none;
-    }
-
-    .evidence-item img {
-      display: block;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      object-fit: contain;
-      background: #eef2f7;
-    }
-
-    .evidence-caption {
-      display: block;
-      padding: 10px 12px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 700;
     }
 
     .skills-grid {
@@ -847,6 +769,14 @@
 
     .contact h2 { margin: 0 0 6px; font-size: clamp(24px, 3vw, 32px); }
     .contact p { margin: 0; color: #bac9da; }
+    .artifact-note { margin: -6px 0 14px; color: var(--muted); font-size: 13px; }
+    .other-projects { margin-top: 34px; padding-top: 30px; border-top: 1px solid var(--line); }
+    .other-projects h3 { margin: 0 0 6px; color: var(--navy); font-size: 20px; }
+    .other-projects > p { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+    .contact .contact-email { margin-top: 12px; font-weight: 700; }
+    .contact .contact-resume { margin-top: 8px; font-weight: 700; }
+    .contact .contact-resume a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+    .contact .contact-email a { color: #fff; }
     .contact .button { color: var(--navy); background: #fff; white-space: nowrap; }
 
     .site-footer {
@@ -879,10 +809,6 @@
       .project-badge { justify-self: start; }
       .results-grid { grid-template-columns: repeat(2, 1fr); }
       .artifact-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .project-detail-inner { grid-template-columns: 1fr; }
-      .detail-block.wide { grid-column: auto; }
-      .problem-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .evidence-gallery { grid-template-columns: 1fr; }
       .education-card.university { grid-column: auto; }
       .credential-evidence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
@@ -913,8 +839,6 @@
       .key-results { margin-left: 21px; margin-right: 21px; }
       .results-grid,
       .artifact-grid,
-      .problem-flow { grid-template-columns: 1fr; }
-      .project-detail-inner { padding-left: 21px; padding-right: 21px; }
       .credential-list li { grid-template-columns: 1fr; gap: 2px; }
       .credential-list span { text-align: left; }
       .credential-evidence-grid { grid-template-columns: 1fr; }
@@ -968,15 +892,25 @@
     </nav>
   </header>
 
+  <nav class="section-rail" aria-label="섹션 바로가기">
+    <a href="#hero">소개</a>
+    <a href="#projects">대표 프로젝트</a>
+    <a href="#skills">기술 경험</a>
+    <a href="#education">학력·교육</a>
+    <a href="#credentials">자격·수상</a>
+  </nav>
+
   <main id="main">
     <section id="hero" class="hero">
       <div class="container hero-layout">
         <div>
           <p class="eyebrow">Vehicle Embedded SW Portfolio</p>
           <h1>조정빈<span>Vehicle Embedded SW Engineer</span></h1>
+          <p class="hero-copy"><strong>차량 ECU 소프트웨어가 요구사양대로 동작하는지 CANoe/CAPL 자동화로 시험하고, 결함의 원인까지 규명합니다.</strong></p>
           <p class="hero-copy">국민대학교 자동차IT융합학과와 HL만도·HL클레무브 부트캠프를 통해 차량 HW·SW 전반의 전문지식을 습득했습니다.</p>
           <div class="hero-actions">
             <a class="button button-primary" href="#projects">대표 프로젝트</a>
+            <a class="button button-secondary" href="mailto:cho.jeongbin55@gmail.com">이메일 문의</a>
             <a class="button button-secondary" href="https://github.com/jb-cho55" target="_blank" rel="noreferrer">GitHub</a>
           </div>
         </div>
@@ -1006,196 +940,15 @@
         <div class="section-heading">
           <p class="section-kicker">FEATURED CASE STUDIES</p>
           <h2>대표 프로젝트</h2>
-          <p>개발 프로젝트와 검증 프로젝트를 각각 하나의 Case Study로 집중해, 목표·본인 역할·구현·검증·결과와 확인 가능한 산출물을 한 흐름으로 정리했습니다.</p>
+          <p>검증 프로젝트와 개발 프로젝트를 각각 하나의 Case Study로 집중해, 목표·본인 역할·구현·검증·결과와 확인 가능한 산출물을 한 흐름으로 정리했습니다. 지원 직무인 차량 SW 검증을 앞에 두고, Bootloader 개발은 검증 대상을 만드는 쪽을 이해한다는 근거로 이어 붙였습니다.</p>
+          <p>두 프로젝트의 원본 저장소는 교육 자료 보호를 위해 비공개로 유지합니다. 대신 코드 발췌, 테스트 판정 화면, 실제 메모리 주소와 판정 근거를 이 사이트에 직접 게시했습니다.</p>
         </div>
 
         <div class="projects-stack">
-          <article class="project-card" id="bootloader-project">
-            <header class="project-header">
-              <div>
-                <p class="project-label">PROJECT 01 · EMBEDDED SW DEVELOPMENT</p>
-                <h3>OTA를 위한 Bootloader 설계 및<br>SW Binary 위변조 감지</h3>
-              </div>
-              <span class="project-badge">개인 프로젝트 · 개발 중심</span>
-            </header>
-
-            <div class="project-intro">
-              <p>Infineon AURIX TC234LP 기반 ECU에서 업데이트 실패와 Binary 변경 상황에도 기존 애플리케이션을 보호하도록 UDS 리프로그래밍, Backup·Restore, SHA-256 무결성 검사를 연결했습니다.</p>
-            </div>
-
-            <dl class="project-meta" aria-label="OTA Bootloader 프로젝트 메타데이터">
-            <div><dt>유형</dt><dd>개인 프로젝트</dd></div>
-            <div><dt>수행 기간</dt><dd>2026.03.03–2026.03.24</dd></div>
-            <div><dt>팀 규모</dt><dd>1명</dd></div>
-            <div><dt>기여도</dt><dd>100%</dd></div>
-            <div><dt>담당 범위</dt><dd>설계·구현·디버깅·검증 전담</dd></div>
-          </dl>
-
-          <dl class="project-summary" aria-label="OTA Bootloader 5줄 요약">
-              <div>
-                <dt>목표</dt>
-                <dd>불완전하거나 변경된 업데이트 이미지로의 부팅을 방지하고 정상 애플리케이션 복구 경로를 구성했습니다.</dd>
-              </div>
-              <div>
-                <dt>역할</dt>
-                <dd>개인 프로젝트로 메모리 영역과 진단 절차 설계, Embedded C 구현, Flash 제어, Trace32 디버깅을 전담했습니다.</dd>
-              </div>
-              <div>
-                <dt>구현</dt>
-                <dd>UDS 0x10·0x27·0x34·0x36·0x37, Application Backup·Restore, SHA-256 비교와 실패 정책을 구현했습니다.</dd>
-              </div>
-              <div>
-                <dt>검증</dt>
-                <dd>정상 다운로드, 전송 순서 오류, 무결성 불일치, 복구 경로와 양방향 Flash Write를 시나리오별로 확인했습니다.</dd>
-              </div>
-              <div>
-                <dt>결과</dt>
-                <dd>Memory Alignment Trap의 원인을 4바이트 정렬 조건으로 특정하고 수정 후 Application→Backup→Application 복구 흐름을 재검증했습니다.</dd>
-              </div>
-            </dl>
-
-            <section class="key-results" aria-label="OTA Bootloader Key Results">
-              <h4>KEY RESULTS</h4>
-              <div class="results-grid">
-                <div class="result-card">
-                  <strong>UDS 7개 서비스 흐름</strong>
-                  <span>Session·Security·Download·Reset 연계</span>
-                </div>
-                <div class="result-card">
-                  <strong>Backup·Restore</strong>
-                  <span>Primary와 Backup 영역 간 복구 경로</span>
-                </div>
-                <div class="result-card">
-                  <strong>SHA-256</strong>
-                  <span>Application Binary 무결성 판정</span>
-                </div>
-                <div class="result-card">
-                  <strong>Trap 원인 해결</strong>
-                  <span>Trace32 기반 4바이트 정렬 수정</span>
-                </div>
-              </div>
-            </section>
-
-            <section class="artifact-section" aria-label="OTA Bootloader 산출물">
-              <h4>산출물</h4>
-              <div class="artifact-grid">
-                <a class="artifact-item" href="artifacts/bootloader/memory-map.html" target="_blank" rel="noreferrer">
-                  <strong>MEMORY MAP</strong>
-                  <span>실제 주소 기반 PFlash·Backup·Valid Pattern 구조</span>
-                </a>
-                <a class="artifact-item" href="artifacts/bootloader/uds-sequence.html" target="_blank" rel="noreferrer">
-                  <strong>UDS SEQUENCE</strong>
-                  <span>정상 리프로그래밍과 무결성 실패·Restore 흐름</span>
-                </a>
-                <a class="artifact-item" href="artifacts/bootloader/test-results.html" target="_blank" rel="noreferrer">
-                  <strong>TEST RESULTS</strong>
-                  <span>테스트 케이스·실제 결과·근거 연결표</span>
-                </a>
-                <a class="artifact-item" href="artifacts/bootloader/trace32-restore.html" target="_blank" rel="noreferrer">
-                  <strong>TRACE32 · RESTORE</strong>
-                  <span>Alignment Trap 분석과 양방향 복구 재검증</span>
-                </a>
-                <a class="artifact-item" href="assets/evidence/ivs_completion.pdf" target="_blank" rel="noreferrer">
-                  <strong>EVIDENCE</strong>
-                  <span>IVS 차량 SW 교육 수료 증빙</span>
-                </a>
-              </div>
-            </section>
-
-            <footer class="project-footer">
-              <div class="tag-list" aria-label="OTA Bootloader 사용 기술">
-                <span>Embedded C</span>
-                <span>AURIX TC234LP</span>
-                <span>CAN·ISO-TP</span>
-                <span>UDS</span>
-                <span>MCAL</span>
-                <span>PFlash</span>
-                <span>SHA-256</span>
-                <span>Trace32</span>
-              </div>
-              <button class="project-detail-toggle" type="button" aria-expanded="false" aria-controls="bootloader-details">프로젝트 상세 보기</button>
-            </footer>
-
-            <div id="bootloader-details" class="project-detail-region" hidden>
-              <div class="project-detail-inner">
-                <article id="bootloader-flow" class="detail-block wide">
-                  <h4>시스템 구조와 리프로그래밍 흐름</h4>
-                  <p class="flow-line">Tester → CAN·ISO-TP → BswCom → BswDcm → RTE → ECU Abstraction → MCAL → PFlash·DFlash</p>
-                  <p class="flow-line">Programming Session · DiagnosticSessionControl(0x10) → SecurityAccess(0x27) → Erase·Backup · RoutineControl(0x31) → RequestDownload(0x34) → TransferData(0x36) → RequestTransferExit(0x37) → SHA-256 확인 → ECUReset(0x11)</p>
-                </article>
-
-                <article id="bootloader-implementation" class="detail-block">
-                  <h4>핵심 구현</h4>
-                  <ul class="stage-list">
-                    <li>Application Primary를 Backup 영역으로 복사</li>
-                    <li>Primary Erase 후 신규 SW Binary 기록</li>
-                    <li><code>valid pattern</code>과 SHA-256 결과로 실행 가능 여부 판정</li>
-                    <li>검사 실패 시 Backup을 Primary로 복구</li>
-                    <li>TransferData의 Block Sequence와 재시도 실패 정책 처리</li>
-                  </ul>
-                </article>
-
-                <article id="bootloader-validation" class="detail-block">
-                  <h4>검증 범위</h4>
-                  <ul class="stage-list">
-                    <li>정상 UDS 다운로드 및 TransferExit 완료</li>
-                    <li>Block Sequence 불일치와 전송 중단 처리</li>
-                    <li>변조 Binary의 SHA-256 불일치 판정</li>
-                    <li>Application 무효 시 Backup Restore 수행</li>
-                    <li>Reset 이후 실행 경로와 저장 데이터 확인</li>
-                  </ul>
-                </article>
-
-                <article id="bootloader-debug" class="detail-block wide">
-                  <h4>대표 문제 해결 — Memory Alignment Error</h4>
-                  <div class="problem-flow">
-                    <div class="problem-step debug-step">
-                      <strong>증상</strong>
-                      <code>FlsLoader_Write</code> 호출 중 Trap이 발생해 Backup·Restore가 중단됐습니다.
-                    </div>
-                    <div class="problem-step debug-step">
-                      <strong>원인 분석</strong>
-                      Trace32의 Trap 정보와 함수 인수를 추적해 source buffer의 정렬 조건을 점검했습니다.
-                    </div>
-                    <div class="problem-step debug-step">
-                      <strong>수정</strong>
-                      저장 버퍼를 <code>uint32</code> 배열로 변경하고 바이트 처리는 <code>uint8*</code>로 참조해 4바이트 정렬을 보장했습니다.
-                    </div>
-                    <div class="problem-step debug-step">
-                      <strong>재검증</strong>
-                      Application→Backup과 Backup→Application 양방향 Write·Read 및 SHA-256 판정을 다시 수행했습니다.
-                    </div>
-                  </div>
-                </article>
-
-                <article id="bootloader-evidence" class="detail-block wide">
-                  <h4>디버깅 이미지 및 산출물 바로가기</h4>
-                  <p>Notion의 Memory Alignment Error 기록에 남은 코드·PC·BTV·Breakpoint 값을 로컬 이미지와 독립 산출물로 정리했습니다.</p>
-                  <div class="artifact-grid" aria-label="Bootloader 상세 산출물 바로가기">
-                    <a class="artifact-item" href="artifacts/bootloader/memory-map.html" target="_blank" rel="noreferrer"><strong>MEMORY MAP</strong><span>링크 스크립트 주소 기반 메모리 구조</span></a>
-                    <a class="artifact-item" href="artifacts/bootloader/uds-sequence.html" target="_blank" rel="noreferrer"><strong>UDS SEQUENCE</strong><span>SID별 리프로그래밍 및 Restore 흐름</span></a>
-                    <a class="artifact-item" href="artifacts/bootloader/test-results.html" target="_blank" rel="noreferrer"><strong>TEST RESULTS</strong><span>테스트 케이스와 판정 근거</span></a>
-                    <a class="artifact-item" href="artifacts/bootloader/trace32-restore.html" target="_blank" rel="noreferrer"><strong>TRACE32 · RESTORE</strong><span>Alignment 분석과 복구 확인</span></a>
-                  </div>
-                  <div class="evidence-gallery">
-                    <a class="evidence-item" href="assets/images/bootloader/alignment-trap.png" target="_blank" rel="noreferrer">
-                      <img src="assets/images/bootloader/alignment-trap.png" alt="Notion 디버깅 기록의 EA_AppToBackup과 FlsLoader_Write 호출 흐름을 정리한 이미지" loading="lazy">
-                      <span class="evidence-caption">EA_AppToBackup · FlsLoader_Write 정렬 분석</span>
-                    </a>
-                    <a class="evidence-item" href="assets/images/bootloader/alignment-breakpoint.png" target="_blank" rel="noreferrer">
-                      <img src="assets/images/bootloader/alignment-breakpoint.png" alt="Notion 디버깅 기록의 Trace32 PC BTV Breakpoint 값을 정리한 이미지" loading="lazy">
-                      <span class="evidence-caption">Trace32 PC · BTV · Trap Breakpoint</span>
-                    </a>
-                  </div>
-                </article>
-              </div>
-            </div>
-          </article>
-
           <article class="project-card" id="black-box-project">
             <header class="project-header">
               <div>
-                <p class="project-label">PROJECT 02 · VEHICLE SW VERIFICATION</p>
+                <p class="project-label">PROJECT 01 · VEHICLE SW VERIFICATION</p>
                 <h3>CANoe/CAPL 기반 차량 ECU<br>IVS Black Box Validation</h3>
               </div>
               <span class="project-badge">개인 프로젝트 · 검증 중심</span>
@@ -1260,20 +1013,21 @@
 
             <section class="artifact-section" aria-label="Black Box Validation 산출물">
               <h4>산출물</h4>
+              <p class="artifact-note">엔지니어 검토용 상세 자료입니다. 주소값·코드·판정 근거를 그대로 담았습니다.</p>
               <div class="artifact-grid">
-                <a class="artifact-item" href="artifacts/black-box/index.html#code" target="_blank" rel="noreferrer">
+                <a class="artifact-item" href="artifacts/black-box/index.html#code">
                   <strong>CODE</strong>
                   <span>CAPL 자동화와 Fresh Frame 유틸리티</span>
                 </a>
-                <a class="artifact-item" href="artifacts/black-box/index.html#test" target="_blank" rel="noreferrer">
+                <a class="artifact-item" href="artifacts/black-box/index.html#test">
                   <strong>TEST</strong>
                   <span>요구사항 기반 Test Case와 판정 결과</span>
                 </a>
-                <a class="artifact-item" href="artifacts/black-box/index.html#document" target="_blank" rel="noreferrer">
+                <a class="artifact-item" href="artifacts/black-box/index.html#document">
                   <strong>DOCUMENT</strong>
                   <span>결함 재현 조건·영향도·개선 방향</span>
                 </a>
-                <a class="artifact-item" href="artifacts/black-box/index.html#demo" target="_blank" rel="noreferrer">
+                <a class="artifact-item" href="artifacts/black-box/index.html#demo">
                   <strong>DEMO</strong>
                   <span>CANoe Network·Panel·Trace 실행 화면</span>
                 </a>
@@ -1294,86 +1048,135 @@
                 <span>Black Box Testing</span>
                 <span>Trace Analysis</span>
               </div>
-              <button class="project-detail-toggle" type="button" aria-expanded="false" aria-controls="black-box-details">프로젝트 상세 보기</button>
+              <a class="project-more" href="artifacts/black-box/index.html">근거 자료 전체 보기 →</a>
             </footer>
-
-            <div id="black-box-details" class="project-detail-region" hidden>
-              <div class="project-detail-inner">
-                <article id="black-box-test" class="detail-block wide">
-                  <h4>테스트 수행 흐름</h4>
-                  <p class="flow-line">요구사양 분석 → CANdb·CANoe·Panel 환경 구성 → 수동 시험 → CAPL 자동화 시험 → 정적·동적 검증 → 결함 분석 및 회귀 테스트</p>
-                </article>
-
-                <article id="black-box-code" class="detail-block">
-                  <h4>자동화 구현 범위</h4>
-                  <ul>
-                    <li>Detection·Recovery·Clear 테스트 시나리오</li>
-                    <li>경계값과 선행 조건 조합 입력</li>
-                    <li>CAN Signal·System Variable 기반 판정</li>
-                    <li>Fresh Frame 확인 후 타이머 시작 유틸리티</li>
-                  </ul>
-                </article>
-
-                <article id="black-box-document" class="detail-block">
-                  <h4>대표 검출 결과</h4>
-                  <ul>
-                    <li>정적 결함 4건: Signal Length, Value, Description 불일치</li>
-                    <li>동적 결함 11건: 경계값, 선행 조건, Recovery, Timing 오류</li>
-                    <li>Batt Percent 15% 경계값과 IGN 50 Cycle Off-by-One 확인</li>
-                    <li>Steering Timing 요구사양 50±10ms 대비 약 1000±10ms 검출</li>
-                  </ul>
-                </article>
-
-                <article class="detail-block wide">
-                  <h4>대표 문제 해결 — Fresh Frame 동기화</h4>
-                  <div class="problem-flow">
-                    <div class="problem-step">
-                      <strong>증상</strong>
-                      메시지 송신 방식 변경 후 이전 프레임을 기준으로 타이머가 시작돼 Detection 시점 판정이 흔들렸습니다.
-                    </div>
-                    <div class="problem-step">
-                      <strong>원인 분석</strong>
-                      CAN Trace Timestamp와 CAPL Flag 전환 시점을 비교해 최신 Reference Frame 수신 전 측정이 시작됨을 확인했습니다.
-                    </div>
-                    <div class="problem-step">
-                      <strong>수정</strong>
-                      <code>waitBattReference</code>·<code>waitIGNReference</code>에서 Fresh Frame을 확인한 뒤 1ms 타이머를 시작하도록 변경했습니다.
-                    </div>
-                    <div class="problem-step">
-                      <strong>재검증</strong>
-                      경계값·Timing 시나리오를 CAPL 회귀 테스트로 반복 실행해 동일 판정 기준이 유지되는지 확인했습니다.
-                    </div>
-                  </div>
-                </article>
-
-                <article id="black-box-demo" class="detail-block wide">
-                  <h4>실제 수행 환경 및 Test Result</h4>
-                  <div class="evidence-gallery">
-                    <a class="evidence-item" href="assets/images/black-box/network_setup.png" target="_blank" rel="noreferrer">
-                      <img src="assets/images/black-box/network_setup.png" alt="CANoe에서 IVS와 주변 ECU Network Node를 구성한 실제 프로젝트 화면" loading="lazy">
-                      <span class="evidence-caption">CANoe Network 구성</span>
-                    </a>
-                    <a class="evidence-item" href="assets/images/black-box/automation_test_environment.png" target="_blank" rel="noreferrer">
-                      <img src="assets/images/black-box/automation_test_environment.png" alt="CANoe Test Setup과 CAPL Test Module을 구성한 실제 자동화 시험 화면" loading="lazy">
-                      <span class="evidence-caption">CAPL 자동화 테스트 환경</span>
-                    </a>
-                    <a class="evidence-item" href="assets/images/black-box/panel_trace.png" target="_blank" rel="noreferrer">
-                      <img src="assets/images/black-box/panel_trace.png" alt="CANoe Panel에서 차량 신호를 제어한 실제 프로젝트 화면" loading="lazy">
-                      <span class="evidence-caption">Panel 및 Trace 화면</span>
-                    </a>
-                    <a class="evidence-item" href="assets/images/black-box/test_environment.png" target="_blank" rel="noreferrer">
-                      <img src="assets/images/black-box/test_environment.png" alt="차량 Simulation과 가상 ECU 및 검증 대상 ECU의 비교 구조를 정리한 실제 프로젝트 테스트 환경 화면" loading="lazy">
-                      <span class="evidence-caption">Black Box Test Environment</span>
-                    </a>
-                    <a class="evidence-item" href="assets/images/black-box/defect_batt_percent_15.png" target="_blank" rel="noreferrer">
-                      <img src="assets/images/black-box/defect_batt_percent_15.png" alt="Batt Percent 15퍼센트 경계값 미검출을 확인한 실제 Test Result 화면" loading="lazy">
-                      <span class="evidence-caption">Batt Percent 15% Test Result</span>
-                    </a>
-                  </div>
-                </article>
-              </div>
-            </div>
           </article>
+
+          <article class="project-card" id="bootloader-project">
+            <header class="project-header">
+              <div>
+                <p class="project-label">PROJECT 02 · EMBEDDED SW DEVELOPMENT</p>
+                <h3>OTA를 위한 Bootloader 설계 및<br>SW Binary 위변조 감지</h3>
+              </div>
+              <span class="project-badge">개인 프로젝트 · 개발 중심</span>
+            </header>
+
+            <div class="project-intro">
+              <p>Infineon AURIX TC234LP 기반 ECU에서 업데이트 실패와 Binary 변경 상황에도 기존 애플리케이션을 보호하도록 UDS 리프로그래밍, Backup·Restore, SHA-256 무결성 검사를 연결했습니다.</p>
+            </div>
+
+            <dl class="project-meta" aria-label="OTA Bootloader 프로젝트 메타데이터">
+            <div><dt>유형</dt><dd>개인 프로젝트</dd></div>
+            <div><dt>수행 기간</dt><dd>2026.03.03–2026.03.24</dd></div>
+            <div><dt>팀 규모</dt><dd>1명</dd></div>
+            <div><dt>기여도</dt><dd>100%</dd></div>
+            <div><dt>담당 범위</dt><dd>설계·구현·디버깅·검증 전담</dd></div>
+          </dl>
+
+          <dl class="project-summary" aria-label="OTA Bootloader 5줄 요약">
+              <div>
+                <dt>목표</dt>
+                <dd>불완전하거나 변경된 업데이트 이미지로의 부팅을 방지하고 정상 애플리케이션 복구 경로를 구성했습니다.</dd>
+              </div>
+              <div>
+                <dt>역할</dt>
+                <dd>부트캠프 개인 과제로, 제공된 AURIX·MCAL 교육 환경 위에서 메모리 영역과 진단 절차 설계, Embedded C 구현, Flash 제어, Trace32 디버깅을 전담했습니다.</dd>
+              </div>
+              <div>
+                <dt>구현</dt>
+                <dd>UDS 7개 서비스(0x10·0x27·0x31·0x34·0x36·0x37·0x11), Application Backup·Restore, SHA-256 비교와 실패 정책을 구현했습니다. 0x31은 EraseMemory·Backup과 CheckProgrammingDependencies 두 루틴에 사용했습니다.</dd>
+              </div>
+              <div>
+                <dt>검증</dt>
+                <dd>정상 다운로드, 전송 순서 오류, 무결성 불일치, 복구 경로와 양방향 Flash Write를 시나리오별로 확인했습니다.</dd>
+              </div>
+              <div>
+                <dt>결과</dt>
+                <dd>Memory Alignment Trap의 원인을 4바이트 정렬 조건으로 특정하고 수정 후 Application→Backup→Application 복구 흐름을 재검증했습니다.</dd>
+              </div>
+              <div>
+                <dt>근거 수준</dt>
+                <dd>결과 서술은 교육 당시 ECU에서 수행한 시나리오 시험 기록을 근거로 합니다. 현재는 TASKING·EB tresos와 대상 ECU가 없어 새 빌드나 하드웨어 재시험을 하지 않았고, 정렬 수정은 수정 전후 소스와 SHA-256 대조까지 확인했습니다. 케이스별 근거 수준은 TEST RESULTS에서 PASS · Not executed · Evidence unavailable로 구분했습니다.</dd>
+              </div>
+              <div>
+                <dt>범위·한계</dt>
+                <dd>교육 과정 범위의 구현으로, 고정 키를 접두어로 붙인 SHA-256 검사입니다. HMAC이나 전자서명이 아니므로 전송 오류와 단순 변조는 검출하지만 해시까지 다시 계산하는 공격자는 막지 못합니다. 실차 수준에는 보호된 키 기반 HMAC 또는 전자서명이 필요하며, 이 한계는 구현 후 정적 리뷰에서 직접 정리했습니다.</dd>
+              </div>
+            </dl>
+
+            <section class="key-results" aria-label="OTA Bootloader Key Results">
+              <h4>KEY RESULTS</h4>
+              <div class="results-grid">
+                <div class="result-card">
+                  <strong>UDS 7개 서비스 흐름</strong>
+                  <span>Session·Security·Download·Reset 연계</span>
+                </div>
+                <div class="result-card">
+                  <strong>Backup·Restore</strong>
+                  <span>Primary와 Backup 영역 간 복구 경로</span>
+                </div>
+                <div class="result-card">
+                  <strong>SHA-256</strong>
+                  <span>Application Binary 무결성 판정</span>
+                </div>
+                <div class="result-card">
+                  <strong>Trap 원인 해결</strong>
+                  <span>Trace32 기반 4바이트 정렬 수정</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="artifact-section" aria-label="OTA Bootloader 산출물">
+              <h4>산출물</h4>
+              <p class="artifact-note">엔지니어 검토용 상세 자료입니다. 주소값·코드·판정 근거를 그대로 담았습니다.</p>
+              <div class="artifact-grid">
+                <a class="artifact-item" href="artifacts/bootloader/index.html#memory-map">
+                  <strong>MEMORY MAP</strong>
+                  <span>실제 주소 기반 PFlash·Backup·Valid Pattern 구조</span>
+                </a>
+                <a class="artifact-item" href="artifacts/bootloader/index.html#uds">
+                  <strong>UDS SEQUENCE</strong>
+                  <span>정상 리프로그래밍과 무결성 실패·Restore 흐름</span>
+                </a>
+                <a class="artifact-item" href="artifacts/bootloader/index.html#test">
+                  <strong>TEST RESULTS</strong>
+                  <span>테스트 케이스·실제 결과·근거 연결표</span>
+                </a>
+                <a class="artifact-item" href="artifacts/bootloader/index.html#trace32">
+                  <strong>TRACE32 · RESTORE</strong>
+                  <span>Alignment Trap 분석과 양방향 복구 재검증</span>
+                </a>
+                <a class="artifact-item" href="assets/evidence/ivs_completion.pdf" target="_blank" rel="noreferrer">
+                  <strong>EVIDENCE</strong>
+                  <span>IVS 차량 SW 교육 수료 증빙</span>
+                </a>
+              </div>
+            </section>
+
+            <footer class="project-footer">
+              <div class="tag-list" aria-label="OTA Bootloader 사용 기술">
+                <span>Embedded C</span>
+                <span>AURIX TC234LP</span>
+                <span>CAN·ISO-TP</span>
+                <span>UDS</span>
+                <span>MCAL</span>
+                <span>PFlash</span>
+                <span>SHA-256</span>
+                <span>Trace32</span>
+              </div>
+              <a class="project-more" href="artifacts/bootloader/index.html">근거 자료 전체 보기 →</a>
+            </footer>
+          </article>
+        </div>
+
+        <div class="other-projects">
+          <h3>기타 프로젝트</h3>
+          <p>대표 프로젝트 외에 수행한 팀·개인 프로젝트입니다. 아래 저장소는 모두 공개돼 있습니다.</p>
+          <div class="artifact-grid">
+            <a class="artifact-item" href="https://github.com/jb-cho55/IVS-CarMaker-ADAS" target="_blank" rel="noreferrer"><strong>ADAS 통합 자율주행 (CarMaker)</strong><span>6인 팀 파이널 프로젝트 · 팀장. 다차로 주행·톨게이트·정밀주차를 CarMaker와 Simulink 폐루프로 통합. 주차 알고리즘(Hybrid A* · Reeds-Shepp) 담당</span></a>
+            <a class="artifact-item" href="https://github.com/jb-cho55/Autonomous-Computing-Platform-FinalProject" target="_blank" rel="noreferrer"><strong>보안 CAN 차량 네트워크</strong><span>ERIKA Enterprise RTOS 기반 ECU 2대와 OP-TEE 게이트웨이로 CAN 메시지 암호화·서명 검증을 구현한 차량 내부망 보안 데모</span></a>
+            <a class="artifact-item" href="https://github.com/jb-cho55/Capstone_DeepRacer_KOOKNET_2025" target="_blank" rel="noreferrer"><strong>캡스톤디자인 · DeepRacer</strong><span>졸업작품 팀 프로젝트 · 팀장. 강화학습 자율주행에서 보상 구조를 3단계로 발전시켜 주행 성능 개선, 제어 파트 담당</span></a>
+          </div>
         </div>
       </div>
     </section>
@@ -1455,6 +1258,8 @@
             <p>ISTQB CTFL 기반 테스트 설계 개념을 요구사항 분석, 경계값 시험, 결함 보고와 회귀 테스트에 적용했습니다.</p>
             <ul>
               <li>정적 검토와 Black Box 동적 시험 수행</li>
+              <li>경계값 분석·동등분할·상태 전이 테스트로 Test Case 설계</li>
+              <li>A-SPICE SWE.6 관점에서 요구사양–Test Case–판정 결과를 추적</li>
               <li>기대 결과·실제 결과·영향도·재현 조건 문서화</li>
             </ul>
           </article>
@@ -1472,7 +1277,7 @@
 
         <div class="education-grid">
           <article class="education-card university">
-            <p class="period">졸업</p>
+            <p class="period">2020.03–2026.02 · 졸업</p>
             <h3>국민대학교 자동차IT융합학과</h3>
             <p>자동차공학, 전자공학, 소프트웨어를 융합해 차량 시스템과 제어·통신·프로그래밍을 학습했습니다.</p>
           </article>
@@ -1484,6 +1289,7 @@
             <ul>
               <li>CAN·UDS·CANoe/CAPL 기반 차량 통신 및 테스트 자동화</li>
               <li>A-SPICE, AUTOSAR Classic, 정적·동적 검증</li>
+              <li>ISO 26262 기능안전, MISRA C 코딩 표준, Polyspace 정적 분석 (교육 이수)</li>
               <li>Embedded C, AURIX, OTA Bootloader 프로젝트</li>
             </ul>
           </article>
@@ -1567,6 +1373,9 @@
         <div>
           <h2>Vehicle Embedded SW 개발과 검증을 연결하겠습니다.</h2>
           <p>구현 결과를 테스트 가능한 기준으로 구조화하고, 재현 가능한 증거로 설명하는 엔지니어를 지향합니다.</p>
+          <p class="contact-email">연락 <a href="mailto:cho.jeongbin55@gmail.com">cho.jeongbin55@gmail.com</a></p>
+          <!-- 이력서: assets/resume.pdf 를 넣은 뒤 아래 p 태그의 hidden 속성만 지우면 노출됩니다. -->
+          <p class="contact-resume" hidden><a href="assets/resume.pdf" download>이력서 PDF 내려받기</a></p>
         </div>
         <a class="button" href="https://github.com/jb-cho55" target="_blank" rel="noreferrer">GitHub Profile</a>
       </div>
@@ -1581,6 +1390,27 @@
   </footer>
 
   <script>
+    const railLinks = [...document.querySelectorAll(".section-rail a")];
+    if (railLinks.length) {
+      const sections = railLinks
+        .map((a) => document.getElementById(a.getAttribute("href").slice(1)))
+        .filter(Boolean);
+
+      const highlight = (id) => railLinks.forEach((a) => {
+        if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "true");
+        else a.removeAttribute("aria-current");
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        const top = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (top) highlight(top.target.id);
+      }, { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.3, 0.7, 1] });
+
+      sections.forEach((section) => observer.observe(section));
+    }
+
     const menuToggle = document.querySelector(".menu-toggle");
     const mobileMenu = document.querySelector("#mobile-menu");
 
@@ -1588,16 +1418,6 @@
       const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
       menuToggle.setAttribute("aria-expanded", String(!isOpen));
       mobileMenu.classList.toggle("open", !isOpen);
-    });
-
-    document.querySelectorAll(".project-detail-toggle").forEach((button) => {
-      button.addEventListener("click", () => {
-        const detail = document.getElementById(button.getAttribute("aria-controls"));
-        const isOpen = button.getAttribute("aria-expanded") === "true";
-        button.setAttribute("aria-expanded", String(!isOpen));
-        detail.hidden = isOpen;
-        button.textContent = isOpen ? "프로젝트 상세 보기" : "상세 내용 접기";
-      });
     });
   </script>
 </body>

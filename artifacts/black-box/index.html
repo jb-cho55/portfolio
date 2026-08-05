@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <link rel="stylesheet" href="../../assets/bootloader/shared.css">
   <style>
-    .artifact-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.artifact-nav a{padding:8px 12px;border:1px solid var(--line);border-radius:8px;color:var(--blue);font-size:13px;font-weight:800;text-decoration:none}.artifact-nav a:hover,.artifact-nav a:focus-visible{background:var(--blue-soft)}.gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.gallery a{display:block;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;text-decoration:none}.gallery img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#eef2f7}.gallery span{display:block;padding:10px 12px;color:var(--muted);font-size:13px;font-weight:700}.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric{padding:16px;border:1px solid var(--line);border-radius:9px;background:#fff}.metric strong{display:block;color:var(--navy);font-size:20px}.metric span{color:var(--muted);font-size:13px}@media(max-width:700px){.gallery,.metric-grid{grid-template-columns:1fr}}
+    .gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.gallery a{display:block;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;text-decoration:none}.gallery img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#eef2f7}.gallery span{display:block;padding:10px 12px;color:var(--muted);font-size:13px;font-weight:700}.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric{padding:16px;border:1px solid var(--line);border-radius:9px;background:#fff}.metric strong{display:block;color:var(--navy);font-size:20px}.metric span{color:var(--muted);font-size:13px}.result-gallery{align-items:start}.result-gallery img{aspect-ratio:auto;height:auto;object-fit:contain;background:#fff}.result-gallery span{line-height:1.5}@media(max-width:700px){.gallery,.metric-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -21,24 +21,130 @@
       <h1>CANoe/CAPL 기반 차량 ECU 검증</h1>
       <p>요구사항을 테스트 조건과 판정 기준으로 전환한 과정부터 CAPL 자동화, 결함 기록, 실제 수행 화면까지 한 페이지에서 확인할 수 있습니다.</p>
       <dl class="meta-grid" aria-label="Black Box Validation 프로젝트 메타데이터"><div><dt>유형</dt><dd>개인 프로젝트</dd></div><div><dt>기간</dt><dd>2026.03.19–2026.03.23</dd></div><div><dt>팀 규모</dt><dd>1명</dd></div><div><dt>기여도</dt><dd>100%</dd></div><div><dt>환경</dt><dd>CANoe · CAPL · CANdb</dd></div></dl>
-      <nav class="artifact-nav" aria-label="산출물 섹션"><a href="#code">CODE</a><a href="#test">TEST</a><a href="#document">DOCUMENT</a><a href="#demo">DEMO</a></nav>
     </header>
+
+    <nav class="artifact-nav" aria-label="산출물 섹션"><a href="#overview">OVERVIEW</a><a href="#code">CODE</a><a href="#test">TEST</a><a href="#document">DOCUMENT</a><a href="#demo">DEMO</a></nav>
+
+
+    <section id="overview" class="panel">
+      <h2>OVERVIEW</h2>
+      <h3>테스트 수행 흐름</h3>
+      <p class="callout">요구사양 분석 → CANdb·CANoe·Panel 환경 구성 → 수동 시험 → CAPL 자동화 시험 → 정적·동적 검증 → 결함 분석 및 회귀 테스트</p>
+    </section>
 
     <section id="code" class="panel">
       <h2>CODE</h2>
-      <p>Fresh Frame 수신을 확인한 뒤 측정 타이머를 시작하도록 CAPL 테스트 유틸리티를 구성했습니다.</p>
-      <pre><code>waitBattReference();
-waitIGNReference();
+      <p>최신 수신 프레임을 확인한 뒤에 측정 타이머를 시작하도록 동기화 유틸리티를 분리했습니다. 아래는 <code>Battery_Percent_Low.can</code>에서 직접 작성한 부분을 그대로 옮긴 발췌입니다.</p>
+      <p>기준 프레임 동기화 — 기대한 신호 값이 실제로 수신된 것을 확인한 뒤에만 1ms 주기 타이머를 기동합니다.</p>
+      <pre><code>void waitBattReference(int timeoutMs , int data)
+{
+  if (TestWaitForMessage(BATT_01_10ms, timeoutMs) == 1)
+  {
+    TestGetWaitEventMsgData(battRef_msg);
+    if (battRef_msg.Batt_Percent == data){
+      testWaitForTimeout(9);
+      setTimerCyclic(t_1ms ,1);
+    }
+    else{
+      while(1){
+        if (TestWaitForMessage(BATT_01_10ms, timeoutMs) == 1){
+              TestGetWaitEventMsgData(battRef_msg);
+              if (battRef_msg.Batt_Percent == data){
+                testWaitForTimeout(9);
+                setTimerCyclic(t_1ms ,1);
+                break;
+              }
+        }
+      }
+    }
+  }
+}</code></pre>
+      <p>전수 조합 판정 — Batt_Percent 0~100 &times; Ignition 0/1 &times; Engine 0/1을 모두 돌면서, 검출을 기대하는 조합과 기대하지 않는 조합을 각각 다른 기준으로 판정합니다.</p>
+      <pre><code>/* 14,15 + IGN=1 + ENG=1 일 때만 fault level 2 기대 */
+expectFault = (i == 1 &amp;&amp; j == 1 &amp;&amp; battPercent &lt;= 15);
 
-// Fresh reference frame confirmed
-setTimer(detectionTimer, 1);</code></pre>
-      <ul class="source-list"><li>Detection·Recovery·Clear 시나리오 자동화</li><li>CAN Signal·System Variable 기반 기대값 판정</li><li>경계값과 선행 조건 조합 입력</li></ul>
+waitBattReference(20, battPercent);
+
+while(time_cnt_ms &lt;= 5100)
+{
+  @sysvar::UDS::Send_msg = 1;
+  if(TestWaitForMessage(Fault_sts_Rsp, 20) == 1)
+  {
+    TestGetWaitEventMsgData(faultRsp_msg);
+
+    if(expectFault)
+    {
+      if(faultRsp_msg.BATT_Percent_Err_sts == 2)
+      {
+        if(time_cnt_ms &gt;= 4900 &amp;&amp; time_cnt_ms &lt;= 5100)
+        {
+          faultDetectedInWindow = 1;
+          break;
+        }
+        else
+        {
+          timingError = 1;
+          TestStepFail("1.4",
+                       "Fault detected out of time window when IGN=%d, ENG=%d, Batt_Percent=%d, time=%dms",
+                       i, j, battPercent, time_cnt_ms);
+          break;
+        }
+      }
+    }
+    else
+    {
+      /* fault를 기대하지 않는 모든 경우는 0 유지가 정상 */
+      if(faultRsp_msg.BATT_Percent_Err_sts != 0)
+      {
+        unexpectedStateDetected = 1;
+        TestStepFail("1.5",
+                     "Unexpected state detected when IGN=%d, ENG=%d, Batt_Percent=%d, Err_sts=%d, time=%dms",
+                     i, j, battPercent, faultRsp_msg.BATT_Percent_Err_sts, time_cnt_ms);
+        break;
+      }
+    }
+  }
+}</code></pre>
+      <ul class="source-list"><li>Detection·Recovery·Clear 시나리오 자동화</li><li>CAN Signal·System Variable 기반 기대값 판정</li><li>경계값과 선행 조건 조합 입력</li><li>판정은 <code>TestStepPass</code>·<code>TestStepFail</code>로 기록해 조건과 실제 값을 함께 남김</li></ul>
+
+      <h3>대표 문제 해결 — Fresh Frame 동기화</h3>
+      <ol class="steps">
+        <li><strong>증상</strong>메시지 송신 방식 변경 후 이전 프레임을 기준으로 타이머가 시작돼 Detection 시점 판정이 흔들렸습니다.</li>
+        <li><strong>원인 분석</strong>CAN Trace Timestamp와 CAPL Flag 전환 시점을 비교해 최신 Reference Frame 수신 전 측정이 시작됨을 확인했습니다.</li>
+        <li><strong>수정</strong><code>waitBattReference</code>·<code>waitIGNReference</code>에서 <code>TestWaitForMessage</code>로 최신 수신 프레임을 확인한 뒤 <code>setTimerCyclic</code>으로 1ms 타이머를 시작하도록 변경했습니다.</li>
+        <li><strong>재검증</strong>경계값·Timing 시나리오를 CAPL 회귀 테스트로 반복 실행해 동일 판정 기준이 유지되는지 확인했습니다.</li>
+      </ol>
     </section>
 
     <section id="test" class="panel">
       <h2>TEST</h2>
       <div class="metric-grid"><div class="metric"><strong>4건</strong><span>정적 결함</span></div><div class="metric"><strong>11건</strong><span>동적 결함</span></div><div class="metric"><strong>CAPL</strong><span>반복 회귀 테스트</span></div></div>
       <div class="table-wrap"><table><caption>대표 테스트와 실제 판정</caption><thead><tr><th>테스트</th><th>요구 기준</th><th>실제 결과</th><th>판정</th></tr></thead><tbody><tr><td>Batt Percent 경계값</td><td>15% 조건 반영</td><td>15%에서 Fault 미검출</td><td><span class="status status-pass">결함 검출</span></td></tr><tr><td>IGN Cycle</td><td>50 Cycle 경계</td><td>Off-by-One 동작 확인</td><td><span class="status status-pass">결함 검출</span></td></tr><tr><td>Steering Timing</td><td>50±10ms</td><td>약 1000±10ms</td><td><span class="status status-pass">결함 검출</span></td></tr></tbody></table></div>
+
+      <h3>대표 검출 결과</h3>
+      <ul class="source-list">
+        <li>요구사양 7개 고장 시나리오를 CAPL 스크립트 6종·테스트케이스 24개로 구현하고 입력값을 전수 조합해 수행 (예: Batt Percent 시나리오 1건이 101 × Ignition 2 × Engine 2 = 404조합)</li>
+        <li>정적 결함 4건: Signal Length, Value, Description 불일치</li>
+        <li>동적 결함 11건: 경계값, 선행 조건, Recovery, Timing 오류</li>
+        <li>Batt Percent 15% 경계값과 IGN 50 Cycle Off-by-One 확인</li>
+        <li>Steering Timing 요구사양 50±10ms 대비 약 1000±10ms 검출</li>
+        <li>Batt Voltage 회복 임계 15.0V가 CANdb Factor 0.001 미적용으로 raw 15(15mV)에서만 동작</li>
+      </ul>
+
+      <h3>결함별 실제 판정 화면</h3>
+      <p>동적 결함 11건 가운데 10건은 CAPL 테스트 리포트의 판정 행을 그대로 남겼습니다. 각 행에는 입력 조건과 관측값이 함께 기록됩니다. Brake·Accel·Vehicle 독립 검출 결함 1건은 캡처가 없어 문서로만 정리했습니다.</p>
+      <div class="gallery result-gallery">
+        <a href="../../assets/images/black-box/result_batt_percent_15_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_percent_15_fail.png" alt="Batt_Percent=15 조건에서 Fault 미검출로 Fail 판정된 테스트 리포트 행"><span>Batt Percent 15% — 요구 검출 구간 4900~5100ms에서 Fault 미검출</span></a>
+        <a href="../../assets/images/black-box/result_batt_percent_80_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_percent_80_fail.png" alt="Batt_Percent=80 조건에서 Fault 미검출로 Fail 판정된 테스트 리포트 행"><span>Batt Percent 80% — 동일 구간에서 미검출, 등호 조건 누락</span></a>
+        <a href="../../assets/images/black-box/result_ign_49_cycle_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_ign_49_cycle_fail.png" alt="Cycle_cnt=49에서 Fault Clear가 동작해 Fail 판정된 테스트 리포트 행 다수"><span>IGN Cycle — 요구 50 Cycle과 달리 <code>Cycle_cnt=49</code>에서 Clear 동작 (Off-by-One)</span></a>
+        <a href="../../assets/images/black-box/result_batt_voltage_recovery_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_voltage_recovery_fail.png" alt="battVoltage 14400에서 15000까지 회복 실패로 Fail 판정된 테스트 리포트 행"><span>Batt Voltage 회복 — raw 14400~15000 전 구간 회복 실패. 요구 임계 15.0V가 Factor 0.001 미적용으로 raw 15(15mV)에서만 동작</span></a>
+        <a href="../../assets/images/black-box/result_batt_voltage_invalid_precondition.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_voltage_invalid_precondition.png" alt="IGN=0 ENG=0 조건에서도 Err_sts=2가 검출된 테스트 리포트 행"><span>Batt Voltage High — IGN=0 · ENG=0 선행조건 위반 상태에서도 <code>Err_sts=2</code> 검출</span></a>
+        <a href="../../assets/images/black-box/result_battery_charging_invalid_precondition.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_battery_charging_invalid_precondition.png" alt="ENG=0 조건에서도 Err_sts=2가 검출된 테스트 리포트 행"><span>Battery Charging — <code>ENG=0</code>에서도 검출, Engine 선행조건 미반영</span></a>
+        <a href="../../assets/images/black-box/result_ignition_fault_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_ignition_fault_fail.png" alt="IGN=3 입력에도 Err_sts가 0으로 유지된 테스트 리포트 행"><span>Ignition Status Error — <code>IGN=3</code>(Error) 입력에 101ms·5109ms 모두 <code>Err_sts=0</code></span></a>
+        <a href="../../assets/images/black-box/result_engine_fault_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_engine_fault_fail.png" alt="ENG=2 입력에도 Err_sts가 0으로 유지된 테스트 리포트 행"><span>Engine Status Error — <code>ENG=2</code>(Fault) 입력에 1028ms까지 <code>Err_sts=0</code></span></a>
+        <a href="../../assets/images/black-box/result_steering_timing_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_steering_timing_fail.png" alt="Steering 검출 시각이 984~993ms로 기록된 테스트 리포트 행"><span>Steering Timing — 요구 50±10ms 대비 약 984~993ms에 검출</span></a>
+        <a href="../../assets/images/black-box/result_steering_invalid_condition_detected.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_steering_invalid_condition_detected.png" alt="IGN=0 조건에서도 Steering Err_sts=2가 검출된 테스트 리포트 행"><span>Steering — <code>IGN=0</code> 선행조건 위반 상태에서도 검출</span></a>
+      </div>
     </section>
 
     <section id="document" class="panel">
