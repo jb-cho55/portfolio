@@ -397,6 +397,10 @@ class DeploymentWorkflowTests(unittest.TestCase):
         self.assertRegex(workflow_check, r"\$run\.headSha\s+-ne\s+\$releaseSha")
         self.assertIn("gh run watch $run.databaseId --exit-status", workflow_check)
         self.assertIn("gh run view $run.databaseId --log-failed", workflow_check)
+        self.assertRegex(
+            workflow_check,
+            r'\$result\.status\s+-ne\s+"completed"',
+        )
         self.assertIn("gh api repos/jb-cho55/portfolio/pages", deployment_check)
         deployed_routes = set(
             re.findall(

@@ -80,7 +80,7 @@ python -B -m unittest discover -s tests -v
    if ($run.headSha -ne $releaseSha) { throw "조회한 workflow의 headSha가 release SHA와 다릅니다." }
    gh run watch $run.databaseId --exit-status
    $result = gh run view $run.databaseId --json headSha,status,conclusion,url | ConvertFrom-Json
-   if ($result.headSha -ne $releaseSha -or $result.conclusion -ne "success") { throw "Release workflow가 성공하지 않았습니다." }
+   if ($result.headSha -ne $releaseSha -or $result.status -ne "completed" -or $result.conclusion -ne "success") { throw "Release workflow가 완료 상태로 성공하지 않았습니다." }
    gh run view $run.databaseId --log-failed
    ```
 
