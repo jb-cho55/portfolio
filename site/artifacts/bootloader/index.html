@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>OTA Bootloader · 조정빈</title>
   <meta name="description" content="AURIX 교육 환경에서 구현한 UDS 재프로그래밍, Backup 복구, Trace32 정렬 오류 분석의 근거와 한계를 공개합니다.">
-  <link rel="icon" href="/portfolio/assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/portfolio/assets/css/site.css">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/css/site.css">
 </head>
 <body>
   <a class="skip-link" href="#main-content">본문으로 바로가기</a>
 
   <header class="site-header">
     <div class="site-shell header-inner">
-      <a class="identity" href="/portfolio/" aria-label="조정빈 포트폴리오 홈">
+      <a class="identity" href="../../" aria-label="조정빈 포트폴리오 홈">
         <span>조정빈</span>
         <span>Vehicle Software Engineer</span>
       </a>
@@ -75,7 +75,7 @@
         </div>
       </div>
       <figure class="project-figure">
-        <img src="/portfolio/assets/bootloader/memory-map.svg" alt="AURIX Bootloader와 Application Primary, Valid Pattern, Backup, DFlash 주소 및 복구 방향" width="1000" height="760" loading="lazy" decoding="async">
+        <img src="../../assets/bootloader/memory-map.svg" alt="AURIX Bootloader와 Application Primary, Valid Pattern, Backup, DFlash 주소 및 복구 방향" width="1000" height="760" loading="lazy" decoding="async">
         <figcaption>Primary와 Backup을 별도 PFlash 구획에 두고 Valid Pattern으로 실행 가능 상태를 구분한 교육용 메모리 맵입니다.</figcaption>
       </figure>
       <dl class="claim-list">
@@ -94,7 +94,7 @@
         </div>
       </div>
       <figure class="project-figure">
-        <img src="/portfolio/assets/bootloader/uds-sequence.svg" alt="7개 UDS 서비스, Primary Backup, SHA-256 검사와 Restore 분기를 나타낸 8단계 시퀀스" width="1200" height="980" loading="lazy" decoding="async">
+        <img src="../../assets/bootloader/uds-sequence.svg" alt="7개 UDS 서비스, Primary Backup, SHA-256 검사와 Restore 분기를 나타낸 8단계 시퀀스" width="1200" height="980" loading="lazy" decoding="async">
         <figcaption>Programming Session부터 Reset까지의 요청 순서와 무결성 실패 시 Restore 분기를 함께 표시했습니다.</figcaption>
       </figure>
       <div class="timeline">
@@ -115,7 +115,7 @@
         </article>
       </div>
       <figure class="project-figure">
-        <img src="/portfolio/assets/images/bootloader/uds-routinecontrol-trace.png" alt="Trace32에서 확인한 UDS RoutineControl 처리 흐름" width="838" height="624" loading="lazy" decoding="async">
+        <img src="../../assets/images/bootloader/uds-routinecontrol-trace.png" alt="Trace32에서 확인한 UDS RoutineControl 처리 흐름" width="838" height="624" loading="lazy" decoding="async">
         <figcaption>0x31 RoutineControl 진입과 Flash 처리 흐름을 확인한 Trace32 근거입니다.</figcaption>
       </figure>
     </section>
@@ -162,15 +162,15 @@
         </article>
       </div>
       <figure class="project-figure">
-        <img src="/portfolio/assets/images/bootloader/trap-vector-breakpoint.png" alt="Trace32에서 Trap vector와 EA AppToBackup breakpoint를 확인한 화면" width="466" height="369" loading="lazy" decoding="async">
+        <img src="../../assets/images/bootloader/trap-vector-breakpoint.png" alt="Trace32에서 Trap vector와 EA AppToBackup breakpoint를 확인한 화면" width="466" height="369" loading="lazy" decoding="async">
         <figcaption>Trap vector와 함수 진입점을 연결해 응답 중단 구간을 좁혔습니다.</figcaption>
       </figure>
       <figure class="project-figure">
-        <img src="/portfolio/assets/images/bootloader/alignment-address-trace.png" alt="copyBuf와 A5가 0x7000240D를 가리키는 Trace32 변수 및 레지스터 화면" width="771" height="947" loading="lazy" decoding="async">
+        <img src="../../assets/images/bootloader/alignment-address-trace.png" alt="copyBuf와 A5가 0x7000240D를 가리키는 Trace32 변수 및 레지스터 화면" width="771" height="947" loading="lazy" decoding="async">
         <figcaption>copyBuf 시작 주소와 A5가 동일한 비정렬 주소를 가리킵니다.</figcaption>
       </figure>
       <figure class="project-figure">
-        <img src="/portfolio/assets/images/bootloader/alignment-trap-dmi.png" alt="DMI ALN Error와 DEADD 0x7000240D를 표시한 Trace32 화면" width="968" height="327" loading="lazy" decoding="async">
+        <img src="../../assets/images/bootloader/alignment-trap-dmi.png" alt="DMI ALN Error와 DEADD 0x7000240D를 표시한 Trace32 화면" width="968" height="327" loading="lazy" decoding="async">
         <figcaption>DMI의 ALN Error와 DEADD를 통해 오류 주소를 독립적으로 확인했습니다.</figcaption>
       </figure>
 
@@ -187,9 +187,9 @@
         <div><dt>Claim</dt><dd>교육용 Bootloader 흐름과 과거 Trace32 근거를 설명하며, production-ready secure bootloader라고 주장하지 않습니다.</dd></div>
       </dl>
       <div class="hero-links" aria-label="Bootloader 근거 파일">
-        <a class="text-link external-link" href="/portfolio/assets/bootloader/memory-map.svg" target="_blank" rel="noreferrer">Memory map 원본<span class="visually-hidden"> (새 탭에서 열림)</span></a>
-        <a class="text-link external-link" href="/portfolio/assets/bootloader/uds-sequence.svg" target="_blank" rel="noreferrer">UDS sequence 원본<span class="visually-hidden"> (새 탭에서 열림)</span></a>
-        <a class="text-link" href="/portfolio/#bootloader-project">홈의 프로젝트 요약</a>
+        <a class="text-link external-link" href="../../assets/bootloader/memory-map.svg" target="_blank" rel="noreferrer">Memory map 원본<span class="visually-hidden"> (새 탭에서 열림)</span></a>
+        <a class="text-link external-link" href="../../assets/bootloader/uds-sequence.svg" target="_blank" rel="noreferrer">UDS sequence 원본<span class="visually-hidden"> (새 탭에서 열림)</span></a>
+        <a class="text-link" href="../../#bootloader-project">홈의 프로젝트 요약</a>
       </div>
     </section>
   </main>
