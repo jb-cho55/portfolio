@@ -504,8 +504,7 @@ h1 {
 }
 
 @media (min-width: 720px) and (max-width: 767px) {
-  .timeline article,
-  .education-note {
+  .timeline article {
     grid-template-columns: minmax(0, 1fr);
     gap: 0.7rem;
   }
