@@ -1,6 +1,7 @@
 from pathlib import Path
 import re
 import struct
+import textwrap
 import unittest
 from urllib.parse import urljoin, urlsplit
 from xml.etree import ElementTree
@@ -90,6 +91,30 @@ def workflow_actions(job_lines):
         for line in job_lines
         if (match := re.fullmatch(r"\s+uses:\s*(\S+)", line))
     }
+
+
+def numbered_markdown_steps(markdown, heading):
+    section = markdown.split(heading, 1)[1]
+    next_heading = re.search(r"(?m)^## ", section)
+    if next_heading:
+        section = section[: next_heading.start()]
+    matches = list(re.finditer(r"(?m)^(\d+)\. .+$", section))
+    numbers = [int(match.group(1)) for match in matches]
+    if numbers != list(range(1, len(numbers) + 1)):
+        raise AssertionError(f"Markdown steps are out of order: {numbers}")
+    steps = {}
+    for index, match in enumerate(matches):
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(section)
+        steps[int(match.group(1))] = section[match.start() : end].strip()
+    return steps
+
+
+def powershell_code(step):
+    blocks = re.findall(
+        r"(?ms)^\s*```powershell\s*$\n(.*?)^\s*```\s*$",
+        step,
+    )
+    return "\n".join(textwrap.dedent(block).strip() for block in blocks)
 
 
 class MetadataTests(unittest.TestCase):
@@ -326,24 +351,60 @@ class DeploymentWorkflowTests(unittest.TestCase):
             "false",
         )
 
-    def test_readme_documents_the_guarded_release_and_deployment_check(self):
+    def test_readme_orders_push_before_pages_source_mutation(self):
         readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+        steps = numbered_markdown_steps(readme, "## 게시 절차")
+        self.assertEqual(set(steps), {1, 2, 3, 4, 5, 6})
+        capture = powershell_code(steps[1])
+        remote_guard = powershell_code(steps[2])
+        guarded_push = powershell_code(steps[3])
+        pages_source = powershell_code(steps[4])
+
+        self.assertRegex(capture, r"(?m)^\$releaseSha = git rev-parse HEAD$")
+        self.assertIn("git ls-remote origin refs/heads/main", remote_guard)
+        self.assertIn(
+            '661b9d5186028318a1f181f4f7b0e8a822f1da63', remote_guard
+        )
+        self.assertRegex(remote_guard, r"\$remoteMain\s+-ne\s+\$expectedOldMain")
         self.assertIn(
             "git push --force-with-lease=refs/heads/main:"
             "661b9d5186028318a1f181f4f7b0e8a822f1da63 "
             "origin HEAD:refs/heads/main",
-            readme,
+            guarded_push,
         )
-        for phrase in (
-            "Build and deployment",
-            "GitHub Actions",
-            "gh api --method PUT repos/jb-cho55/portfolio/pages -f build_type=workflow",
-            "gh run watch",
-            "gh run view",
-            "gh api repos/jb-cho55/portfolio/pages",
-        ):
-            with self.subTest(phrase=phrase):
-                self.assertIn(phrase, readme)
+        self.assertRegex(guarded_push, r"git rev-parse HEAD\) -ne \$releaseSha")
+        self.assertIn(
+            "gh api --method PUT repos/jb-cho55/portfolio/pages "
+            "-f build_type=workflow",
+            pages_source,
+        )
+        self.assertNotIn(
+            "build_type=workflow",
+            "\n".join(steps[index] for index in (1, 2, 3)),
+        )
+
+    def test_readme_binds_workflow_and_deployment_checks_to_release_sha(self):
+        readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+        steps = numbered_markdown_steps(readme, "## 게시 절차")
+        workflow_check = powershell_code(steps[5])
+        deployment_check = powershell_code(steps[6])
+
+        run_list = next(
+            line for line in workflow_check.splitlines() if "gh run list" in line
+        )
+        self.assertIn("--commit $releaseSha", run_list)
+        self.assertIn("--json databaseId,headSha", run_list)
+        self.assertRegex(workflow_check, r"\$run\.headSha\s+-ne\s+\$releaseSha")
+        self.assertIn("gh run watch $run.databaseId --exit-status", workflow_check)
+        self.assertIn("gh run view $run.databaseId --log-failed", workflow_check)
+        self.assertIn("gh api repos/jb-cho55/portfolio/pages", deployment_check)
+        deployed_routes = set(
+            re.findall(
+                r'https://jb-cho55\.github\.io/portfolio/(?:artifacts/(?:black-box|carmaker|bootloader)/)?',
+                deployment_check,
+            )
+        )
+        self.assertEqual(deployed_routes, set(CANONICALS.values()))
 
 
 if __name__ == "__main__":
