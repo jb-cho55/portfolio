@@ -25,8 +25,7 @@ class _DocumentParser(HTMLParser):
         self.sources: list[str] = []
         self.text_parts: list[str] = []
         self.title_parts: list[str] = []
-        self.json_ld_blocks: list[str] = []
-        self._json_ld_parts: list[str] = []
+        self.json_ld_parts: list[str] = []
         self._ignored_tags: list[str] = []
         self._in_title = False
         self._in_json_ld = False
@@ -46,7 +45,6 @@ class _DocumentParser(HTMLParser):
             self._in_title = True
         if tag == "script" and attributes.get("type", "").lower() == "application/ld+json":
             self._in_json_ld = True
-            self._json_ld_parts = []
 
     def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         self.handle_starttag(tag, attrs)
@@ -57,15 +55,14 @@ class _DocumentParser(HTMLParser):
             self._ignored_tags.pop()
         if tag == "title":
             self._in_title = False
-        if tag == "script" and self._in_json_ld:
-            self.json_ld_blocks.append("".join(self._json_ld_parts))
+        if tag == "script":
             self._in_json_ld = False
 
     def handle_data(self, data: str) -> None:
         if self._in_title:
             self.title_parts.append(data)
         if self._in_json_ld:
-            self._json_ld_parts.append(data)
+            self.json_ld_parts.append(data)
         if not self._ignored_tags:
             self.text_parts.append(data)
 
@@ -75,7 +72,7 @@ def parse_html(path: Path) -> ParsedDocument:
     parser.feed(path.read_text(encoding="utf-8"))
     parser.close()
     json_ld: list[dict] = []
-    for block in parser.json_ld_blocks:
+    for block in parser.json_ld_parts:
         try:
             json_ld.append(json.loads(block))
         except json.JSONDecodeError as error:

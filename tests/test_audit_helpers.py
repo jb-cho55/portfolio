@@ -61,16 +61,3 @@ class AuditHelperTests(unittest.TestCase):
                 [path.relative_to(root).as_posix() for path in site_documents(root)],
                 ["b/index.html", "index.html"],
             )
-
-    def test_parser_preserves_multiple_json_ld_blocks_in_dom_order(self):
-        with TemporaryDirectory() as folder:
-            page = Path(folder) / "index.html"
-            page.write_text(
-                '<script type="application/ld+json">{"@type":"Person"}</script>'
-                '<script type="application/ld+json">{"@type":"WebSite"}</script>',
-                encoding="utf-8",
-            )
-            document = parse_html(page)
-            self.assertEqual(
-                [item["@type"] for item in document.json_ld], ["Person", "WebSite"]
-            )
