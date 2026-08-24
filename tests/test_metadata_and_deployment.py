@@ -1,7 +1,8 @@
 from pathlib import Path
+import re
 import struct
 import unittest
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 from xml.etree import ElementTree
 
 from tests.site_audit import parse_html
@@ -23,6 +24,72 @@ CANONICALS = {
         "https://jb-cho55.github.io/portfolio/artifacts/bootloader/"
     ),
 }
+
+
+def uncommented_yaml_lines(path):
+    lines = []
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        quote = None
+        escaped = False
+        content = []
+        for character in raw_line:
+            if escaped:
+                content.append(character)
+                escaped = False
+                continue
+            if character == "\\" and quote == '"':
+                content.append(character)
+                escaped = True
+                continue
+            if character in {"'", '"'}:
+                if quote == character:
+                    quote = None
+                elif quote is None:
+                    quote = character
+            if character == "#" and quote is None:
+                break
+            content.append(character)
+        line = "".join(content).rstrip()
+        if line.strip():
+            lines.append(line)
+    return lines
+
+
+def yaml_block(lines, key, indent):
+    header = f"{' ' * indent}{key}:"
+    matches = [index for index, line in enumerate(lines) if line == header]
+    if len(matches) != 1:
+        raise AssertionError(
+            f"Expected one YAML block named {key}, found {len(matches)}"
+        )
+    start = matches[0]
+    end = len(lines)
+    for index in range(start + 1, len(lines)):
+        current_indent = len(lines[index]) - len(lines[index].lstrip())
+        if current_indent <= indent:
+            end = index
+            break
+    return lines[start:end]
+
+
+def flat_yaml_mapping(lines, child_indent):
+    result = {}
+    for line in lines[1:]:
+        indent = len(line) - len(line.lstrip())
+        if indent != child_indent:
+            continue
+        key, separator, value = line.strip().partition(":")
+        if separator and value.strip():
+            result[key] = value.strip()
+    return result
+
+
+def workflow_actions(job_lines):
+    return {
+        match.group(1)
+        for line in job_lines
+        if (match := re.fullmatch(r"\s+uses:\s*(\S+)", line))
+    }
 
 
 class MetadataTests(unittest.TestCase):
@@ -50,6 +117,8 @@ class MetadataTests(unittest.TestCase):
         self.assertEqual(len(descriptions), len(set(descriptions)))
 
     def test_each_page_has_matching_canonical_and_open_graph_urls(self):
+        open_graph_titles = []
+        open_graph_descriptions = []
         for route, expected_url in CANONICALS.items():
             document = self.documents[route]
             with self.subTest(route=route):
@@ -68,10 +137,32 @@ class MetadataTests(unittest.TestCase):
                     for tag, attrs in document.tags
                     if tag == "meta" and attrs.get("property") == "og:image"
                 ]
+                og_title = [
+                    attrs.get("content")
+                    for tag, attrs in document.tags
+                    if tag == "meta" and attrs.get("property") == "og:title"
+                ]
+                og_description = [
+                    attrs.get("content")
+                    for tag, attrs in document.tags
+                    if tag == "meta" and attrs.get("property") == "og:description"
+                ]
                 self.assertEqual(canonical, [expected_url])
                 self.assertEqual(og_url, [expected_url])
                 self.assertEqual(og_image, [OG_IMAGE_URL])
                 self.assertEqual(urlsplit(og_image[0]).scheme, "https")
+                self.assertTrue(urlsplit(og_image[0]).netloc)
+                self.assertEqual(len(og_title), 1)
+                self.assertTrue(og_title[0].strip())
+                self.assertEqual(og_title[0], document.title.strip())
+                self.assertEqual(len(og_description), 1)
+                self.assertTrue(og_description[0].strip())
+                open_graph_titles.append(og_title[0])
+                open_graph_descriptions.append(og_description[0])
+        self.assertEqual(len(open_graph_titles), len(set(open_graph_titles)))
+        self.assertEqual(
+            len(open_graph_descriptions), len(set(open_graph_descriptions))
+        )
 
     def test_json_ld_describes_person_and_authored_case_studies(self):
         home = self.documents["index.html"]
@@ -119,30 +210,140 @@ class MetadataTests(unittest.TestCase):
         self.assertEqual(data[12:16], b"IHDR")
         self.assertEqual(struct.unpack(">II", data[16:24]), (1200, 630))
 
+    def test_nested_404_resources_and_home_resolve_at_portfolio_root(self):
+        document = parse_html(SITE_ROOT / "404.html")
+        nested_missing_url = (
+            "https://jb-cho55.github.io/portfolio/artifacts/missing/"
+        )
+        favicon = next(
+            attrs["href"]
+            for tag, attrs in document.tags
+            if tag == "link" and attrs.get("rel") == "icon"
+        )
+        stylesheet = next(
+            attrs["href"]
+            for tag, attrs in document.tags
+            if tag == "link" and attrs.get("rel") == "stylesheet"
+        )
+        home_links = [
+            attrs["href"]
+            for tag, attrs in document.tags
+            if tag == "a"
+            and (
+                "identity" in attrs.get("class", "").split()
+                or "text-link" in attrs.get("class", "").split()
+            )
+        ]
+        self.assertEqual(
+            urljoin(nested_missing_url, favicon),
+            "https://jb-cho55.github.io/portfolio/assets/favicon.svg",
+        )
+        self.assertEqual(
+            urljoin(nested_missing_url, stylesheet),
+            "https://jb-cho55.github.io/portfolio/assets/css/site.css",
+        )
+        self.assertEqual(len(home_links), 2)
+        self.assertEqual(
+            {urljoin(nested_missing_url, href) for href in home_links},
+            {"https://jb-cho55.github.io/portfolio/"},
+        )
+
 
 class DeploymentWorkflowTests(unittest.TestCase):
-    def test_workflow_gates_site_only_deployment_on_main_push(self):
-        workflow = WORKFLOW.read_text(encoding="utf-8")
-        for action in (
-            "actions/checkout@v7",
-            "actions/setup-python@v7",
-            "actions/configure-pages@v6",
-            "actions/upload-pages-artifact@v5",
-            "actions/deploy-pages@v5",
-        ):
-            self.assertIn(action, workflow)
-        self.assertIn("python -B -m unittest discover -s tests -v", workflow)
-        self.assertIn("needs: test", workflow)
-        self.assertIn("path: site/", workflow)
-        self.assertIn("github.ref == 'refs/heads/main'", workflow)
+    def setUp(self):
+        self.lines = uncommented_yaml_lines(WORKFLOW)
+        self.events = yaml_block(self.lines, "on", 0)
+        self.global_permissions = yaml_block(self.lines, "permissions", 0)
+        self.concurrency = yaml_block(self.lines, "concurrency", 0)
+        self.jobs = yaml_block(self.lines, "jobs", 0)
+        self.test_job = yaml_block(self.jobs, "test", 2)
+        self.deploy_job = yaml_block(self.jobs, "deploy", 2)
 
-    def test_workflow_uses_least_privilege_permissions(self):
-        workflow = WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn("permissions:\n  contents: read", workflow)
-        self.assertIn(
-            "permissions:\n      pages: write\n      id-token: write",
-            workflow,
+    def test_only_main_push_can_reach_deploy_job(self):
+        events = "\n".join(self.events)
+        self.assertRegex(events, r"(?m)^  push:$")
+        self.assertRegex(events, r"(?m)^    branches:$")
+        self.assertRegex(events, r"(?m)^      - main$")
+        self.assertNotRegex(events, r"(?m)^  pull_request:$")
+        job_names = {
+            match.group(1)
+            for line in self.jobs[1:]
+            if (match := re.fullmatch(r"  ([A-Za-z0-9_-]+):", line))
+        }
+        self.assertEqual(job_names, {"test", "deploy"})
+        deploy = "\n".join(self.deploy_job)
+        self.assertRegex(deploy, r"(?m)^    needs: test$")
+        self.assertRegex(
+            deploy,
+            r"(?m)^    if: github\.event_name == 'push' && "
+            r"github\.ref == 'refs/heads/main'$",
         )
+
+    def test_expected_actions_and_site_artifact_are_in_the_correct_jobs(self):
+        self.assertEqual(
+            workflow_actions(self.test_job),
+            {"actions/checkout@v7", "actions/setup-python@v7"},
+        )
+        self.assertIn(
+            "run: python -B -m unittest discover -s tests -v",
+            {line.strip() for line in self.test_job},
+        )
+        self.assertEqual(
+            workflow_actions(self.deploy_job),
+            {
+                "actions/checkout@v7",
+                "actions/configure-pages@v6",
+                "actions/upload-pages-artifact@v5",
+                "actions/deploy-pages@v5",
+            },
+        )
+        deploy = "\n".join(self.deploy_job)
+        self.assertRegex(
+            deploy,
+            r"(?ms)^\s+- name: Upload site artifact\s+"
+            r"uses: actions/upload-pages-artifact@v5\s+"
+            r"with:\s+path: site/$",
+        )
+
+    def test_workflow_uses_only_the_required_permissions(self):
+        self.assertEqual(
+            flat_yaml_mapping(self.global_permissions, 2),
+            {"contents": "read"},
+        )
+        deploy_permissions = yaml_block(self.deploy_job, "permissions", 4)
+        self.assertEqual(
+            flat_yaml_mapping(deploy_permissions, 6),
+            {
+                "pages": "write",
+                "id-token": "write",
+                "contents": "read",
+            },
+        )
+
+    def test_pages_deployments_are_not_cancelled_in_progress(self):
+        self.assertEqual(
+            flat_yaml_mapping(self.concurrency, 2).get("cancel-in-progress"),
+            "false",
+        )
+
+    def test_readme_documents_the_guarded_release_and_deployment_check(self):
+        readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn(
+            "git push --force-with-lease=refs/heads/main:"
+            "661b9d5186028318a1f181f4f7b0e8a822f1da63 "
+            "origin HEAD:refs/heads/main",
+            readme,
+        )
+        for phrase in (
+            "Build and deployment",
+            "GitHub Actions",
+            "gh api --method PUT repos/jb-cho55/portfolio/pages -f build_type=workflow",
+            "gh run watch",
+            "gh run view",
+            "gh api repos/jb-cho55/portfolio/pages",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, readme)
 
 
 if __name__ == "__main__":

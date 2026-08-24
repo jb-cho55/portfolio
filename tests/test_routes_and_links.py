@@ -60,6 +60,11 @@ class RoutesAndLinksTests(unittest.TestCase):
         for deployment, base_url in deployments:
             base = urlsplit(base_url)
             for page in site_documents(SITE_ROOT):
+                if deployment == "root" and page == SITE_ROOT / "404.html":
+                    # Python's root-mounted development server does not inject
+                    # the Pages custom 404 at a retained nested request URL.
+                    # Task 4 verifies that production-only contract separately.
+                    continue
                 route = page.relative_to(SITE_ROOT).as_posix()
                 if route == "index.html":
                     route = ""
