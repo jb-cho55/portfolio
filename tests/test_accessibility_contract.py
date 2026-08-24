@@ -20,6 +20,34 @@ class AccessibilityContractTests(unittest.TestCase):
                 return body
         raise AssertionError(f"No CSS rule found for {selector}")
 
+    @classmethod
+    def _resolved_color(cls, value: str) -> str:
+        variable = re.fullmatch(r"var\((--[\w-]+)\)", value.strip())
+        if not variable:
+            return value.strip()
+        declaration = re.search(
+            rf"{re.escape(variable.group(1))}:\s*(#[0-9a-fA-F]{{6}})",
+            cls._rule_body(":root"),
+        )
+        if not declaration:
+            raise AssertionError(f"No color value found for {variable.group(1)}")
+        return declaration.group(1)
+
+    @staticmethod
+    def _contrast_ratio(first: str, second: str) -> float:
+        def luminance(color: str) -> float:
+            channels = [int(color[index:index + 2], 16) / 255 for index in (1, 3, 5)]
+            linear = [
+                channel / 12.92
+                if channel <= 0.04045
+                else ((channel + 0.055) / 1.055) ** 2.4
+                for channel in channels
+            ]
+            return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+        lighter, darker = sorted((luminance(first), luminance(second)), reverse=True)
+        return (lighter + 0.05) / (darker + 0.05)
+
     def test_page_has_one_main_and_one_h1(self):
         tags = [tag for tag, _ in self.document.tags]
         self.assertEqual(tags.count("main"), 1)
@@ -81,6 +109,29 @@ class AccessibilityContractTests(unittest.TestCase):
                 body = self._rule_body(selector)
                 self.assertRegex(body, r"min-(?:inline-size|width):\s*44px")
                 self.assertRegex(body, r"min-(?:block-size|height):\s*44px")
+
+    def test_contact_focus_outline_meets_non_text_contrast(self):
+        contact_background = re.search(
+            r"background:\s*([^;]+)", self._rule_body(".contact-section")
+        ).group(1)
+        try:
+            contact_focus = self._rule_body(".contact-section :focus-visible")
+        except AssertionError:
+            contact_focus = ""
+        outline_color = re.search(r"outline-color:\s*([^;]+)", contact_focus)
+        if outline_color:
+            focus_color = outline_color.group(1)
+        else:
+            focus_color = re.search(
+                r"outline:\s*\S+\s+\S+\s+([^;]+)",
+                self._rule_body(":focus-visible"),
+            ).group(1)
+
+        ratio = self._contrast_ratio(
+            self._resolved_color(focus_color),
+            self._resolved_color(contact_background),
+        )
+        self.assertGreaterEqual(ratio, 3.0, f"focus contrast was only {ratio:.2f}:1")
 
 
 if __name__ == "__main__":

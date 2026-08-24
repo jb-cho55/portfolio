@@ -55,6 +55,10 @@ Codex 인앱 브라우저에서 홈, Black Box Validation, CarMaker ADAS, OTA Bo
 
 브라우저 제어 표면이 직접 줌 값을 제공하지 않아 1440×900을 200%로 본 것과 같은 CSS 레이아웃 폭인 720×450으로 검사했다. 수정 전 네 페이지 모두 `clientWidth=705`, `scrollWidth=717`이었고, 원인은 720px 경계에서 3열 `timeline`의 최소 열 폭이었다. 720–767px 구간에서 `timeline article`만 단일 열로 바꾼 후 네 페이지 모두 `705 / 705`로 PASS했다. 보조로 1280px 화면의 200% 등가인 640×450도 네 페이지 모두 `625 / 625`로 PASS했다.
 
+### 다크 연락처 섹션의 초점 대비
+
+전역 포커스 색상 `#2f6662`는 연락처 배경 `#202321`에서 `2.42:1`로, 비텍스트 초점 표시의 3:1 기준에 미달했다. `.contact-section :focus-visible`의 outline만 `var(--footer-ink)` (`#f3f2ed`)로 재정의해 대비를 `14.15:1`로 높였다. 회귀 테스트는 수정 전 `2.42:1`을 보고하며 RED였고 수정 후 GREEN이었다. 이 후속 수정에서는 브라우저 런타임을 사용할 수 없어 실제 화면 재확인은 최종 controller 검증 대상으로 남겼다.
+
 ## 키보드와 포커스
 
 390×844에서 네 페이지의 모든 링크 49개(홈 13, Black Box 11, CarMaker 14, Bootloader 11)를 키보드 locator로 각각 포커스했다. 모두 실제 활성 요소가 되었고, `:focus-visible`이 일치하며 2px 이상의 solid outline이 보였다. 각 페이지의 첫 skip link는 포커스 시 화면 안으로 이동했고 `#main-content` 대상이 존재했다.
@@ -72,7 +76,7 @@ Codex 인앱 브라우저에서 홈, Black Box Validation, CarMaker ADAS, OTA Bo
 
 추가로 CSS, OG PNG, PDF 증빙, robots.txt, sitemap.xml도 200이었고 명백히 존재하지 않는 경로는 404였다.
 
-최종 테스트 결과: `Ran 39 tests` / `OK` / exit 0.
+최종 테스트 결과: `Ran 40 tests` / `OK` / exit 0.
 
 ## Git과 복구 증거
 

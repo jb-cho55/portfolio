@@ -462,6 +462,10 @@ h1 {
   color: var(--footer-ink);
 }
 
+.contact-section :focus-visible {
+  outline-color: var(--footer-ink);
+}
+
 .contact-links a {
   overflow-wrap: anywhere;
 }
