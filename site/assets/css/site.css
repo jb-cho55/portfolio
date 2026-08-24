@@ -27,7 +27,6 @@ html {
 
 body {
   margin: 0;
-  min-width: 320px;
   overflow-x: hidden;
   background: var(--paper);
   color: var(--ink);
@@ -172,7 +171,9 @@ nav a {
   font-weight: 750;
   letter-spacing: 0.12em;
   line-height: 1.4;
+  overflow-wrap: normal;
   text-transform: uppercase;
+  word-break: keep-all;
 }
 
 .hero-copy {
@@ -499,6 +500,14 @@ h1 {
   .section-heading > :last-child,
   .contact-section .editorial-grid > :last-child {
     grid-column: 2;
+  }
+}
+
+@media (min-width: 720px) and (max-width: 767px) {
+  .timeline article,
+  .education-note {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.7rem;
   }
 }
 
