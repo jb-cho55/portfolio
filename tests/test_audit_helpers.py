@@ -33,6 +33,16 @@ class AuditHelperTests(unittest.TestCase):
             self.assertEqual(target, root / "assets" / "a.png")
             self.assertEqual(fragment, "result")
 
+    def test_resolver_maps_fragment_only_reference_to_current_page(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            page = root / "artifacts" / "black-box" / "index.html"
+            page.parent.mkdir(parents=True)
+            page.write_text("", encoding="utf-8")
+            target, fragment = resolve_local_reference(root, page, "#section")
+            self.assertEqual(target, page)
+            self.assertEqual(fragment, "section")
+
     def test_resolver_ignores_external_schemes(self):
         with TemporaryDirectory() as folder:
             root = Path(folder)
@@ -50,4 +60,17 @@ class AuditHelperTests(unittest.TestCase):
             self.assertEqual(
                 [path.relative_to(root).as_posix() for path in site_documents(root)],
                 ["b/index.html", "index.html"],
+            )
+
+    def test_parser_preserves_multiple_json_ld_blocks_in_dom_order(self):
+        with TemporaryDirectory() as folder:
+            page = Path(folder) / "index.html"
+            page.write_text(
+                '<script type="application/ld+json">{"@type":"Person"}</script>'
+                '<script type="application/ld+json">{"@type":"WebSite"}</script>',
+                encoding="utf-8",
+            )
+            document = parse_html(page)
+            self.assertEqual(
+                [item["@type"] for item in document.json_ld], ["Person", "WebSite"]
             )
