@@ -369,9 +369,10 @@ class DeploymentWorkflowTests(unittest.TestCase):
         self.assertIn(
             "git push --force-with-lease=refs/heads/main:"
             "661b9d5186028318a1f181f4f7b0e8a822f1da63 "
-            "origin HEAD:refs/heads/main",
+            "origin ${releaseSha}:refs/heads/main",
             guarded_push,
         )
+        self.assertNotIn("origin HEAD:refs/heads/main", guarded_push)
         self.assertRegex(guarded_push, r"git rev-parse HEAD\) -ne \$releaseSha")
         self.assertIn(
             "gh api --method PUT repos/jb-cho55/portfolio/pages "

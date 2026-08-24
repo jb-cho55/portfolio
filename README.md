@@ -58,7 +58,7 @@ python -B -m unittest discover -s tests -v
 
    ```powershell
    if ((git rev-parse HEAD) -ne $releaseSha) { throw "검증 후 로컬 HEAD가 변경됐습니다." }
-   git push --force-with-lease=refs/heads/main:661b9d5186028318a1f181f4f7b0e8a822f1da63 origin HEAD:refs/heads/main
+   git push --force-with-lease=refs/heads/main:661b9d5186028318a1f181f4f7b0e8a822f1da63 origin ${releaseSha}:refs/heads/main
    if ($LASTEXITCODE -ne 0) { throw "Guarded push가 실패했습니다." }
    $publishedMain = git ls-remote origin refs/heads/main | ForEach-Object { ($_ -split '\s+')[0] }
    if ($publishedMain -ne $releaseSha) { throw "원격 main이 release SHA와 다릅니다." }
