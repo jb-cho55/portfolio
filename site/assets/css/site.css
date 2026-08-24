@@ -92,6 +92,7 @@ a:hover {
   z-index: 100;
   top: 0.75rem;
   left: 0.75rem;
+  min-inline-size: 44px;
   min-height: 44px;
   padding: 0.65rem 1rem;
   background: var(--ink);
@@ -119,6 +120,8 @@ a:hover {
 
 .identity {
   display: flex;
+  min-inline-size: 44px;
+  min-block-size: 44px;
   align-items: baseline;
   gap: 0.8rem;
   text-decoration: none;
@@ -141,6 +144,7 @@ nav {
 
 nav a {
   display: inline-flex;
+  min-inline-size: 44px;
   min-height: 44px;
   align-items: center;
   font-size: 0.875rem;
@@ -195,7 +199,7 @@ h1 {
 .hero-description {
   max-width: 46rem;
   margin: 2rem 0 0;
-  color: #454946;
+  color: var(--muted);
   font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem);
   word-break: keep-all;
 }
@@ -212,6 +216,7 @@ h1 {
 .detail-link,
 .contact-links a {
   display: inline-flex;
+  min-inline-size: 44px;
   min-height: 44px;
   align-items: center;
   color: var(--accent);
@@ -336,7 +341,7 @@ h1 {
 .project-lead {
   max-width: 44rem;
   margin: 1.4rem 0 0;
-  color: #454946;
+  color: var(--muted);
   font-size: 1.075em;
   word-break: keep-all;
 }
@@ -453,7 +458,7 @@ h1 {
 
 .contact-section .section-kicker,
 .contact-section a {
-  color: #9bc2bd;
+  color: var(--footer-ink);
 }
 
 .contact-links a {
@@ -461,9 +466,9 @@ h1 {
 }
 
 .site-footer {
-  border-top: 1px solid #484c49;
+  border-top: 1px solid var(--line-strong);
   background: var(--footer);
-  color: #c9cbc7;
+  color: var(--footer-ink);
 }
 
 .site-footer .site-shell {
@@ -615,10 +620,9 @@ h1 {
 
 @media (prefers-contrast: more) {
   :root {
-    --muted: #3f423f;
-    --line: #8b8e89;
-    --line-strong: #444844;
-    --accent: #174f4b;
+    --muted: var(--ink);
+    --line: var(--line-strong);
+    --line-strong: var(--ink);
   }
 
   a {
