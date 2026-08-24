@@ -44,7 +44,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from site_audit import heading_levels, parse_html, resolve_local_reference, site_documents
+from tests.site_audit import heading_levels, parse_html, resolve_local_reference, site_documents
 
 
 class AuditHelperTests(unittest.TestCase):
@@ -317,7 +317,7 @@ Create a neutral OG card from a 1200 by 630 SVG using the approved palette and r
 
 - [ ] **Step 4: Implement the Pages workflow and README**
 
-The test job uses `actions/checkout@v7`, `actions/setup-python@v6`, and `python -B -m unittest discover -s tests -v`. The deploy job uses `actions/configure-pages@v6`, `actions/upload-pages-artifact@v5`, and `actions/deploy-pages@v5`; it depends on test and runs only for a main-branch push. README documents local serving from `site/`, the test command, clean-history backup location, content provenance, and publication procedure.
+The test job uses `actions/checkout@v7`, `actions/setup-python@v7`, and `python -B -m unittest discover -s tests -v`. The deploy job uses `actions/configure-pages@v6`, `actions/upload-pages-artifact@v5`, and `actions/deploy-pages@v5`; it depends on test and runs only for a main-branch push. README documents local serving from `site/`, the test command, clean-history backup location, content provenance, and publication procedure.
 
 - [ ] **Step 5: Run all automated verification**
 

@@ -125,7 +125,7 @@ Rebuild `jb-cho55/portfolio` as a Korean-first, evidence-led portfolio for a ver
 - `sitemap.xml` contains the four canonical URLs and no extras.
 - `robots.txt`, `404.html`, `.nojekyll`, favicon, and a 1200 by 630 neutral OG image are published.
 - GitHub Actions must run the complete unittest suite before uploading only `site/` and deploying Pages.
-- Current action majors verified on 2026-08-24: `actions/checkout@v7`, `actions/configure-pages@v6`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`.
+- Current action majors verified on 2026-08-24: `actions/checkout@v7`, `actions/setup-python@v7`, `actions/configure-pages@v6`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`.
 
 ## Git and release safety
 
