@@ -32,14 +32,15 @@
       <p class="callout">Tester → CAN·ISO-TP → BswCom → BswDcm → RTE → ECU Abstraction → MCAL → PFlash·DFlash</p>
       <p class="callout">Programming Session · DiagnosticSessionControl(0x10) → SecurityAccess(0x27) → Erase·Backup · RoutineControl(0x31) → RequestDownload(0x34) → TransferData(0x36) → RequestTransferExit(0x37) → SHA-256 확인 → ECUReset(0x11)</p>
 
-      <h3>핵심 구현</h3>
+      <h3>당시 구현 범위</h3>
       <ul class="source-list">
         <li>Application Primary를 Backup 영역으로 복사</li>
         <li>Primary Erase 후 신규 SW Binary 기록</li>
-        <li><code>valid pattern</code>과 SHA-256 결과로 실행 가능 여부 판정</li>
+        <li><code>valid pattern</code> 확인과 SHA-256 비교 분기 구현 — 기록 순서 결함은 이후 정적 리뷰에서 발견</li>
         <li>검사 실패 시 Backup을 Primary로 복구</li>
-        <li>TransferData의 Block Sequence와 재시도 실패 정책 처리</li>
+        <li>TransferData의 Block Sequence 처리 분기 구현 — 오류 입력 시험의 공개 근거는 제한적</li>
       </ul>
+      <p class="callout warning">아래는 교육 당시 구현과 기록의 정리입니다. 이후 발견한 길이 상한·권한 검사 누락과 valid pattern 기록 순서 문제는 <a href="#review">CODE REVIEW</a>에 구분했습니다. 개선안은 적용·빌드·ECU 검증하지 않았으며, 정상 경로의 동작 기록이 모든 실패 조건에서의 안전성을 뜻하지 않습니다.</p>
     </section>
 
     <section id="memory-map" class="panel">
@@ -69,11 +70,20 @@ memory pflash_app_backup {
 
     <section id="uds" class="panel">
       <h2>UDS SEQUENCE</h2>
-      <p>UDS 7개 서비스, Application Backup, Binary 무결성 판정과 실패 Restore 경로를 계층 호출과 함께 보여줍니다.</p>
-      <figure class="figure"><img src="../../assets/bootloader/uds-sequence.svg" alt="Tester부터 PFlash까지 UDS 0x10 0x27 0x31 0x34 0x36 0x37 0x11 서비스와 SHA-256 불일치 Restore 분기를 표시한 시퀀스 다이어그램"><figcaption>개인 프로젝트 코드의 서비스 분기와 RTE·Flash 호출 관계를 기반으로 작성했습니다.</figcaption></figure>
+      <p>UDS 7개 서비스의 대표 호출 흐름과 Backup·Restore 분기를 요약했습니다. 전체 오류 처리의 완전성이나 안전성을 입증하는 시퀀스는 아닙니다.</p>
+      <figure class="figure"><img src="../../assets/bootloader/uds-sequence.svg" alt="UDS 대표 호출 흐름과 SHA-256 불일치 Restore 분기, valid pattern 선기록 결함을 표시한 도식"><figcaption>교육 당시 서비스 분기와 RTE·Flash 호출 관계의 개요입니다. 해시 비교와 valid pattern 기록의 세부 순서는 아래 구현 한계 설명을 함께 확인해야 합니다.</figcaption></figure>
 
       <h3>서비스 순서</h3>
-      <div class="table-wrap"><table><caption>UDS 리프로그래밍 서비스와 책임</caption><thead><tr><th>순서</th><th>서비스</th><th>핵심 처리</th><th>실패 정책</th></tr></thead><tbody><tr><td>1</td><td>0x10 DiagnosticSessionControl</td><td>Programming Session 진입</td><td>세션 조건 불충족 시 요청 거부</td></tr><tr><td>2</td><td>0x27 SecurityAccess</td><td>보호된 Programming 서비스 접근</td><td>인증 단계 실패 시 Download 금지</td></tr><tr><td>3</td><td>0x31 RoutineControl</td><td>EA_AppToBackup() 후 RID_EraseMemory 실행</td><td>Backup 실패 시 Primary Erase 금지</td></tr><tr><td>4</td><td>0x34 RequestDownload</td><td>주소·길이와 전송 상태 초기화</td><td>형식·범위 오류 NRC</td></tr><tr><td>5</td><td>0x36 TransferData</td><td>Block Sequence 검사, Binary 기록, SHA-256 누적</td><td>순서 불일치·Write 오류 시 중단</td></tr><tr><td>6</td><td>0x37 RequestTransferExit</td><td>전송 종료와 최종 무결성 판정</td><td>SHA-256 불일치 시 valid 처리 금지</td></tr><tr><td>7</td><td>0x31 RID_CheckProgrammingDependencies</td><td>프로젝트 구현의 의존성 확인 분기</td><td>공개 자료에는 확인 가능한 검사만 기재</td></tr><tr><td>8</td><td>0x11 ECUReset</td><td>성공 또는 복구 정책 완료 후 Reset</td><td>미완료 상태에서 Application Jump 금지</td></tr></tbody></table></div>
+      <div class="table-wrap"><table><caption>UDS 리프로그래밍 서비스와 책임</caption><thead><tr><th>순서</th><th>서비스</th><th>당시 구현 흐름</th><th>확인 범위·미해결 문제</th></tr></thead><tbody>
+        <tr><td>1</td><td>0x10 DiagnosticSessionControl</td><td>Programming Session 진입</td><td>정상 절차의 진입 흐름. 모든 서비스의 세션 검사를 보장하지 않음</td></tr>
+        <tr><td>2</td><td>0x27 SecurityAccess</td><td>Seed/Key 교환 분기</td><td>고정 Seed/Key 사용. EraseMemory 권한 검사 누락은 별도 미해결</td></tr>
+        <tr><td>3</td><td>0x31 RoutineControl</td><td>EA_AppToBackup() 후 RID_EraseMemory 실행</td><td>요청 길이·세션·권한·physical request 검사 누락. Backup 실패 시 Erase 차단은 공개 근거로 입증하지 못함</td></tr>
+        <tr><td>4</td><td>0x34 RequestDownload</td><td>주소·길이와 전송 상태 초기화</td><td>광고한 블록 길이와 실제 TransferData 길이 상한 검사는 별개이며, 후자는 누락</td></tr>
+        <tr><td>5</td><td>0x36 TransferData</td><td>Block Sequence 처리, Binary 기록, SHA-256 누적</td><td>길이 상한·ISO-TP 재조립 경계 검사 누락. 순서 오류 시험은 근거 부족</td></tr>
+        <tr><td>6</td><td>0x37 RequestTransferExit</td><td>전송 종료, valid pattern 기록 및 SHA-256 비교</td><td>SHA-256 검증 전에 valid pattern을 기록하는 순서 결함. 수정안 미적용</td></tr>
+        <tr><td>7</td><td>0x31 RID_CheckProgrammingDependencies</td><td>프로젝트 구현의 의존성 확인 분기</td><td>완전한 의존성·안전 조건 검사를 입증한 것은 아님</td></tr>
+        <tr><td>8</td><td>0x11 ECUReset</td><td>Reset 및 Application 실행 경로</td><td>Restore 후 Application 정상 진입은 별도 실행 근거 부족</td></tr>
+      </tbody></table></div>
 
       <h3>RoutineControl 실제 정의</h3>
       <pre><code>#define RID_CheckProgrammingDependencies 0x0001u
@@ -88,28 +98,39 @@ BswDcm
 → Rte_Call_BswDcm_rEcuAbsFls_erasePflashBlock()
 → REoiEcuAbs_pEcuAbsFls_erasePflashBlock()
 → EA_erasePflashBlock()</code></pre>
-      <p class="callout warning"><strong>SHA-256 불일치</strong> 시 Application을 valid 상태로 처리하지 않고 <code>EA_AppRestore()</code>로 Backup을 Primary에 복원한 뒤 read-back·무결성 재검증을 수행하는 구조입니다.</p>
+      <p class="callout warning"><strong>설계 의도와 당시 구현의 차이:</strong> SHA-256 불일치 시 <code>EA_AppRestore()</code>를 호출하는 복구 분기는 구현했지만, <code>RequestTransferExit</code>에서 해시 검증 전에 valid pattern을 기록했습니다. 검증 성공 후에만 valid pattern을 기록하도록 바꾸는 것은 <strong>미적용 개선안</strong>입니다. 이 자료는 불일치·전원 중단 상황에서 신규 Application 부팅이 항상 차단된다고 주장하지 않습니다.</p>
     </section>
 
     <section id="test" class="panel">
       <h2>TEST RESULTS</h2>
-      <p>Bootloader 정상·실패·복구 시나리오를 실제 근거 수준에 따라 PASS, Not executed, Evidence unavailable로 구분했습니다.</p>
-      <p id="status-policy" class="callout"><strong>PASS</strong>는 실행 로그, 코드·메모리 비교 또는 명시적 프로젝트 기록이 있을 때만 사용했습니다. 실행하지 않은 항목은 <strong>Not executed</strong>, 수행 주장은 있으나 공개 근거가 부족한 항목은 <strong>Evidence unavailable</strong>로 분리했습니다.</p>
+      <p>각 시험의 판정과 근거 유형을 별도 열로 표시했습니다. 아래 결과는 교육 당시 기록을 정리한 것으로, 현재 환경에서 새로 실행한 시험 결과가 아닙니다.</p>
+      <p id="status-policy" class="callout"><strong>기록상 PASS</strong>는 당시 실행·재검증 기록에 통과 결과가 서술된 항목입니다. 현재 재시험이나 독립 검증을 뜻하지 않으며, 원본 로그가 공개되지 않은 경우도 근거 유형에 표시합니다. <strong>정적 확인</strong>은 코드·설계 기록만 확인한 것으로 실행 시험 통과가 아닙니다. <strong>근거 부족</strong>은 수행 서술은 있으나 판정을 뒷받침할 자료가 부족한 경우, <strong>실행 미확인</strong>은 실행 여부부터 확인할 수 없는 경우입니다. 기록 부재를 미실행으로 단정하지 않습니다.</p>
 
-      <h3>검증 범위</h3>
+      <h3>정리한 시험 시나리오</h3>
       <ul class="source-list">
         <li>정상 UDS 다운로드 및 TransferExit 완료</li>
-        <li>Block Sequence 불일치와 전송 중단 처리</li>
+        <li>Block Sequence 불일치와 전송 중단 처리 — 실행 근거 부족 또는 정적 확인</li>
         <li>변조 Binary의 SHA-256 불일치 판정</li>
         <li>Application 무효 시 Backup Restore 수행</li>
-        <li>Reset 이후 실행 경로와 저장 데이터 확인</li>
+        <li>Reset 이후 실행 경로 — Restore 후 정상 진입의 별도 실행 근거 부족</li>
       </ul>
 
       <h3>테스트 케이스·결과</h3>
-      <div class="table-wrap"><table><caption>Bootloader 공개 테스트 결과표</caption><thead><tr><th>ID</th><th>검증 목적</th><th>사전 조건</th><th>입력·절차</th><th>기대 결과</th><th>실제 결과</th><th>판정</th><th>증거</th></tr></thead><tbody><tr data-status="PASS"><td>BL-TC-01</td><td>정상 리프로그래밍</td><td>Programming Session·SecurityAccess 완료</td><td>0x34→0x36→0x37 순서로 정상 Binary 전송</td><td>전송 완료, Binary 기록, 종료 응답</td><td>개인 프로젝트 리프로그래밍 로그에 정상 종료 기록</td><td><span class="status status-pass">PASS</span></td><td><a href="#uds">근거 보기</a></td></tr><tr data-status="Evidence unavailable"><td>BL-TC-02</td><td>Block Sequence 불일치</td><td>TransferData 진행 중</td><td>예상 번호와 다른 Block Sequence 요청</td><td>NRC 후 전송 상태 유지 또는 중단</td><td>처리 로직은 기록됐으나 공개 가능한 실행 화면 없음</td><td><span class="status status-neutral">Evidence unavailable</span></td><td><a href="#status-policy">근거 보기</a></td></tr><tr data-status="Not executed"><td>BL-TC-03</td><td>TransferData 길이 초과</td><td>Download 범위 설정 완료</td><td>허용 길이를 넘는 데이터 요청</td><td>길이·범위 오류로 거부</td><td>별도 실행 기록을 확인하지 못함</td><td><span class="status status-neutral">Not executed</span></td><td><a href="#status-policy">근거 보기</a></td></tr><tr data-status="PASS"><td>BL-TC-04</td><td>전송 중단과 Valid Pattern</td><td>기존 Application Backup 완료</td><td>리프로그래밍 중단 후 Reset</td><td>Invalid Pattern 감지, 신규 App Jump 금지</td><td>Pattern 불일치 시 중단 상태로 판단하는 로직 기록</td><td><span class="status status-pass">PASS</span></td><td><a href="#memory-map">근거 보기</a></td></tr><tr data-status="PASS"><td>BL-TC-05</td><td>변경 Binary SHA-256 불일치</td><td>변조 Binary 준비</td><td>Hash 갱신 없이 Binary 변경 후 전송</td><td>storedHash와 calcHash 불일치, Restore 분기</td><td>Secure Flash 1.0 기록에서 불일치·복구 호출 확인</td><td><span class="status status-pass">PASS</span></td><td><a href="#restore-results">근거 보기</a></td></tr><tr data-status="PASS"><td>BL-TC-06</td><td>Primary→Backup</td><td>정상 Application 존재</td><td>EA_AppToBackup() 실행</td><td>Secondary Erase 후 chunk 단위 복사</td><td>코드와 프로젝트 실행 결과에서 Backup 흐름 확인</td><td><span class="status status-pass">PASS</span></td><td><a href="#restore-results">근거 보기</a></td></tr><tr data-status="PASS"><td>BL-TC-07</td><td>무결성 실패 후 Restore</td><td>Backup 유효, 신규 Binary 불일치</td><td>EA_AppRestore() 실행</td><td>Primary Erase 후 Backup 복원</td><td>Restore 코드·양방향 재검증 기록 확인</td><td><span class="status status-pass">PASS</span></td><td><a href="#restore-results">근거 보기</a></td></tr><tr data-status="Evidence unavailable"><td>BL-TC-08</td><td>Restore 후 Application 실행</td><td>Restore 완료</td><td>Reset 후 Application 실행 경로 확인</td><td>복원 Application 정상 진입</td><td>별도 공개 실행 화면 없음</td><td><span class="status status-neutral">Evidence unavailable</span></td><td><a href="#status-policy">근거 보기</a></td></tr><tr data-status="PASS"><td>BL-TC-09</td><td>비정렬 버퍼 오류 재현</td><td>RoutineControl Erase/Backup 요청</td><td>uint8 copyBuf로 FlsLoader_Write()</td><td>Alignment Trap 또는 응답 중단 재현</td><td>CAN 응답 중단과 Trace32 조사 기록 확인</td><td><span class="status status-pass">PASS</span></td><td><a href="#alignment-root-cause">근거 보기</a></td></tr><tr data-status="PASS"><td>BL-TC-10</td><td>4바이트 정렬 수정 회귀</td><td>uint32 backing buffer 적용</td><td>Primary↔Backup Write·Read 반복</td><td>Trap 없이 복사 및 SHA-256 판정 완료</td><td>수정 후 양방향 Write·Read 재검증 기록</td><td><span class="status status-pass">PASS</span></td><td><a href="#restore-results">근거 보기</a></td></tr></tbody></table></div>
+      <div class="table-wrap"><table><caption>Bootloader 공개 테스트 결과표</caption><thead><tr><th>ID</th><th>검증 목적</th><th>사전 조건</th><th>입력·절차</th><th>기대 결과</th><th>기록·확인 내용</th><th>판정</th><th>근거 유형</th><th>공개 자료</th></tr></thead><tbody>
+        <tr data-status="Recorded PASS"><td>BL-TC-01</td><td>정상 리프로그래밍</td><td>Programming Session·SecurityAccess 완료</td><td>0x34→0x36→0x37 순서로 정상 Binary 전송</td><td>전송 완료, Binary 기록, 종료 응답</td><td>당시 리프로그래밍 기록에 정상 종료 서술</td><td><span class="status status-pass">기록상 PASS</span></td><td>당시 실행기록 (원본 비공개)</td><td><a href="#uds">구현 개요</a></td></tr>
+        <tr data-status="Evidence unavailable"><td>BL-TC-02</td><td>Block Sequence 불일치</td><td>TransferData 진행 중</td><td>예상 번호와 다른 Block Sequence 요청</td><td>NRC 후 전송 상태 유지 또는 중단</td><td>처리 분기 서술만 있고 실행 판정 근거 부족</td><td><span class="status status-neutral">근거 부족</span></td><td>코드·프로젝트 서술 / 실행 근거 부족</td><td>공개 실행 자료 없음</td></tr>
+        <tr data-status="Not verified"><td>BL-TC-03</td><td>TransferData 길이 초과</td><td>Download 범위 설정 완료</td><td>허용 길이를 넘는 데이터 요청</td><td>길이·범위 오류로 거부 (설계 목표)</td><td>실행 여부 미확인. 정적 리뷰에서는 길이 상한 누락 발견</td><td><span class="status status-neutral">실행 미확인</span></td><td>실행 기록 미확인 / 정적 리뷰</td><td><a href="#review">길이 상한 결함</a></td></tr>
+        <tr data-status="Static review only"><td>BL-TC-04</td><td>전송 중단과 Valid Pattern</td><td>기존 Application Backup 완료</td><td>리프로그래밍 중단 후 Reset</td><td>Invalid Pattern 감지, 신규 App Jump 금지 (설계 목표)</td><td>Pattern 판단 로직 기록만 확인. 중단 후 부팅 차단을 실행으로 입증하지 못함</td><td><span class="status status-neutral">정적 확인</span></td><td>코드·설계 기록의 정적 확인</td><td><a href="#review">valid pattern 순서 결함</a></td></tr>
+        <tr data-status="Recorded PASS"><td>BL-TC-05</td><td>변경 Binary SHA-256 불일치</td><td>변경 Binary 준비</td><td>Hash 갱신 없이 Binary 변경 후 전송</td><td>storedHash와 calcHash 불일치, Restore 분기</td><td>당시 Secure Flash 1.0 기록에 불일치·복구 호출 서술. 안전한 valid 기록 순서는 별도 미해결</td><td><span class="status status-pass">기록상 PASS</span></td><td>당시 실행기록 (원본 비공개)</td><td><a href="#restore-results">복구 절차 요약</a></td></tr>
+        <tr data-status="Recorded PASS"><td>BL-TC-06</td><td>Primary→Backup</td><td>정상 Application 존재</td><td>EA_AppToBackup() 실행</td><td>Secondary Erase 후 chunk 단위 복사</td><td>당시 코드·실행 기록에 Backup 흐름 확인 결과 서술</td><td><span class="status status-pass">기록상 PASS</span></td><td>당시 실행기록 (원본 비공개) + 코드</td><td><a href="#restore-results">복사 절차 요약</a></td></tr>
+        <tr data-status="Recorded PASS"><td>BL-TC-07</td><td>무결성 실패 후 Restore</td><td>Backup 유효, 신규 Binary 불일치</td><td>EA_AppRestore() 실행</td><td>Primary Erase 후 Backup 복원</td><td>당시 Restore 코드·양방향 복사 재검증 기록. 복원 후 App 실행은 BL-TC-08로 분리</td><td><span class="status status-pass">기록상 PASS</span></td><td>당시 실행기록 (원본 비공개) + 코드</td><td><a href="#restore-results">복구 절차 요약</a></td></tr>
+        <tr data-status="Evidence unavailable"><td>BL-TC-08</td><td>Restore 후 Application 실행</td><td>Restore 완료</td><td>Reset 후 Application 실행 경로 확인</td><td>복원 Application 정상 진입</td><td>정상 진입 판정에 필요한 별도 실행 근거 부족</td><td><span class="status status-neutral">근거 부족</span></td><td>프로젝트 서술 / 실행 근거 부족</td><td>공개 실행 자료 없음</td></tr>
+        <tr data-status="Recorded PASS"><td>BL-TC-09</td><td>비정렬 버퍼 오류 재현</td><td>RoutineControl Erase/Backup 요청</td><td>uint8 copyBuf로 FlsLoader_Write()</td><td>Alignment Trap 또는 응답 중단 재현</td><td>당시 CAN 응답 중단·Trap 조사 기록과 공개 캡처</td><td><span class="status status-pass">기록상 PASS</span></td><td>당시 실행기록 + 공개 CANoe·Trace32 캡처</td><td><a href="#alignment-root-cause">원인 분석</a> · <a href="../../assets/images/bootloader/alignment-trap-dmi.png">DMI 캡처</a></td></tr>
+        <tr data-status="Recorded PASS"><td>BL-TC-10</td><td>4바이트 정렬 수정 회귀</td><td>uint32 backing buffer 적용</td><td>Primary↔Backup Write·Read 반복</td><td>Trap 없이 복사 및 SHA-256 판정 완료</td><td>당시 양방향 Write·Read 재검증 기록. 공개 자료는 수정 전후 코드와 절차 요약</td><td><span class="status status-pass">기록상 PASS</span></td><td>당시 실행기록 (원본 비공개) + 수정 전후 코드</td><td><a href="#alignment-fix">수정 코드</a> · <a href="#restore-results">절차 요약</a></td></tr>
+      </tbody></table></div>
 
       <h3>근거 범위</h3>
-      <div class="evidence-grid"><article class="evidence-card"><strong>실행·코드 기록</strong><p>Logical Memory Redundancy, Secure Flash 1.0, Reprogramming Log Analysis, Aligned Memory Access Error 개인 프로젝트 로그를 기준으로 작성했습니다.</p></article><article class="evidence-card"><strong>이미지 공개 상태</strong><p>연결된 Notion의 첨부 이미지는 만료형 URL이므로 직접 게시하지 않았습니다. 허위 화면을 재생성하지 않고 주소·함수·코드·관찰 결과를 텍스트로 공개합니다.</p></article></div>
+      <div class="evidence-grid"><article class="evidence-card"><strong>당시 기록과 현재 확인</strong><p>Logical Memory Redundancy, Secure Flash 1.0, Reprogramming Log Analysis, Aligned Memory Access Error의 당시 기록을 요약했습니다. 현재 TASKING·EB tresos와 대상 ECU가 없어 새 빌드나 하드웨어 재시험은 하지 않았습니다.</p></article><article class="evidence-card"><strong>공개 범위</strong><p>확보한 CANoe·Trace32 캡처와 코드 발췌만 공개합니다. 원본 실행 로그가 없는 링크는 구현·절차 요약으로 표시했으며, 요약 문서를 실행 로그 자체로 제시하지 않습니다.</p></article></div>
       <div class="table-wrap"><table><caption>근거 문서와 공개 형태</caption><thead><tr><th>개인 기록</th><th>공개한 내용</th><th>형태</th></tr></thead><tbody><tr><td>Logical Memory Redundancy</td><td>EA_AppToBackup(), EA_AppRestore(), Valid Pattern</td><td>코드·흐름</td></tr><tr><td>Secure Flash 1.0</td><td>변경 Binary와 SHA-256 불일치</td><td>결과 요약</td></tr><tr><td>Aligned Memory Access Error</td><td>PC·BTV·Breakpoint·정렬 수정</td><td>Trace32 Case Study</td></tr></tbody></table></div>
     </section>
 
@@ -137,7 +158,7 @@ BswDcm
         <article class="evidence-card shot"><a href="../../assets/images/bootloader/trap-vector-breakpoint.png" target="_blank" rel="noreferrer"><img src="../../assets/images/bootloader/trap-vector-breakpoint.png" alt="BTV 0x80027800 PC 0x80027840 Trap Vector Breakpoint 화면"></a><div><strong>Trap Vector Breakpoint</strong><p><code>BTV = 0x80027800</code>, <code>PC = 0x80027840</code>을 확인해 Trap Vector 범위 진입을 직접 포착했습니다.</p></div></article>
       </div>
 
-      <h3>정렬 수정 전후 코드</h3>
+      <h3 id="alignment-fix">정렬 수정 전후 코드</h3>
       <p>수정 전</p>
       <pre><code>static uint8 copyBuf[MEMORY_COPY_CHUNK_SIZE];
 

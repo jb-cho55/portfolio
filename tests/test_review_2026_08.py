@@ -139,7 +139,7 @@ class Review202608Tests(unittest.TestCase):
         for phrase in [
             "교육 당시 ECU에서 수행한 시나리오 시험 기록",
             "새 빌드나 하드웨어 재시험을 하지 않았고",
-            "PASS · Not executed · Evidence unavailable",
+            "기록상 PASS · 정적 확인 · 근거 부족 · 실행 미확인",
         ]:
             self.assertIn(phrase, bootloader)
 

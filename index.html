@@ -1062,7 +1062,7 @@
             </header>
 
             <div class="project-intro">
-              <p>Infineon AURIX TC234LP 기반 ECU에서 업데이트 실패와 Binary 변경 상황에도 기존 애플리케이션을 보호하도록 UDS 리프로그래밍, Backup·Restore, SHA-256 무결성 검사를 연결했습니다.</p>
+              <p>Infineon AURIX TC234LP 교육용 ECU에서 UDS 리프로그래밍, Backup·Restore, SHA-256 비교 경로를 구현하고 정렬 오류를 분석했습니다. 당시 구현·시험 기록과 이후 정적 리뷰에서 발견한 미해결 문제를 구분해 공개합니다.</p>
             </div>
 
             <dl class="project-meta" aria-label="OTA Bootloader 프로젝트 메타데이터">
@@ -1076,7 +1076,7 @@
           <dl class="project-summary" aria-label="OTA Bootloader 5줄 요약">
               <div>
                 <dt>목표</dt>
-                <dd>불완전하거나 변경된 업데이트 이미지로의 부팅을 방지하고 정상 애플리케이션 복구 경로를 구성했습니다.</dd>
+                <dd>업데이트 실패 시 기존 애플리케이션을 복구하는 구조를 목표로 했습니다. 모든 중단·오류 조건에서의 안전한 부팅을 입증한 구현은 아닙니다.</dd>
               </div>
               <div>
                 <dt>역할</dt>
@@ -1084,23 +1084,23 @@
               </div>
               <div>
                 <dt>구현</dt>
-                <dd>UDS 7개 서비스(0x10·0x27·0x31·0x34·0x36·0x37·0x11), Application Backup·Restore, SHA-256 비교와 실패 정책을 구현했습니다. 0x31은 EraseMemory·Backup과 CheckProgrammingDependencies 두 루틴에 사용했습니다.</dd>
+                <dd>UDS 7개 서비스(0x10·0x27·0x31·0x34·0x36·0x37·0x11), Application Backup·Restore와 SHA-256 비교 분기를 구현했습니다. 0x31은 EraseMemory·Backup과 CheckProgrammingDependencies 두 루틴에 사용했습니다.</dd>
               </div>
               <div>
                 <dt>검증</dt>
-                <dd>정상 다운로드, 전송 순서 오류, 무결성 불일치, 복구 경로와 양방향 Flash Write를 시나리오별로 확인했습니다.</dd>
+                <dd>정상 다운로드·무결성 불일치·양방향 Flash Write·Read는 당시 기록을 기준으로 정리했습니다. 전송 순서 오류와 Restore 후 실행은 근거 부족, 길이 초과 시험은 실행 여부 미확인으로 구분했습니다.</dd>
               </div>
               <div>
                 <dt>결과</dt>
-                <dd>Memory Alignment Trap의 원인을 4바이트 정렬 조건으로 특정하고 수정 후 Application→Backup→Application 복구 흐름을 재검증했습니다.</dd>
+                <dd>Memory Alignment Trap의 원인을 4바이트 정렬 조건으로 특정했습니다. 수정 후 Application→Backup→Application 복사 재검증은 당시 기록에 근거하며, 현재 재시험 결과가 아닙니다.</dd>
               </div>
               <div>
                 <dt>근거 수준</dt>
-                <dd>결과 서술은 교육 당시 ECU에서 수행한 시나리오 시험 기록을 근거로 합니다. 현재는 TASKING·EB tresos와 대상 ECU가 없어 새 빌드나 하드웨어 재시험을 하지 않았고, 정렬 수정은 수정 전후 소스와 SHA-256 대조까지 확인했습니다. 케이스별 근거 수준은 TEST RESULTS에서 PASS · Not executed · Evidence unavailable로 구분했습니다.</dd>
+                <dd>교육 당시 ECU에서 수행한 시나리오 시험 기록, 공개 캡처, 소스 정적 확인을 분리했습니다. 현재는 TASKING·EB tresos와 대상 ECU가 없어 새 빌드나 하드웨어 재시험을 하지 않았고, TEST RESULTS에 기록상 PASS · 정적 확인 · 근거 부족 · 실행 미확인과 근거 유형을 따로 표시했습니다.</dd>
               </div>
               <div>
                 <dt>범위·한계</dt>
-                <dd>교육 과정 범위의 구현으로, 고정 키를 접두어로 붙인 SHA-256 검사입니다. HMAC이나 전자서명이 아니므로 전송 오류와 단순 변조는 검출하지만 해시까지 다시 계산하는 공격자는 막지 못합니다. 실차 수준에는 보호된 키 기반 HMAC 또는 전자서명이 필요하며, 이 한계는 구현 후 정적 리뷰에서 직접 정리했습니다.</dd>
+                <dd>고정 키를 접두어로 붙인 SHA-256 검사입니다. HMAC이나 전자서명이 아니므로 해시까지 다시 계산하는 공격자는 막지 못합니다. 이후 정적 리뷰에서 valid pattern 선기록, 길이 상한·권한 검사 누락을 발견했으며 개선안은 미적용·미검증 상태입니다. 상세 CODE REVIEW에 구현의 한계와 개선 방향을 남겼습니다.</dd>
               </div>
             </dl>
 
@@ -1136,11 +1136,11 @@
                 </a>
                 <a class="artifact-item" href="artifacts/bootloader/index.html#uds">
                   <strong>UDS SEQUENCE</strong>
-                  <span>정상 리프로그래밍과 무결성 실패·Restore 흐름</span>
+                  <span>당시 리프로그래밍 흐름과 미해결 안전 조건</span>
                 </a>
                 <a class="artifact-item" href="artifacts/bootloader/index.html#test">
                   <strong>TEST RESULTS</strong>
-                  <span>테스트 케이스·실제 결과·근거 연결표</span>
+                  <span>시험 판정·근거 유형·공개 범위 구분표</span>
                 </a>
                 <a class="artifact-item" href="artifacts/bootloader/index.html#trace32">
                   <strong>TRACE32 · RESTORE</strong>

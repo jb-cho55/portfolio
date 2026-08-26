@@ -61,9 +61,27 @@ class BootloaderArtifactTests(unittest.TestCase):
     def test_test_report_uses_only_allowed_statuses(self):
         statuses = re.findall(r'data-status="([^"]+)"', self.page)
         self.assertGreaterEqual(len(statuses), 8)
-        self.assertTrue(set(statuses) <= {"PASS", "FAIL", "Not executed", "Evidence unavailable"})
+        self.assertTrue(set(statuses) <= {"Recorded PASS", "Static review only", "Not verified", "Evidence unavailable"})
+        self.assertIn("Recorded PASS", statuses)
+        self.assertIn("Static review only", statuses)
         self.assertIn("Evidence unavailable", statuses)
-        self.assertIn("Not executed", statuses)
+        self.assertIn("Not verified", statuses)
+
+    def test_test_report_separates_verdict_from_evidence(self):
+        report = re.search(r"<table><caption>Bootloader 공개 테스트 결과표</caption>(.*?)</table>", self.page, re.S)
+        self.assertIsNotNone(report)
+        headers = re.findall(r"<th>(.*?)</th>", report.group(1))
+        self.assertIn("근거 유형", headers)
+        evidence_column = headers.index("근거 유형")
+        rows = re.findall(r'<tr data-status="([^"]+)">(.*?)</tr>', report.group(1), re.S)
+        self.assertEqual(len(rows), 10)
+        for status, row in rows:
+            cells = re.findall(r"<td>(.*?)</td>", row, re.S)
+            self.assertEqual(len(cells), len(headers), cells[0])
+            self.assertTrue(cells[evidence_column].strip(), cells[0])
+            if cells[0] == "BL-TC-04":
+                self.assertEqual(status, "Static review only")
+                self.assertNotIn("status-pass", row)
 
     def test_trace32_section_contains_actual_debug_values_and_code(self):
         for value in [
