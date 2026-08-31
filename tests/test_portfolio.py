@@ -8,6 +8,7 @@ class PortfolioContentTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.html = Path("index.html").read_text(encoding="utf-8")
+        cls.readme = Path("README.md").read_text(encoding="utf-8")
         cls.black_box_page = Path("artifacts/black-box/index.html").read_text(encoding="utf-8")
         cls.bootloader_page = Path("artifacts/bootloader/index.html").read_text(encoding="utf-8")
 
@@ -20,12 +21,31 @@ class PortfolioContentTests(unittest.TestCase):
 
     def test_featured_projects_are_limited_to_two_and_verification_is_first(self):
         self.assertEqual(self.html.count('class="project-card"'), 2)
-        black_box = self.html.index("IVS Black Box Validation")
-        bootloader = self.html.index("OTA를 위한 Bootloader 설계")
+        black_box_title = "CANoe/CAPL 기반 차량 ECU<br>Black Box Testing"
+        bootloader_title = "UDS를 통한 Flash Backup &amp; Restore"
+        self.assertIn(black_box_title, card(self.html, "black-box-project"))
+        self.assertIn(bootloader_title, card(self.html, "bootloader-project"))
+        black_box = self.html.index('id="black-box-project"')
+        bootloader = self.html.index('id="bootloader-project"')
         self.assertLess(
             black_box, bootloader,
             "지원 직무가 차량 SW 검증이므로 검증 프로젝트가 먼저 와야 한다",
         )
+
+    def test_featured_case_studies_omit_removed_editorial_copy(self):
+        for removed in [
+            "검증 프로젝트와 개발 프로젝트를 각각 하나의 Case Study로 집중해",
+            "두 프로젝트의 원본 저장소는 교육 자료 보호를 위해 비공개로 유지합니다.",
+        ]:
+            self.assertNotIn(removed, self.html)
+
+    def test_black_box_goal_uses_requirement_specification_language(self):
+        black_box = card(self.html, "black-box-project")
+        self.assertIn(
+            "요구사양을 기준으로 Fault 상태 전이, 선행 조건, 타이밍 등을 검증했습니다.",
+            black_box,
+        )
+        self.assertNotIn("요구사항", black_box)
 
     def test_each_project_has_five_line_summary(self):
         self.assertEqual(self.html.count('class="project-summary"'), 2)
@@ -42,10 +62,62 @@ class PortfolioContentTests(unittest.TestCase):
             "Trap 원인 해결",
             "정적 결함 4건",
             "동적 결함 11건",
-            "CAPL 회귀 테스트",
+            "7개 고장 시나리오",
             "프로젝트 우수상",
         ]:
             self.assertIn(result, self.html)
+
+    def test_black_box_main_card_surfaces_resume_aligned_story_scale_and_defect(self):
+        black_box = card(self.html, "black-box-project")
+        story = [
+            "동일한 Timing 조건임에도 수동 검증과 CAPL 자동 검증의 결과가 달랐습니다.",
+            "최신 Frame이 아닌 이전 Frame을 기준으로 시간 측정을 시작",
+            "최신 Frame 수신을 확인한 후 타이머가 동작하도록 CAPL 로직을 개선했습니다.",
+        ]
+        for sentence in story:
+            self.assertIn(sentence, black_box)
+        positions = [black_box.index(sentence) for sentence in story]
+        self.assertEqual(positions, sorted(positions))
+
+        for scale in [
+            "7개 고장 시나리오",
+            "CAPL 스크립트 6종",
+            "테스트케이스 24개",
+            "Batt Percent 시나리오 404개 입력 조합",
+        ]:
+            self.assertIn(scale, black_box)
+
+        self.assertIn("CANoe 기반 수동 검증과 CAPL 자동 검증", black_box)
+        self.assertIn(
+            "Steering Timing 요구사양 50±10ms 대비 실제 986~993ms 검출",
+            black_box,
+        )
+        self.assertIn(
+            "Steering Timing — 요구사양 50±10ms 대비 실제 986~993ms에 검출",
+            self.black_box_page,
+        )
+        self.assertIn(
+            "이 중 Batt Percent 시나리오는 101 × Ignition 2 × Engine 2 = 404조합을 전수 수행했습니다.",
+            self.black_box_page,
+        )
+
+    def test_public_project_titles_and_terms_follow_the_resume(self):
+        pages = "\n".join([self.html, self.readme, self.black_box_page, self.bootloader_page])
+        for title in [
+            "CANoe/CAPL 기반 차량 ECU Black Box Testing",
+            "UDS를 통한 Flash Backup &amp; Restore",
+        ]:
+            self.assertIn(title, pages)
+
+        for outdated in [
+            "IVS Black Box Validation",
+            "Black Box Validation",
+            "OTA를 위한 Bootloader 설계",
+            "OTA Bootloader",
+            "SW Binary 위변조 감지",
+            "요구사항",
+        ]:
+            self.assertNotIn(outdated, pages)
 
     def test_project_artifact_sections_have_project_specific_evidence(self):
         self.assertEqual(self.html.count('class="artifact-section"'), 2)

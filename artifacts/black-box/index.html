@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CANoe/CAPL 기반 IVS Black Box Validation의 코드, 테스트, 결함 문서와 수행 화면을 정리했습니다.">
-  <title>Black Box Validation Artifacts</title>
+  <meta name="description" content="CANoe/CAPL 기반 차량 ECU Black Box Testing의 코드, 테스트, 결함 문서와 수행 화면을 정리했습니다.">
+  <title>CANoe/CAPL 기반 차량 ECU Black Box Testing 근거 자료</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <link rel="stylesheet" href="../../assets/bootloader/shared.css">
@@ -17,10 +17,10 @@
   <main id="main" class="artifact-page">
     <header class="artifact-header">
       <a class="back-link" href="../../index.html#black-box-project">← 포트폴리오로 돌아가기</a>
-      <p class="eyebrow">BLACK BOX VALIDATION ARTIFACTS</p>
-      <h1>CANoe/CAPL 기반 차량 ECU 검증</h1>
-      <p>요구사항을 테스트 조건과 판정 기준으로 전환한 과정부터 CAPL 자동화, 결함 기록, 실제 수행 화면까지 한 페이지에서 확인할 수 있습니다.</p>
-      <dl class="meta-grid" aria-label="Black Box Validation 프로젝트 메타데이터"><div><dt>유형</dt><dd>개인 프로젝트</dd></div><div><dt>기간</dt><dd>2026.03.19–2026.03.23</dd></div><div><dt>팀 규모</dt><dd>1명</dd></div><div><dt>기여도</dt><dd>100%</dd></div><div><dt>환경</dt><dd>CANoe · CAPL · CANdb</dd></div></dl>
+      <p class="eyebrow">BLACK BOX TESTING ARTIFACTS</p>
+      <h1>CANoe/CAPL 기반 차량 ECU Black Box Testing</h1>
+      <p>요구사양을 테스트 조건과 판정 기준으로 전환한 과정부터 CAPL 자동화, 결함 기록, 실제 수행 화면까지 한 페이지에서 확인할 수 있습니다.</p>
+      <dl class="meta-grid" aria-label="Black Box Testing 프로젝트 메타데이터"><div><dt>유형</dt><dd>개인 프로젝트</dd></div><div><dt>기간</dt><dd>2026.03.19–2026.03.23</dd></div><div><dt>팀 규모</dt><dd>1명</dd></div><div><dt>기여도</dt><dd>100%</dd></div><div><dt>환경</dt><dd>CANoe · CAPL · CANdb</dd></div></dl>
     </header>
 
     <nav class="artifact-nav" aria-label="산출물 섹션"><a href="#overview">OVERVIEW</a><a href="#code">CODE</a><a href="#test">TEST</a><a href="#document">DOCUMENT</a><a href="#demo">DEMO</a></nav>
@@ -29,7 +29,7 @@
     <section id="overview" class="panel">
       <h2>OVERVIEW</h2>
       <h3>테스트 수행 흐름</h3>
-      <p class="callout">요구사양 분석 → CANdb·CANoe·Panel 환경 구성 → 수동 시험 → CAPL 자동화 시험 → 정적·동적 검증 → 결함 분석 및 회귀 테스트</p>
+      <p class="callout">요구사양 분석 → CANdb·CANoe·Panel 환경 구성 → 수동 검증 → CAPL 자동 검증 → 정적·동적 검증 → 결함 분석 및 회귀 테스트</p>
     </section>
 
     <section id="code" class="panel">
@@ -119,15 +119,15 @@ while(time_cnt_ms &lt;= 5100)
     <section id="test" class="panel">
       <h2>TEST</h2>
       <div class="metric-grid"><div class="metric"><strong>4건</strong><span>정적 결함</span></div><div class="metric"><strong>11건</strong><span>동적 결함</span></div><div class="metric"><strong>CAPL</strong><span>반복 회귀 테스트</span></div></div>
-      <div class="table-wrap"><table><caption>대표 테스트와 실제 판정</caption><thead><tr><th>테스트</th><th>요구 기준</th><th>실제 결과</th><th>판정</th></tr></thead><tbody><tr><td>Batt Percent 경계값</td><td>15% 조건 반영</td><td>15%에서 Fault 미검출</td><td><span class="status status-pass">결함 검출</span></td></tr><tr><td>IGN Cycle</td><td>50 Cycle 경계</td><td>Off-by-One 동작 확인</td><td><span class="status status-pass">결함 검출</span></td></tr><tr><td>Steering Timing</td><td>50±10ms</td><td>약 1000±10ms</td><td><span class="status status-pass">결함 검출</span></td></tr></tbody></table></div>
+      <div class="table-wrap"><table><caption>대표 테스트와 실제 판정</caption><thead><tr><th>테스트</th><th>요구 기준</th><th>실제 결과</th><th>판정</th></tr></thead><tbody><tr><td>Batt Percent 경계값</td><td>15% 조건 반영</td><td>15%에서 Fault 미검출</td><td><span class="status status-pass">결함 검출</span></td></tr><tr><td>IGN Cycle</td><td>50 Cycle 경계</td><td>Off-by-One 동작 확인</td><td><span class="status status-pass">결함 검출</span></td></tr><tr><td>Steering Timing</td><td>50±10ms</td><td>986~993ms</td><td><span class="status status-pass">결함 검출</span></td></tr></tbody></table></div>
 
       <h3>대표 검출 결과</h3>
       <ul class="source-list">
-        <li>요구사양 7개 고장 시나리오를 CAPL 스크립트 6종·테스트케이스 24개로 구현하고 입력값을 전수 조합해 수행 (예: Batt Percent 시나리오 1건이 101 × Ignition 2 × Engine 2 = 404조합)</li>
+        <li>요구사양 7개 고장 시나리오를 CAPL 스크립트 6종·테스트케이스 24개로 구현했습니다. 이 중 Batt Percent 시나리오는 101 × Ignition 2 × Engine 2 = 404조합을 전수 수행했습니다.</li>
         <li>정적 결함 4건: Signal Length, Value, Description 불일치</li>
         <li>동적 결함 11건: 경계값, 선행 조건, Recovery, Timing 오류</li>
         <li>Batt Percent 15% 경계값과 IGN 50 Cycle Off-by-One 확인</li>
-        <li>Steering Timing 요구사양 50±10ms 대비 약 1000±10ms 검출</li>
+        <li>Steering Timing 요구사양 50±10ms 대비 실제 986~993ms 검출</li>
         <li>Batt Voltage 회복 임계 15.0V가 CANdb Factor 0.001 미적용으로 raw 15(15mV)에서만 동작</li>
       </ul>
 
@@ -142,7 +142,7 @@ while(time_cnt_ms &lt;= 5100)
         <a href="../../assets/images/black-box/result_battery_charging_invalid_precondition.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_battery_charging_invalid_precondition.png" alt="ENG=0 조건에서도 Err_sts=2가 검출된 테스트 리포트 행"><span>Battery Charging — <code>ENG=0</code>에서도 검출, Engine 선행조건 미반영</span></a>
         <a href="../../assets/images/black-box/result_ignition_fault_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_ignition_fault_fail.png" alt="IGN=3 입력에도 Err_sts가 0으로 유지된 테스트 리포트 행"><span>Ignition Status Error — <code>IGN=3</code>(Error) 입력에 101ms·5109ms 모두 <code>Err_sts=0</code></span></a>
         <a href="../../assets/images/black-box/result_engine_fault_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_engine_fault_fail.png" alt="ENG=2 입력에도 Err_sts가 0으로 유지된 테스트 리포트 행"><span>Engine Status Error — <code>ENG=2</code>(Fault) 입력에 1028ms까지 <code>Err_sts=0</code></span></a>
-        <a href="../../assets/images/black-box/result_steering_timing_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_steering_timing_fail.png" alt="Steering 검출 시각이 984~993ms로 기록된 테스트 리포트 행"><span>Steering Timing — 요구 50±10ms 대비 약 984~993ms에 검출</span></a>
+        <a href="../../assets/images/black-box/result_steering_timing_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_steering_timing_fail.png" alt="Steering 검출 시각이 986~993ms로 기록된 테스트 리포트 행"><span>Steering Timing — 요구사양 50±10ms 대비 실제 986~993ms에 검출</span></a>
         <a href="../../assets/images/black-box/result_steering_invalid_condition_detected.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_steering_invalid_condition_detected.png" alt="IGN=0 조건에서도 Steering Err_sts=2가 검출된 테스트 리포트 행"><span>Steering — <code>IGN=0</code> 선행조건 위반 상태에서도 검출</span></a>
       </div>
     </section>

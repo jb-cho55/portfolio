@@ -1,24 +1,25 @@
 # 조정빈 · Vehicle SW Verification Portfolio
 
-차량 ECU의 요구사양을 테스트 조건과 판정 기준으로 바꾸고, CANoe/CAPL 자동화와 Trace 분석으로 결함을 재현한 경험을 정리했습니다. AURIX Bootloader 개발·디버깅 경험을 함께 소개합니다.
+차량 ECU의 요구사양을 테스트 조건과 판정 기준으로 바꾸고, CANoe/CAPL 자동화와 Trace 분석으로 결함을 재현한 경험을 정리했습니다. AURIX TC234LP에서 UDS를 통한 Flash Backup & Restore 개발·디버깅 경험을 함께 소개합니다.
 
 **[포트폴리오 웹사이트](https://jb-cho55.github.io/portfolio/)** · [GitHub 프로필](https://github.com/jb-cho55)
 
 ## 대표 프로젝트
 
-### CANoe/CAPL 기반 차량 ECU Black Box Validation
+### CANoe/CAPL 기반 차량 ECU Black Box Testing
 
-- 요구사양 분석, CANdb·CANoe 환경 구성, 수동·자동화 시험, 결함 문서화를 수행한 개인 프로젝트입니다.
-- 고장 시나리오 7개를 CAPL 스크립트 6종·테스트케이스 24개로 구성했습니다. Batt Percent 시나리오는 101 × Ignition 2 × Engine 2 = 404조합을 시험했습니다.
-- 정적 결함 4건과 동적 결함 11건을 식별했습니다. 동적 결함 중 10건의 실제 판정 화면을 공개합니다.
-- 최신 수신 프레임을 기준으로 타이밍 측정을 시작하도록 동기화 로직을 수정했습니다.
+- 요구사양을 기준으로 Fault 상태 전이, 선행 조건, 타이밍 등을 검증했습니다.
+- CANdb·CANoe 환경을 구성하고, CANoe 기반 수동 검증과 CAPL 자동 검증, 결함 문서화를 수행했습니다.
+- 요구사양 7개 고장 시나리오를 CAPL 스크립트 6종·테스트케이스 24개로 구현했습니다. 이 중 Batt Percent 시나리오는 101 × Ignition 2 × Engine 2 = 404조합을 시험했습니다.
+- 정적 결함 4건과 동적 결함 11건을 식별했습니다. Steering Timing은 요구사양 50±10ms 대비 실제 986~993ms에 검출됐으며, 동적 결함 10건의 실제 판정 화면을 공개합니다.
+- 동일한 Timing 조건에서 수동 검증과 CAPL 자동 검증 결과가 달랐던 원인을 CAN Trace로 분석하고, 최신 Frame 수신 후 타이머가 동작하도록 CAPL 로직을 개선했습니다.
 - Black Box Testing 프로젝트 우수상을 받았습니다.
 
 [코드·문제 해결](https://jb-cho55.github.io/portfolio/artifacts/black-box/#code) · [시험 결과](https://jb-cho55.github.io/portfolio/artifacts/black-box/#test) · [실행 화면](https://jb-cho55.github.io/portfolio/artifacts/black-box/#demo)
 
-### AURIX UDS Bootloader · Flash Backup/Restore
+### UDS를 통한 Flash Backup & Restore
 
-- 제공된 AURIX TC234LP·MCAL 교육 환경에서 UDS 리프로그래밍, Application Backup·Restore와 SHA-256 비교 분기를 구현한 개인 프로젝트입니다.
+- 제공된 AURIX TC234LP·MCAL 교육 환경에서 UDS 기반 ECU Reprogramming, Application Backup/Restore와 SHA-256 Hash 비교 분기를 구현한 개인 프로젝트입니다.
 - CAN 응답 중단을 Trace32로 추적하고, source buffer의 4바이트 정렬 위반을 원인으로 특정했습니다. 공개 자료에는 레지스터·DMI 캡처와 수정 전후 코드가 포함됩니다.
 - 정상 다운로드·무결성 불일치·양방향 Flash 복사는 **당시 기록**을 기준으로 설명합니다. 현재 새 빌드나 ECU 재시험을 수행한 결과는 아닙니다.
 - 이후 정적 리뷰에서 valid pattern 선기록, 길이 상한·권한 검사 누락을 발견했습니다. **개선안은 미적용·미검증**이며, 모든 오류·중단 상황에서 안전한 부팅을 보장하는 구현으로 제시하지 않습니다.

@@ -112,10 +112,6 @@ class Review202608Tests(unittest.TestCase):
                 f"요구사양 문서 캡처가 공개 자산에 포함됨: {path.name}",
             )
 
-    def test_a02_private_repository_policy_is_explained(self):
-        """GitHub에 없는 이유를 페이지가 스스로 설명해야 한다."""
-        self.assertIn("교육 자료 보호를 위해 비공개로 유지합니다", self.index)
-
     def test_a03_hero_states_what_he_does(self):
         """채용담당자가 첫 화면에서 직무를 판단할 수 있어야 한다."""
         self.assertIn("CANoe/CAPL 자동화로 시험하고, 결함의 원인까지 규명합니다", self.index)
