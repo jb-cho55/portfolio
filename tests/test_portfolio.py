@@ -47,7 +47,7 @@ class PortfolioContentTests(unittest.TestCase):
         )
         self.assertNotIn("요구사항", black_box)
 
-    def test_each_project_shows_results_after_summary_before_role_and_troubleshooting(self):
+    def test_each_project_shows_results_after_role_and_troubleshooting(self):
         for project_id in ["black-box-project", "bootloader-project"]:
             project = card(self.html, project_id)
             role = project.index('class="role-panel"')
@@ -55,8 +55,10 @@ class PortfolioContentTests(unittest.TestCase):
             results = project.index('class="key-results"')
             self.assertLess(role, troubleshooting)
             intro = project.index('class="intro-summary"')
-            self.assertLess(intro, results)
-            self.assertLess(results, role)
+            self.assertLess(intro, role)
+            self.assertLess(troubleshooting, results)
+            artifacts = project.index('class="artifact-section"')
+            self.assertLess(results, artifacts)
             for label in ["문제 ·", "분석 ·", "해결 ·", "재검증 ·"]:
                 self.assertIn(label, project)
 

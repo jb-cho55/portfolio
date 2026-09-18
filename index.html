@@ -945,6 +945,25 @@
               <dl class="intro-summary"><dt>목표</dt><dd>ECU의 고장 검출·복구·해제가 요구사양대로 동작하는지 검증합니다.</dd></dl>
             </div>
 
+            <div class="project-focus">
+              <section class="role-panel" aria-labelledby="black-box-role">
+                <p class="focus-label">01 / 프로젝트 역할</p>
+                <h4 id="black-box-role">검증 전 과정 전담</h4>
+                <ul class="role-tasks"><li><strong>요구사양 분석 · 테스트 설계</strong>Fault Detection·Recovery·Clear의 선행 조건, 경계값, Timing을 테스트 조건과 기대 결과로 구체화했습니다.</li>
+                  <li><strong>검증 환경 구성 · CAPL 자동화</strong>CANdb·CANoe·Panel을 구성하고, 7개 고장 시나리오를 CAPL 스크립트 6종·테스트케이스 24개로 구현했습니다.</li>
+                  <li><strong>결함 재현 · 분석 · 문서화</strong>CAN Trace로 기대 결과와 실제 결과를 비교하고 재현 조건·영향도·개선 방향을 정리했습니다.</li></ul>
+              </section>
+              <section class="trouble-panel" aria-labelledby="black-box-troubleshooting">
+                <p class="focus-label">02 / 트러블슈팅</p>
+                <h4 id="black-box-troubleshooting">수동·자동 검증의 판정이 달랐던 이유</h4>
+                <ol class="trouble-steps"><li><strong>문제 · 동일 조건에서 다른 판정</strong>동일한 Timing 조건임에도 수동 검증과 CAPL 자동 검증의 결과가 달랐습니다.</li>
+                  <li><strong>분석 · 측정 시작점을 추적</strong>CAN Trace Timestamp와 CAPL Flag를 비교해, 최신 Frame이 아닌 이전 Frame을 기준으로 시간 측정을 시작하는 것을 확인했습니다.</li>
+                  <li><strong>해결 · 최신 Frame에 동기화</strong>최신 Frame 수신을 확인한 후 타이머가 동작하도록 CAPL 로직을 개선했습니다.</li>
+                  <li><strong>재검증 · 경계값과 Timing 확인</strong>CAPL 회귀 테스트로 경계값·Timing 시나리오를 반복 실행해 동일 판정 기준이 유지되는지 확인했습니다.</li></ol>
+                <a class="focus-link" href="artifacts/black-box/index.html#troubleshooting">CAN Trace 분석과 수정 코드 보기 →</a>
+              </section>
+            </div>
+
             <section class="key-results" aria-label="Black Box Testing Key Results">
               <h4>KEY RESULTS</h4>
               <div class="results-grid">
@@ -966,25 +985,6 @@
                 </div>
               </div>
             </section>
-
-            <div class="project-focus">
-              <section class="role-panel" aria-labelledby="black-box-role">
-                <p class="focus-label">01 / 프로젝트 역할</p>
-                <h4 id="black-box-role">검증 전 과정 전담</h4>
-                <ul class="role-tasks"><li><strong>요구사양 분석 · 테스트 설계</strong>Fault Detection·Recovery·Clear의 선행 조건, 경계값, Timing을 테스트 조건과 기대 결과로 구체화했습니다.</li>
-                  <li><strong>검증 환경 구성 · CAPL 자동화</strong>CANdb·CANoe·Panel을 구성하고, 7개 고장 시나리오를 CAPL 스크립트 6종·테스트케이스 24개로 구현했습니다.</li>
-                  <li><strong>결함 재현 · 분석 · 문서화</strong>CAN Trace로 기대 결과와 실제 결과를 비교하고 재현 조건·영향도·개선 방향을 정리했습니다.</li></ul>
-              </section>
-              <section class="trouble-panel" aria-labelledby="black-box-troubleshooting">
-                <p class="focus-label">02 / 트러블슈팅</p>
-                <h4 id="black-box-troubleshooting">수동·자동 검증의 판정이 달랐던 이유</h4>
-                <ol class="trouble-steps"><li><strong>문제 · 동일 조건에서 다른 판정</strong>동일한 Timing 조건임에도 수동 검증과 CAPL 자동 검증의 결과가 달랐습니다.</li>
-                  <li><strong>분석 · 측정 시작점을 추적</strong>CAN Trace Timestamp와 CAPL Flag를 비교해, 최신 Frame이 아닌 이전 Frame을 기준으로 시간 측정을 시작하는 것을 확인했습니다.</li>
-                  <li><strong>해결 · 최신 Frame에 동기화</strong>최신 Frame 수신을 확인한 후 타이머가 동작하도록 CAPL 로직을 개선했습니다.</li>
-                  <li><strong>재검증 · 경계값과 Timing 확인</strong>CAPL 회귀 테스트로 경계값·Timing 시나리오를 반복 실행해 동일 판정 기준이 유지되는지 확인했습니다.</li></ol>
-                <a class="focus-link" href="artifacts/black-box/index.html#troubleshooting">CAN Trace 분석과 수정 코드 보기 →</a>
-              </section>
-            </div>
 
             <section class="artifact-section" aria-label="Black Box Testing 산출물">
               <h4>산출물</h4>
@@ -1047,6 +1047,25 @@
               <dl class="intro-summary"><dt>목표</dt><dd>UDS 기반 ECU 소프트웨어 갱신과 Application 백업·복구 기능을 구현합니다.</dd></dl>
             </div>
 
+            <div class="project-focus">
+              <section class="role-panel" aria-labelledby="bootloader-role">
+                <p class="focus-label">01 / 프로젝트 역할</p>
+                <h4 id="bootloader-role">설계·구현·디버깅 전담</h4>
+                <ul class="role-tasks"><li><strong>메모리 영역 · 진단 절차 설계</strong>Application Primary·Backup 영역과 UDS 리프로그래밍 절차를 설계했습니다.</li>
+                  <li><strong>Embedded C · Flash 제어 구현</strong>UDS 7개 서비스, Application Backup·Restore, SHA-256 비교 분기를 구현했습니다.</li>
+                  <li><strong>Trace32 디버깅 · 재검증</strong>함수 인수·레지스터·Trap 정보를 대조해 정렬 위반을 특정하고, 버퍼 수정 후 양방향 복사와 해시 판정을 확인했습니다.</li></ul>
+              </section>
+              <section class="trouble-panel" aria-labelledby="bootloader-troubleshooting">
+                <p class="focus-label">02 / 트러블슈팅</p>
+                <h4 id="bootloader-troubleshooting">CAN 응답 중단의 원인은 메모리 정렬</h4>
+                <ol class="trouble-steps"><li><strong>문제 · Flash Backup 중 응답 중단</strong>RoutineControl의 EraseMemory 처리에서 EA_AppToBackup() 호출 이후 CAN 응답이 멈췄습니다.</li>
+                  <li><strong>분석 · 세 가지 주소를 교차 확인</strong>Trace32에서 copyBuf·A5·DEADD가 모두 0x7000240D를 가리키고, DMI에 ALN Error가 표시되는 것을 확인했습니다.</li>
+                  <li><strong>해결 · 4바이트 정렬 보장</strong>Flash Loader의 source buffer 정렬 위반을 특정하고, uint8 배열을 uint32 backing array와 uint8* view로 변경했습니다.</li>
+                  <li><strong>재검증 · 양방향 복사와 해시 비교</strong>Application→Backup→Application의 Flash Write·Read와 SHA-256 판정을 다시 확인했습니다.</li></ol>
+                <a class="focus-link" href="artifacts/bootloader/index.html#alignment-root-cause">Trace32 캡처와 수정 전후 코드 보기 →</a>
+              </section>
+            </div>
+
             <section class="key-results" aria-label="UDS를 통한 Flash Backup &amp; Restore Key Results">
               <h4>KEY RESULTS</h4>
               <div class="results-grid">
@@ -1068,25 +1087,6 @@
                 </div>
               </div>
             </section>
-
-            <div class="project-focus">
-              <section class="role-panel" aria-labelledby="bootloader-role">
-                <p class="focus-label">01 / 프로젝트 역할</p>
-                <h4 id="bootloader-role">설계·구현·디버깅 전담</h4>
-                <ul class="role-tasks"><li><strong>메모리 영역 · 진단 절차 설계</strong>Application Primary·Backup 영역과 UDS 리프로그래밍 절차를 설계했습니다.</li>
-                  <li><strong>Embedded C · Flash 제어 구현</strong>UDS 7개 서비스, Application Backup·Restore, SHA-256 비교 분기를 구현했습니다.</li>
-                  <li><strong>Trace32 디버깅 · 재검증</strong>함수 인수·레지스터·Trap 정보를 대조해 정렬 위반을 특정하고, 버퍼 수정 후 양방향 복사와 해시 판정을 확인했습니다.</li></ul>
-              </section>
-              <section class="trouble-panel" aria-labelledby="bootloader-troubleshooting">
-                <p class="focus-label">02 / 트러블슈팅</p>
-                <h4 id="bootloader-troubleshooting">CAN 응답 중단의 원인은 메모리 정렬</h4>
-                <ol class="trouble-steps"><li><strong>문제 · Flash Backup 중 응답 중단</strong>RoutineControl의 EraseMemory 처리에서 EA_AppToBackup() 호출 이후 CAN 응답이 멈췄습니다.</li>
-                  <li><strong>분석 · 세 가지 주소를 교차 확인</strong>Trace32에서 copyBuf·A5·DEADD가 모두 0x7000240D를 가리키고, DMI에 ALN Error가 표시되는 것을 확인했습니다.</li>
-                  <li><strong>해결 · 4바이트 정렬 보장</strong>Flash Loader의 source buffer 정렬 위반을 특정하고, uint8 배열을 uint32 backing array와 uint8* view로 변경했습니다.</li>
-                  <li><strong>재검증 · 양방향 복사와 해시 비교</strong>Application→Backup→Application의 Flash Write·Read와 SHA-256 판정을 다시 확인했습니다.</li></ol>
-                <a class="focus-link" href="artifacts/bootloader/index.html#alignment-root-cause">Trace32 캡처와 수정 전후 코드 보기 →</a>
-              </section>
-            </div>
 
             <section class="artifact-section" aria-label="UDS를 통한 Flash Backup &amp; Restore 산출물">
               <h4>산출물</h4>
