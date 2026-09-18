@@ -131,7 +131,7 @@ class PortfolioContentTests(unittest.TestCase):
     def test_project_artifact_sections_have_project_specific_evidence(self):
         self.assertEqual(self.html.count('class="artifact-section"'), 2)
         bootloader = card(self.html, "bootloader-project")
-        for label in ["MEMORY MAP", "UDS SEQUENCE", "TEST RESULTS", "TRACE32 · RESTORE", "EVIDENCE"]:
+        for label in ["MEMORY MAP", "UDS SEQUENCE", "TEST RESULTS", "TRACE32 · RESTORE"]:
             self.assertIn(f"<strong>{label}</strong>", bootloader)
         black_box = card(self.html, "black-box-project")
         for label in ["CODE", "TEST", "DOCUMENT", "DEMO", "EVIDENCE"]:
@@ -249,7 +249,7 @@ class PortfolioContentTests(unittest.TestCase):
         """상세 내용은 산출물 페이지 한 곳에만 — 메인에 아코디언을 다시 만들지 않는다."""
         for gone in ["project-detail-toggle", "project-detail-region", "detail-block", "problem-flow"]:
             self.assertNotIn(gone, self.html, f"메인에 아코디언 잔재가 남음: {gone}")
-        self.assertEqual(self.html.count('class="artifact-item"'), 13)
+        self.assertEqual(self.html.count('class="artifact-item"'), 12)
         self.assertNotIn("detail.hidden", self.html, "아코디언 JS가 남아 있음")
 
     def test_credentials_open_redacted_image_evidence(self):
