@@ -235,7 +235,10 @@
       margin: 0;
       color: #c8d6e6;
       font-size: 17px;
+      line-height: 1.85;
     }
+
+    .hero-copy + .hero-copy { margin-top: 16px; }
 
     .hero-focus {
       margin: 18px 0 0;
@@ -470,9 +473,10 @@
 
     .result-card span {
       display: block;
-      margin-top: 4px;
+      margin-top: 8px;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 14px;
+      line-height: 1.75;
     }
 
     .artifact-section {
@@ -526,7 +530,7 @@
       margin-top: 5px;
       color: #45546a;
       font-size: 13px;
-      line-height: 1.55;
+      line-height: 1.75;
     }
 
     .project-more {
@@ -610,7 +614,7 @@
       font-size: 13px;
     }
 
-    .skill-card li + li { margin-top: 4px; }
+    .skill-card li + li { margin-top: 8px; }
 
     .education-grid {
       display: grid;
@@ -630,6 +634,7 @@
     .education-card h3 { margin: 0 0 8px; font-size: 19px; }
     .education-card p { margin: 0; color: var(--muted); }
     .education-card ul { margin: 12px 0 0; padding-left: 18px; color: #556276; }
+    .education-card li + li { margin-top: 8px; }
 
     .credentials-layout {
       display: grid;
@@ -809,10 +814,10 @@
         padding-right: 21px;
       }
 
-          .key-results { margin-left: 21px; margin-right: 21px; }
+      .key-results { margin-left: 16px; margin-right: 16px; padding: 18px 16px; }
       .results-grid,
-      .artifact-grid,
-      .credential-list li { grid-template-columns: 1fr; gap: 2px; }
+      .artifact-grid { grid-template-columns: 1fr; gap: 12px; }
+      .credential-list li { grid-template-columns: 1fr; gap: 6px; }
       .credential-list span { text-align: left; }
       .credential-evidence-grid { grid-template-columns: 1fr; }
       .credential-evidence-card { grid-template-rows: 340px auto; }
