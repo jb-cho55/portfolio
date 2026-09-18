@@ -11,6 +11,7 @@
   <style>
     .gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.gallery a{display:block;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;text-decoration:none}.gallery img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#eef2f7}.gallery span{display:block;padding:10px 12px;color:var(--muted);font-size:13px;font-weight:700}.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric{padding:16px;border:1px solid var(--line);border-radius:9px;background:#fff}.metric strong{display:block;color:var(--navy);font-size:20px}.metric span{color:var(--muted);font-size:13px}.result-gallery{align-items:start}.result-gallery img{aspect-ratio:auto;height:auto;object-fit:contain;background:#fff}.result-gallery span{line-height:1.5}@media(max-width:700px){.gallery,.metric-grid{grid-template-columns:1fr}}
   </style>
+  <link rel="stylesheet" href="../../assets/project-focus.css">
 </head>
 <body>
   <a class="skip-link" href="#main">본문 바로가기</a>
@@ -19,12 +20,37 @@
       <a class="back-link" href="../../index.html#black-box-project">← 포트폴리오로 돌아가기</a>
       <p class="eyebrow">BLACK BOX TESTING ARTIFACTS</p>
       <h1>CANoe/CAPL 기반 차량 ECU Black Box Testing</h1>
-      <p>요구사양을 테스트 조건과 판정 기준으로 전환한 과정부터 CAPL 자동화, 결함 기록, 실제 수행 화면까지 한 페이지에서 확인할 수 있습니다.</p>
+      <p>요구사양 분석부터 CAPL 자동화·결함 분석까지 직접 수행했습니다. 수동·자동 검증의 판정 불일치를 추적하고, 최신 Frame 수신에 측정을 동기화한 과정을 소개합니다.</p>
       <dl class="meta-grid" aria-label="Black Box Testing 프로젝트 메타데이터"><div><dt>유형</dt><dd>개인 프로젝트</dd></div><div><dt>기간</dt><dd>2026.03.19–2026.03.23</dd></div><div><dt>팀 규모</dt><dd>1명</dd></div><div><dt>기여도</dt><dd>100%</dd></div><div><dt>환경</dt><dd>CANoe · CAPL · CANdb</dd></div></dl>
     </header>
 
-    <nav class="artifact-nav" aria-label="산출물 섹션"><a href="#overview">OVERVIEW</a><a href="#code">CODE</a><a href="#test">TEST</a><a href="#document">DOCUMENT</a><a href="#demo">DEMO</a></nav>
+    <nav class="artifact-nav" aria-label="산출물 섹션"><a href="#role">프로젝트 역할</a><a href="#troubleshooting">트러블슈팅</a><a href="#overview">OVERVIEW</a><a href="#code">CODE</a><a href="#test">TEST</a><a href="#document">DOCUMENT</a><a href="#demo">DEMO</a></nav>
 
+    <section id="role" class="panel">
+      <p class="focus-label">01 / 프로젝트 역할</p>
+      <h2>검증 전 과정 전담</h2>
+      <p>개인 프로젝트 · 요구사양 분석부터 결함 문서화까지 직접 수행했습니다.</p>
+      <ul class="role-tasks"><li><strong>요구사양 분석 · 테스트 설계</strong>Fault Detection·Recovery·Clear의 선행 조건, 경계값, Timing을 테스트 조건과 기대 결과로 구체화했습니다.</li>
+                  <li><strong>검증 환경 구성 · CAPL 자동화</strong>CANdb·CANoe·Panel을 구성하고, 7개 고장 시나리오를 CAPL 스크립트 6종·테스트케이스 24개로 구현했습니다.</li>
+                  <li><strong>결함 재현 · 분석 · 문서화</strong>CAN Trace로 기대 결과와 실제 결과를 비교하고 재현 조건·영향도·개선 방향을 정리했습니다.</li></ul>
+    </section>
+
+
+
+
+    <section id="troubleshooting" class="panel">
+      <p class="focus-label">02 / 트러블슈팅</p>
+      <h2>수동·자동 검증의 판정 불일치 해결</h2>
+      <h3>대표 문제 해결 — Fresh Frame 동기화</h3>
+      <ol class="steps">
+        <li><strong>증상</strong>메시지 송신 방식 변경 후 이전 프레임을 기준으로 타이머가 시작돼 Detection 시점 판정이 흔들렸습니다.</li>
+        <li><strong>원인 분석</strong>CAN Trace Timestamp와 CAPL Flag 전환 시점을 비교해 최신 Reference Frame 수신 전 측정이 시작됨을 확인했습니다.</li>
+        <li><strong>수정</strong><code>waitBattReference</code>·<code>waitIGNReference</code>에서 <code>TestWaitForMessage</code>로 최신 수신 프레임을 확인한 뒤 <code>setTimerCyclic</code>으로 1ms 타이머를 시작하도록 변경했습니다.</li>
+        <li><strong>재검증</strong>경계값·Timing 시나리오를 CAPL 회귀 테스트로 반복 실행해 동일 판정 기준이 유지되는지 확인했습니다.</li>
+      </ol>
+      <p class="callout">해결의 핵심은 ECU 동작과 시험 스크립트의 측정 기준을 구분하는 것이었습니다. 입력을 변경한 시점 대신 기대한 신호의 최신 Frame이 수신된 시점에 측정을 맞췄습니다.</p>
+      <a class="focus-link" href="#code">실제 CAPL 수정 코드 확인 →</a>
+    </section>
 
     <section id="overview" class="panel">
       <h2>OVERVIEW</h2>
@@ -107,13 +133,7 @@ while(time_cnt_ms &lt;= 5100)
 }</code></pre>
       <ul class="source-list"><li>Detection·Recovery·Clear 시나리오 자동화</li><li>CAN Signal·System Variable 기반 기대값 판정</li><li>경계값과 선행 조건 조합 입력</li><li>판정은 <code>TestStepPass</code>·<code>TestStepFail</code>로 기록해 조건과 실제 값을 함께 남김</li></ul>
 
-      <h3>대표 문제 해결 — Fresh Frame 동기화</h3>
-      <ol class="steps">
-        <li><strong>증상</strong>메시지 송신 방식 변경 후 이전 프레임을 기준으로 타이머가 시작돼 Detection 시점 판정이 흔들렸습니다.</li>
-        <li><strong>원인 분석</strong>CAN Trace Timestamp와 CAPL Flag 전환 시점을 비교해 최신 Reference Frame 수신 전 측정이 시작됨을 확인했습니다.</li>
-        <li><strong>수정</strong><code>waitBattReference</code>·<code>waitIGNReference</code>에서 <code>TestWaitForMessage</code>로 최신 수신 프레임을 확인한 뒤 <code>setTimerCyclic</code>으로 1ms 타이머를 시작하도록 변경했습니다.</li>
-        <li><strong>재검증</strong>경계값·Timing 시나리오를 CAPL 회귀 테스트로 반복 실행해 동일 판정 기준이 유지되는지 확인했습니다.</li>
-      </ol>
+
     </section>
 
     <section id="test" class="panel">
@@ -135,7 +155,7 @@ while(time_cnt_ms &lt;= 5100)
       <p>동적 결함 11건 가운데 10건은 CAPL 테스트 리포트의 판정 행을 그대로 남겼습니다. 각 행에는 입력 조건과 관측값이 함께 기록됩니다. Brake·Accel·Vehicle 독립 검출 결함 1건은 캡처가 없어 문서로만 정리했습니다.</p>
       <div class="gallery result-gallery">
         <a href="../../assets/images/black-box/result_batt_percent_15_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_percent_15_fail.png" alt="Batt_Percent=15 조건에서 Fault 미검출로 Fail 판정된 테스트 리포트 행"><span>Batt Percent 15% — 요구 검출 구간 4900~5100ms에서 Fault 미검출</span></a>
-        <a href="../../assets/images/black-box/result_batt_percent_80_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_percent_80_fail.png" alt="Batt_Percent=80 조건에서 Fault 미검출로 Fail 판정된 테스트 리포트 행"><span>Batt Percent 80% — 동일 구간에서 미검출, 등호 조건 누락</span></a>
+        <a href="../../assets/images/black-box/result_batt_percent_80_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_percent_80_fail.png" alt="Batt_Percent=80 조건에서 Fault 미검출로 Fail 판정된 테스트 리포트 행"><span>Batt Percent 80% — 동일 구간에서 Fault 미검출 관측 · 등호 조건 누락 가능성 추정</span></a>
         <a href="../../assets/images/black-box/result_ign_49_cycle_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_ign_49_cycle_fail.png" alt="Cycle_cnt=49에서 Fault Clear가 동작해 Fail 판정된 테스트 리포트 행 다수"><span>IGN Cycle — 요구 50 Cycle과 달리 <code>Cycle_cnt=49</code>에서 Clear 동작 (Off-by-One)</span></a>
         <a href="../../assets/images/black-box/result_batt_voltage_recovery_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_voltage_recovery_fail.png" alt="battVoltage 14400에서 15000까지 회복 실패로 Fail 판정된 테스트 리포트 행"><span>Batt Voltage 회복 — raw 14400~15000 전 구간 회복 실패. 요구 임계 15.0V가 Factor 0.001 미적용으로 raw 15(15mV)에서만 동작</span></a>
         <a href="../../assets/images/black-box/result_batt_voltage_invalid_precondition.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_voltage_invalid_precondition.png" alt="IGN=0 ENG=0 조건에서도 Err_sts=2가 검출된 테스트 리포트 행"><span>Batt Voltage High — IGN=0 · ENG=0 선행조건 위반 상태에서도 <code>Err_sts=2</code> 검출</span></a>

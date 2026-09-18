@@ -6,6 +6,8 @@
 
 ## 대표 프로젝트
 
+메인 프로젝트는 **목표 → 주요 결과 → 프로젝트 역할·트러블슈팅** 순서로 구성했습니다. 두 프로젝트 모두 목표를 한 문장으로 요약합니다. 우측 네비게이터에서 검증 프로젝트와 UDS 구현 프로젝트로 바로 이동할 수 있습니다. 담당 업무와 문제 해결 과정은 나란히 보여주고, 모바일에서는 세로로 배치합니다. 상세 시험·분석 자료는 각 프로젝트 페이지에서 확인할 수 있습니다.
+
 ### CANoe/CAPL 기반 차량 ECU Black Box Testing
 
 - 요구사양을 기준으로 Fault 상태 전이, 선행 조건, 타이밍 등을 검증했습니다.
@@ -52,6 +54,7 @@ index.html                       포트폴리오 메인
 artifacts/black-box/index.html    Black Box 코드·시험·실행 화면
 artifacts/bootloader/index.html   Bootloader 구현·시험 근거·정적 리뷰
 assets/bootloader/               메모리 맵·UDS 도식·공통 스타일
+assets/project-focus.css         역할·트러블슈팅 강조 및 반응형 레이아웃
 assets/images/                  프로젝트 캡처
 assets/evidence/                개인정보를 마스킹한 자격·수상 증빙
 tests/                          웹사이트 콘텐츠·링크 회귀 테스트

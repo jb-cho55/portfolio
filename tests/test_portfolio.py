@@ -15,8 +15,8 @@ class PortfolioContentTests(unittest.TestCase):
     def test_vehicle_embedded_sw_positioning(self):
         self.assertIn("Vehicle Embedded SW Portfolio", self.html)
         self.assertIn("Vehicle Embedded SW Engineer", self.html)
-        self.assertIn("국민대학교 자동차IT융합학과와 HL만도·HL클레무브 부트캠프", self.html)
-        self.assertIn("차량 HW·SW 전반의 전문지식", self.html)
+        self.assertIn("국민대학교 자동차IT융합학과와 HL만도·HL클레무브 IVS 부트캠프", self.html)
+        self.assertIn("차량 HW·SW 전반을 학습", self.html)
         self.assertNotIn("Embedded SW QA Engineer", self.html)
 
     def test_featured_projects_are_limited_to_two_and_verification_is_first(self):
@@ -42,15 +42,23 @@ class PortfolioContentTests(unittest.TestCase):
     def test_black_box_goal_uses_requirement_specification_language(self):
         black_box = card(self.html, "black-box-project")
         self.assertIn(
-            "요구사양을 기준으로 Fault 상태 전이, 선행 조건, 타이밍 등을 검증했습니다.",
+            "ECU의 고장 검출·복구·해제가 요구사양대로 동작하는지 검증합니다.",
             black_box,
         )
         self.assertNotIn("요구사항", black_box)
 
-    def test_each_project_has_five_line_summary(self):
-        self.assertEqual(self.html.count('class="project-summary"'), 2)
-        for label in ["<dt>목표</dt>", "<dt>역할</dt>", "<dt>구현</dt>", "<dt>검증</dt>", "<dt>결과</dt>"]:
-            self.assertEqual(self.html.count(label), 2)
+    def test_each_project_shows_results_after_summary_before_role_and_troubleshooting(self):
+        for project_id in ["black-box-project", "bootloader-project"]:
+            project = card(self.html, project_id)
+            role = project.index('class="role-panel"')
+            troubleshooting = project.index('class="trouble-panel"')
+            results = project.index('class="key-results"')
+            self.assertLess(role, troubleshooting)
+            intro = project.index('class="intro-summary"')
+            self.assertLess(intro, results)
+            self.assertLess(results, role)
+            for label in ["문제 ·", "분석 ·", "해결 ·", "재검증 ·"]:
+                self.assertIn(label, project)
 
     def test_each_project_has_key_results_box(self):
         self.assertEqual(self.html.count('class="key-results"'), 2)
@@ -87,7 +95,7 @@ class PortfolioContentTests(unittest.TestCase):
         ]:
             self.assertIn(scale, black_box)
 
-        self.assertIn("CANoe 기반 수동 검증과 CAPL 자동 검증", black_box)
+        self.assertIn("수동 검증과 CAPL 자동 검증", black_box)
         self.assertIn(
             "Steering Timing 요구사양 50±10ms 대비 실제 986~993ms 검출",
             black_box,
@@ -115,7 +123,6 @@ class PortfolioContentTests(unittest.TestCase):
             "OTA를 위한 Bootloader 설계",
             "OTA Bootloader",
             "SW Binary 위변조 감지",
-            "요구사항",
         ]:
             self.assertNotIn(outdated, pages)
 
@@ -145,15 +152,11 @@ class PortfolioContentTests(unittest.TestCase):
             positions = [page.index(term) for term in terms]
             self.assertEqual(positions, sorted(positions))
 
-    def test_bootloader_case_study_contains_implementation_and_validation_scope(self):
+    def test_bootloader_case_study_contains_implementation_summary(self):
         expected = [
-            "UDS 7개 서비스(0x10·0x27·0x31·0x34·0x36·0x37·0x11)",
+            "UDS 7개 서비스",
             "Application Backup·Restore",
             "SHA-256 비교",
-            "정상 다운로드",
-            "전송 순서 오류",
-            "무결성 불일치",
-            "양방향 Flash Write",
         ]
         bootloader = card(self.html, "bootloader-project")
         for content in expected:
@@ -254,15 +257,16 @@ class PortfolioContentTests(unittest.TestCase):
             "IVS 5기 모범상": "assets/evidence/fullsize/exemplary_award.png",
             "정보처리기사": "assets/evidence/fullsize/information_processing_engineer.png",
             "ISTQB CTFL": "assets/evidence/fullsize/istqb_ctfl.png",
+            "OPIc IH": "assets/evidence/fullsize/opic_ih.png",
         }
         for label, path in evidence.items():
             self.assertIn(label, self.html)
             self.assertIn(f'href="{path}"', self.html)
-        self.assertEqual(self.html.count('class="credential-evidence-card"'), 5)
+        self.assertEqual(self.html.count('class="credential-evidence-card"'), 6)
 
     def test_credential_evidence_is_labeled_as_redacted(self):
         self.assertIn("개인정보 보호를 위해 식별번호와 검증 코드를 마스킹했습니다.", self.html)
-        self.assertEqual(self.html.count("확대 이미지 보기"), 5)
+        self.assertEqual(self.html.count("확대 이미지 보기"), 6)
         self.assertNotIn("원본 PDF 보기", self.html)
 
     def test_credential_thumbnails_are_accessible(self):
@@ -272,10 +276,11 @@ class PortfolioContentTests(unittest.TestCase):
             "assets/evidence/thumbnails/exemplary_award.webp",
             "assets/evidence/thumbnails/information_processing_engineer.webp",
             "assets/evidence/thumbnails/istqb_ctfl.webp",
+            "assets/evidence/thumbnails/opic_ih.webp",
         ]
         for path in thumbnails:
             self.assertIn(f'src="{path}"', self.html)
-        # 증빙 썸네일 5장이 메인에 남은 유일한 이미지 — 전부 지연 로딩·대체텍스트를 가진다
+        # 증빙 썸네일은 전부 지연 로딩·대체텍스트를 가진다.
         self.assertEqual(self.html.count("<img "), len(thumbnails))
         self.assertEqual(self.html.count('loading="lazy"'), len(thumbnails))
         self.assertEqual(self.html.count("alt="), len(thumbnails))

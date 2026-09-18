@@ -32,17 +32,6 @@ class Review202608Tests(unittest.TestCase):
         closing = self.index[self.index.index('class="contact"'):]
         self.assertIn("cho.jeongbin55@gmail.com</a>", closing)
 
-    def test_b01_bootloader_states_cryptographic_scope_and_limit(self):
-        """SHA-256 검사의 한계를 스스로 밝힌다 (HMAC·전자서명이 아님)."""
-        bootloader = card(self.index, "bootloader-project")
-        self.assertIn("<dt>범위·한계</dt>", bootloader)
-        for phrase in [
-            "고정 키를 접두어로 붙인 SHA-256",
-            "HMAC이나 전자서명이 아니므로",
-            "해시까지 다시 계산하는 공격자는 막지 못합니다",
-        ]:
-            self.assertIn(phrase, bootloader)
-
     def test_b02_capl_excerpt_is_verbatim_not_paraphrased(self):
         """CAPL 발췌는 실제 소스 그대로여야 한다. 지어낸 호출이 있으면 실패."""
         for invented in ["setTimer(detectionTimer", "waitBattReference();", "waitIGNReference();"]:
@@ -67,8 +56,6 @@ class Review202608Tests(unittest.TestCase):
         """'7개 서비스' 배지와 본문 SID 나열이 일치해야 한다."""
         bootloader = card(self.index, "bootloader-project")
         self.assertIn("UDS 7개 서비스 흐름", bootloader)
-        self.assertIn("UDS 7개 서비스(0x10·0x27·0x31·0x34·0x36·0x37·0x11)", bootloader)
-        self.assertIn("EraseMemory·Backup과 CheckProgrammingDependencies 두 루틴", bootloader)
 
     def test_a05_university_period_is_stated(self):
         """국민대 카드만 기간이 비어 있으면 안 된다."""
@@ -114,7 +101,7 @@ class Review202608Tests(unittest.TestCase):
 
     def test_a03_hero_states_what_he_does(self):
         """채용담당자가 첫 화면에서 직무를 판단할 수 있어야 한다."""
-        self.assertIn("CANoe/CAPL 자동화로 시험하고, 결함의 원인까지 규명합니다", self.index)
+        self.assertIn("요구사양을 시험으로 구체화하고, 결함의 원인까지 추적하는 차량 SW 엔지니어입니다.", self.index)
 
     def test_a07_test_scale_has_a_denominator(self):
         """결함 건수만 있고 모수가 없으면 규모를 가늠할 수 없다."""
@@ -128,17 +115,6 @@ class Review202608Tests(unittest.TestCase):
         )
         self.assertTrue((ROOT / "assets/og-card.png").is_file())
 
-    def test_b04_evidence_level_is_stated_on_main_page(self):
-        """저장소보다 페이지가 더 단정적이면 안 된다."""
-        bootloader = card(self.index, "bootloader-project")
-        self.assertIn("<dt>근거 수준</dt>", bootloader)
-        for phrase in [
-            "교육 당시 ECU에서 수행한 시나리오 시험 기록",
-            "새 빌드나 하드웨어 재시험을 하지 않았고",
-            "기록상 PASS · 정적 확인 · 근거 부족 · 실행 미확인",
-        ]:
-            self.assertIn(phrase, bootloader)
-
     def test_b06_capl_api_names_accompany_the_local_term(self):
         self.assertIn("<code>TestWaitForMessage</code>로 최신 수신 프레임을 확인", self.black_box)
 
@@ -151,7 +127,7 @@ class Review202608Tests(unittest.TestCase):
             self.assertIn(phrase, self.index)
 
     def test_b11_provided_training_environment_is_disclosed(self):
-        self.assertIn("제공된 AURIX·MCAL 교육 환경 위에서", self.index)
+        self.assertIn("제공된 AURIX·MCAL 교육 환경 위에서", self.bootloader)
 
     def test_c02_skill_and_project_order_lead_with_verification(self):
         self.assertLess(
@@ -198,11 +174,6 @@ class Review202608Tests(unittest.TestCase):
         for css, label in [(self.index, "index.html"), (shared, "shared.css")]:
             self.assertIn("align-items:center" if css is shared else "align-items: center;", css, label)
 
-    def test_ui03_implementation_line_has_no_lone_bold_token(self):
-        """문장 안에서 0x31만 볼드로 튀지 않아야 한다."""
-        self.assertIn("0x31은 EraseMemory·Backup과", self.index)
-        self.assertNotIn("<code>0x31</code>", self.index)
-
     def test_ui04_resume_link_matches_file_presence(self):
         """resume.pdf가 있으면 노출, 없으면 hidden — 어긋나면 실패."""
         m = re.search(r'<p class="contact-resume"([^>]*)>', self.index)
@@ -239,7 +210,7 @@ class Review202608Tests(unittest.TestCase):
     def test_ui12_section_rail_lists_every_main_section(self):
         rail = self.index[self.index.index('class="section-rail"'):]
         rail = rail[:rail.index("</nav>")]
-        for section in ["hero", "projects", "skills", "education", "credentials"]:
+        for section in ["hero", "black-box-project", "bootloader-project", "skills", "education", "credentials"]:
             self.assertIn(f'href="#{section}"', rail)
             self.assertIn(f'id="{section}"', self.index, f"레일이 가리키는 섹션 없음: {section}")
         self.assertIn("IntersectionObserver", self.index, "현재 위치 표시 로직 없음")

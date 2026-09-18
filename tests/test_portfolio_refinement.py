@@ -19,8 +19,8 @@ class PortfolioRefinementTests(unittest.TestCase):
 
     def test_profile_01_mentions_both_education_sources_and_vehicle_hw_sw(self):
         expected = (
-            "국민대학교 자동차IT융합학과와 HL만도·HL클레무브 부트캠프를 통해 "
-            "차량 HW·SW 전반의 전문지식을 습득했습니다."
+            "국민대학교 자동차IT융합학과와 HL만도·HL클레무브 IVS 부트캠프를 통해 "
+            "차량 HW·SW 전반을 학습했으며,"
         )
         self.assertIn(expected, self.index)
 
@@ -169,7 +169,7 @@ class PortfolioRefinementTests(unittest.TestCase):
             self.assertIn(f'href="assets/evidence/fullsize/{name}.png"', self.index)
         credentials = self.index[self.index.index('id="credentials"'):]
         self.assertNotRegex(credentials, r'class="credential-evidence-card" href="[^"]+\.pdf"')
-        self.assertEqual(credentials.count("확대 이미지 보기"), 5)
+        self.assertEqual(credentials.count("확대 이미지 보기"), 6)
 
     def test_cleanup_02_removes_superpowers_working_documents(self):
         superpowers = ROOT / "docs/superpowers"
