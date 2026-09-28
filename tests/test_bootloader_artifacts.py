@@ -38,13 +38,13 @@ class BootloaderArtifactTests(unittest.TestCase):
 
     def test_both_projects_publish_personal_project_metadata(self):
         self.assertEqual(self.index.count('class="project-meta"'), 2)
-        for value in ["개인 프로젝트", "2026.03.03–2026.03.24", "2026.03.19–2026.03.23", "1명", "100%"]:
+        for value in ["개인 프로젝트", "2026.03.03–2026.03.24", "2026.03.19–2026.03.23", "1명", "제공된 교육 환경"]:
             self.assertIn(value, self.index)
 
     def test_memory_map_uses_exact_linker_addresses(self):
         for value in [
             "0x80000000–0x80025FFF", "0x80026000–0x80027FFF",
-            "0x80100000–0x8017DFFF", "0x8017E000–0x8017FFDF",
+            "0x80100000–0x8017DFFF", "0x8017E000–0x8017FFBF",
             "0x8017FFE0–0x8017FFFF", "0x80180000–0x801FFFFF",
             "0xAF000000–0xAF01FFFF", "0xAF100000–0xAF103FFF",
             "0x80000020", "0x80027800",
@@ -58,30 +58,24 @@ class BootloaderArtifactTests(unittest.TestCase):
                       "EA_AppToBackup()", "EA_AppRestore()", "SHA-256 불일치"]:
             self.assertIn(value, self.page)
 
-    def test_test_report_uses_only_allowed_statuses(self):
-        statuses = re.findall(r'data-status="([^"]+)"', self.page)
-        self.assertGreaterEqual(len(statuses), 8)
-        self.assertTrue(set(statuses) <= {"Recorded PASS", "Static review only", "Not verified", "Evidence unavailable"})
-        self.assertIn("Recorded PASS", statuses)
-        self.assertIn("Static review only", statuses)
-        self.assertIn("Evidence unavailable", statuses)
-        self.assertIn("Not verified", statuses)
+    def test_test_report_does_not_turn_source_review_into_runtime_pass(self):
+        report = self.page[self.page.index('id="test"'):self.page.index('id="review"')]
+        self.assertNotIn('status-pass', report)
+        self.assertIn('미적용·미검증', report)
+        self.assertIn('현재 환경에서 새 빌드나 ECU 재시험을 수행한 결과가 아닙니다', report)
+        for case in ('BL-TC-02', 'BL-TC-03', 'BL-TC-08'):
+            self.assertIn(case, report)
 
-    def test_test_report_separates_verdict_from_evidence(self):
-        report = re.search(r"<table><caption>Bootloader 공개 테스트 결과표</caption>(.*?)</table>", self.page, re.S)
+    def test_test_report_separates_observation_from_evidence(self):
+        report = re.search(r"<table><caption>Bootloader 공개 확인 자료</caption>(.*?)</table>", self.page, re.S)
         self.assertIsNotNone(report)
         headers = re.findall(r"<th>(.*?)</th>", report.group(1))
         self.assertIn("근거 유형", headers)
-        evidence_column = headers.index("근거 유형")
-        rows = re.findall(r'<tr data-status="([^"]+)">(.*?)</tr>', report.group(1), re.S)
-        self.assertEqual(len(rows), 10)
-        for status, row in rows:
-            cells = re.findall(r"<td>(.*?)</td>", row, re.S)
-            self.assertEqual(len(cells), len(headers), cells[0])
-            self.assertTrue(cells[evidence_column].strip(), cells[0])
-            if cells[0] == "BL-TC-04":
-                self.assertEqual(status, "Static review only")
-                self.assertNotIn("status-pass", row)
+        rows = re.findall(r"<tr>(.*?)</tr>", report.group(1), re.S)[1:]
+        self.assertEqual(len(rows), 4)
+        for row in rows:
+            self.assertEqual(len(re.findall(r"<td>(.*?)</td>", row, re.S)), len(headers))
+        self.assertIn('수정 후 ECU 실행 로그는 공개 자료에 없음', report.group(1))
 
     def test_trace32_section_contains_actual_debug_values_and_code(self):
         for value in [

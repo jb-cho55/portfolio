@@ -1,74 +1,45 @@
 # 조정빈 · Vehicle SW Verification Portfolio
 
-차량 ECU의 요구사양을 테스트 조건과 판정 기준으로 바꾸고, CANoe/CAPL 자동화와 Trace 분석으로 결함을 재현한 경험을 정리했습니다. AURIX TC234LP에서 UDS를 통한 Flash Backup & Restore 개발·디버깅 경험을 함께 소개합니다.
+요구사항 기반 시험, CANoe/CAPL 자동화와 Trace32 원인 분석을 정리한 차량 SW 검증 포트폴리오입니다.
 
-**[포트폴리오 웹사이트](https://jb-cho55.github.io/portfolio/)** · [GitHub 프로필](https://github.com/jb-cho55)
+**[포트폴리오](https://jb-cho55.github.io/portfolio/)** · [GitHub 프로필](https://github.com/jb-cho55)
 
-## 대표 프로젝트
+## CANoe/CAPL 기반 차량 ECU Black Box Testing
 
-메인 프로젝트는 **목표 → 주요 결과 → 프로젝트 역할·트러블슈팅** 순서로 구성했습니다. 두 프로젝트 모두 목표를 한 문장으로 요약합니다. 우측 네비게이터에서 검증 프로젝트와 UDS 구현 프로젝트로 바로 이동할 수 있습니다. 담당 업무와 문제 해결 과정은 나란히 보여주고, 모바일에서는 세로로 배치합니다. 상세 시험·분석 자료는 각 프로젝트 페이지에서 확인할 수 있습니다.
+CANoe 시뮬레이션 기반 IVS 교육 과제입니다. 제공된 요구사항을 기준으로 시험 설계, CANdb·주변 노드·Panel 구성, CAPL 작성과 결함 분석을 담당했습니다. 실차·HIL 검증으로 제시하지 않습니다.
 
-### CANoe/CAPL 기반 차량 ECU Black Box Testing
+- 7개 고장 시나리오. 보관 테스트 소스 6종의 testcase 선언 24개.
+- 화면에는 Brake_Error를 포함한 7개 모듈이 있으나 해당 모듈의 소스는 보관 자료에 없습니다.
+- Batt Percent 정수 0~100 × IGN 2 × ENG 2 = 404조합. 전체 시스템 전수 검증과 구분합니다.
+- 정적 검토 4건(표기 개선 2건 포함), 동적 결함 11건. 동적 판정 캡처 10건 공개.
+- IGN 50 cycle 요구에 대해 49회에서 Clear된 사례와 시험–결과–결함 연결표를 제공합니다.
+- Fresh Frame 기준의 측정 변경과 남은 오라클·타이밍 불확도를 구분합니다.
 
-- 요구사양을 기준으로 Fault 상태 전이, 선행 조건, 타이밍 등을 검증했습니다.
-- CANdb·CANoe 환경을 구성하고, CANoe 기반 수동 검증과 CAPL 자동 검증, 결함 문서화를 수행했습니다.
-- 요구사양 7개 고장 시나리오를 CAPL 스크립트 6종·테스트케이스 24개로 구현했습니다. 이 중 Batt Percent 시나리오는 101 × Ignition 2 × Engine 2 = 404조합을 시험했습니다.
-- 정적 결함 4건과 동적 결함 11건을 식별했습니다. Steering Timing은 요구사양 50±10ms 대비 실제 986~993ms에 검출됐으며, 동적 결함 10건의 실제 판정 화면을 공개합니다.
-- 동일한 Timing 조건에서 수동 검증과 CAPL 자동 검증 결과가 달랐던 원인을 CAN Trace로 분석하고, 최신 Frame 수신 후 타이머가 동작하도록 CAPL 로직을 개선했습니다.
-- Black Box Testing 프로젝트 우수상을 받았습니다.
+[시험 결과](https://jb-cho55.github.io/portfolio/artifacts/black-box/#test) · [추적표·결함 보고서](https://jb-cho55.github.io/portfolio/artifacts/black-box/#document) · [보관 코드·개선 설계](https://jb-cho55.github.io/portfolio/artifacts/black-box/#code)
 
-[코드·문제 해결](https://jb-cho55.github.io/portfolio/artifacts/black-box/#code) · [시험 결과](https://jb-cho55.github.io/portfolio/artifacts/black-box/#test) · [실행 화면](https://jb-cho55.github.io/portfolio/artifacts/black-box/#demo)
+추적용 ID는 2026-09-28에 원본 문서·코드·판정 화면을 연결하며 새로 부여했습니다. 원본 요구사항 ID나 새 시험 실행 결과가 아닙니다. 원본 문서에 먼저 반영한 뒤 공개 가능한 요약을 게시했습니다.
 
-### UDS를 통한 Flash Backup & Restore
+## UDS를 통한 Flash Backup & Restore
 
-- 제공된 AURIX TC234LP·MCAL 교육 환경에서 UDS 기반 ECU Reprogramming, Application Backup/Restore와 SHA-256 Hash 비교 분기를 구현한 개인 프로젝트입니다.
-- CAN 응답 중단을 Trace32로 추적하고, source buffer의 4바이트 정렬 위반을 원인으로 특정했습니다. 공개 자료에는 레지스터·DMI 캡처와 수정 전후 코드가 포함됩니다.
-- 정상 다운로드·무결성 불일치·양방향 Flash 복사는 **당시 기록**을 기준으로 설명합니다. 현재 새 빌드나 ECU 재시험을 수행한 결과는 아닙니다.
-- 이후 정적 리뷰에서 valid pattern 선기록, 길이 상한·권한 검사 누락을 발견했습니다. **개선안은 미적용·미검증**이며, 모든 오류·중단 상황에서 안전한 부팅을 보장하는 구현으로 제시하지 않습니다.
+제공된 AURIX TC234LP·MCAL 교육 환경에서 UDS 7개 서비스와 Application Backup/Restore, SHA-256 비교 분기를 구현했습니다. Trace32에서 홀수 주소의 word 접근과 Alignment Trap을 연결하고, uint32 저장 공간으로 버퍼 정렬을 확보한 전후 코드를 제공합니다.
 
-[메모리 맵](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#memory-map) · [구현 흐름과 한계](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#uds) · [시험 판정·근거](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#test) · [Trace32 분석](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#trace32) · [미해결 코드 리뷰](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#review)
+공개 캡처·소스와 수행 서술을 구분하며, 현재 새 빌드나 ECU 재시험 결과는 아닙니다. 이후 발견한 길이·권한 검사 및 valid pattern 순서 개선안은 **미적용·미검증**입니다. 고정 Seed/Key와 키 접두어 SHA-256은 교육용이며 HMAC이나 전자서명이 아닙니다.
 
-## Bootloader 시험표를 읽는 기준
+[메모리 맵](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#memory-map) · [진단 흐름](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#uds) · [공개 확인 자료](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#test) · [Trace32](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#trace32)
 
-시험 판정과 근거 유형은 별도로 표시합니다. 원본 로그가 비공개인 경우, 공개된 요약·코드·화면과 구분합니다.
+## 협업 프로젝트
 
-| 판정 | 의미 |
-|---|---|
-| 기록상 PASS | 당시 실행·재검증 기록에 통과 결과가 서술됨. 현재 재시험 또는 독립 검증을 뜻하지 않음 |
-| 정적 확인 | 코드·설계 기록만 확인. 실행 시험 통과가 아님 |
-| 근거 부족 | 수행 서술은 있으나 판정을 뒷받침하는 자료가 부족함 |
-| 실행 미확인 | 실행 여부 자체를 확인할 기록이 없음. 미실행으로 단정하지 않음 |
+[CarMaker ADAS 통합·주차](https://github.com/jb-cho55/IVS-CarMaker-ADAS) — 6인 팀장·주차 알고리즘 담당. 공개 문서의 주차 결과는 최대 오차 0.16m, T05는 Staging 적용 전후 51.6m→0.02m입니다. 팀 PR 기록 22건과 본인의 역할을 분리해 소개합니다. 해당 시험 조건의 팀·주차 파트 결과이며 개인 단독 성과나 전체 상황의 성능 보장이 아닙니다.
 
-고정 키 접두어 SHA-256은 HMAC이나 전자서명이 아니며, 해시까지 다시 계산하는 공격자를 방어하지 못합니다. 기능 흐름의 구현, 당시 시험 기록, 이후 발견한 결함, 아직 적용하지 않은 개선안을 구분해 읽어 주세요.
+[보안 CAN 차량 네트워크](https://github.com/jb-cho55/Autonomous-Computing-Platform-FinalProject) · [DeepRacer 캡스톤](https://github.com/jb-cho55/Capstone_DeepRacer_KOOKNET_2025)
 
-## 다른 공개 프로젝트
+## 구조와 검증
 
-- [CarMaker ADAS 통합 자율주행](https://github.com/jb-cho55/IVS-CarMaker-ADAS) — 6인 팀 프로젝트의 팀장·주차 알고리즘 담당
-- [보안 CAN 차량 네트워크](https://github.com/jb-cho55/Autonomous-Computing-Platform-FinalProject) — ERIKA Enterprise RTOS ECU와 OP-TEE 게이트웨이를 연결한 보안 데모
-- [DeepRacer 캡스톤](https://github.com/jb-cho55/Capstone_DeepRacer_KOOKNET_2025) — 팀장·제어 파트 담당
+`index.html`은 결과·역할 요약, `artifacts/`는 상세 근거, `assets/`는 이미지와 도식입니다. 메인은 목표→결과→대표 캡처→역할·트러블슈팅 순서입니다.
 
-## 저장소 구조
-
-```text
-index.html                       포트폴리오 메인
-artifacts/black-box/index.html    Black Box 코드·시험·실행 화면
-artifacts/bootloader/index.html   Bootloader 구현·시험 근거·정적 리뷰
-assets/bootloader/               메모리 맵·UDS 도식·공통 스타일
-assets/project-focus.css         역할·트러블슈팅 강조 및 반응형 레이아웃
-assets/images/                  프로젝트 캡처
-assets/evidence/                개인정보를 마스킹한 자격·수상 증빙
-tests/                          웹사이트 콘텐츠·링크 회귀 테스트
-```
-
-## 로컬 실행 및 웹사이트 검증
-
-```bash
+```sh
 python -m http.server 8000
 python -B -m unittest discover -s tests -v
 ```
 
-테스트는 이 정적 웹사이트의 콘텐츠·링크·구조를 검사합니다. CAPL 시험 실행, Bootloader 빌드 또는 ECU 동작 검증을 대신하지 않습니다.
-
-## 공개 범위
-
-교육 자료 보호를 위해 두 대표 프로젝트의 원본 저장소는 비공개로 유지합니다. 공개 가능한 코드 발췌·캡처·주소·결과 요약과 개인정보를 마스킹한 자격·수상 증빙만 게시합니다. 계정·인증정보, 보호된 교육 자료와 만료형 첨부 URL은 포함하지 않습니다.
+웹 테스트는 콘텐츠·링크·구조 검사입니다. CAPL 실행이나 ECU 검증을 대신하지 않습니다. 교육 원본 저장소의 비공개 상태를 유지하고 보호된 요구사항 이미지는 공개 사이트에 복사하지 않습니다.

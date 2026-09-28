@@ -13,8 +13,8 @@ class PortfolioContentTests(unittest.TestCase):
         cls.bootloader_page = Path("artifacts/bootloader/index.html").read_text(encoding="utf-8")
 
     def test_vehicle_embedded_sw_positioning(self):
-        self.assertIn("Vehicle Embedded SW Portfolio", self.html)
-        self.assertIn("Vehicle Embedded SW Engineer", self.html)
+        self.assertIn("Vehicle SW Verification Portfolio", self.html)
+        self.assertIn("Vehicle SW Verification Engineer", self.html)
         self.assertIn("국민대학교 자동차IT융합학과와 HL만도·HL클레무브 IVS 부트캠프", self.html)
         self.assertIn("차량 HW·SW 전반을 학습", self.html)
         self.assertNotIn("Embedded SW QA Engineer", self.html)
@@ -42,12 +42,12 @@ class PortfolioContentTests(unittest.TestCase):
     def test_black_box_goal_uses_requirement_specification_language(self):
         black_box = card(self.html, "black-box-project")
         self.assertIn(
-            "ECU의 고장 검출·복구·해제가 요구사양대로 동작하는지 검증합니다.",
+            "CANoe 시뮬레이션 기반 IVS 교육 과제에서 고장 검출·회복·해제를 검증합니다.",
             black_box,
         )
-        self.assertNotIn("요구사항", black_box)
+        self.assertNotIn("요구사양", black_box)
 
-    def test_each_project_shows_results_after_role_and_troubleshooting(self):
+    def test_each_project_shows_results_before_role_and_troubleshooting(self):
         for project_id in ["black-box-project", "bootloader-project"]:
             project = card(self.html, project_id)
             role = project.index('class="role-panel"')
@@ -56,7 +56,7 @@ class PortfolioContentTests(unittest.TestCase):
             self.assertLess(role, troubleshooting)
             intro = project.index('class="intro-summary"')
             self.assertLess(intro, role)
-            self.assertLess(troubleshooting, results)
+            self.assertLess(results, role)
             artifacts = project.index('class="artifact-section"')
             self.assertLess(results, artifacts)
             for label in ["문제 ·", "분석 ·", "해결 ·", "재검증 ·"]:
@@ -66,11 +66,11 @@ class PortfolioContentTests(unittest.TestCase):
         self.assertEqual(self.html.count('class="key-results"'), 2)
         self.assertEqual(self.html.count("<h4>KEY RESULTS</h4>"), 2)
         for result in [
-            "UDS 7개 서비스 흐름",
+            "UDS 7개 서비스",
             "Backup·Restore",
             "SHA-256",
-            "Trap 원인 해결",
-            "정적 결함 4건",
+            "Alignment Trap 분석",
+            "정적 검토 4건",
             "동적 결함 11건",
             "7개 고장 시나리오",
             "프로젝트 우수상",
@@ -92,22 +92,22 @@ class PortfolioContentTests(unittest.TestCase):
         for scale in [
             "7개 고장 시나리오",
             "CAPL 스크립트 6종",
-            "테스트케이스 24개",
-            "Batt Percent 시나리오 404개 입력 조합",
+            "testcase 선언 24개",
+            "Batt Percent 404조합",
         ]:
             self.assertIn(scale, black_box)
 
         self.assertIn("수동 검증과 CAPL 자동 검증", black_box)
         self.assertIn(
-            "Steering Timing 요구사양 50±10ms 대비 실제 986~993ms 검출",
+            "IGN 50 cycle 요구에 대해 49회에서 Clear 관측",
             black_box,
         )
         self.assertIn(
-            "Steering Timing — 요구사양 50±10ms 대비 실제 986~993ms에 검출",
+            "Steering Timing — 요구사항 50±10ms 대비 스크립트 관측 986~993ms",
             self.black_box_page,
         )
         self.assertIn(
-            "이 중 Batt Percent 시나리오는 101 × Ignition 2 × Engine 2 = 404조합을 전수 수행했습니다.",
+            "Batt Percent 시나리오는 101 × Ignition 2 × Engine 2 = 404조합을 대상으로 했습니다.",
             self.black_box_page,
         )
 
@@ -182,7 +182,7 @@ class PortfolioContentTests(unittest.TestCase):
     def test_black_box_case_study_contains_test_evidence(self):
         expected = [
             "Fault Detection·Recovery·Clear",
-            "정적 결함 4건",
+            "정적 검토 4건",
             "동적 결함 11건",
             "IGN 50 Cycle",
             "Steering Timing",
@@ -191,7 +191,7 @@ class PortfolioContentTests(unittest.TestCase):
             "영향도",
         ]
         black_box = card(self.html, "black-box-project")
-        card_level = ["Fault Detection·Recovery·Clear", "정적 결함 4건", "동적 결함 11건"]
+        card_level = ["Fault Detection·Recovery·Clear", "정적 검토 4건", "동적 결함 11건"]
         for content in card_level:
             self.assertIn(content, black_box)
         for content in [c for c in expected if c not in card_level]:
@@ -207,7 +207,7 @@ class PortfolioContentTests(unittest.TestCase):
             "수정",
             "waitBattReference",
             "재검증",
-            "CAPL 회귀 테스트",
+            "수정 전후 비교 로그",
         ]
         positions = [detail.index(term) for term in expected]
         self.assertEqual(positions, sorted(positions))
@@ -228,7 +228,7 @@ class PortfolioContentTests(unittest.TestCase):
 
     def test_skill_section_describes_applied_experience_levels(self):
         self.assertIn('id="skills"', self.html)
-        self.assertIn("<h2>기술 경험 수준</h2>", self.html)
+        self.assertIn("<h2>기술 적용 경험</h2>", self.html)
         for level in ["프로젝트 적용", "프로토콜 적용", "자동화 구현", "원인 분석", "교육·실습 적용", "자격·프로젝트 적용"]:
             self.assertIn(level, self.html)
         for evidence in [
@@ -249,7 +249,7 @@ class PortfolioContentTests(unittest.TestCase):
         """상세 내용은 산출물 페이지 한 곳에만 — 메인에 아코디언을 다시 만들지 않는다."""
         for gone in ["project-detail-toggle", "project-detail-region", "detail-block", "problem-flow"]:
             self.assertNotIn(gone, self.html, f"메인에 아코디언 잔재가 남음: {gone}")
-        self.assertEqual(self.html.count('class="artifact-item"'), 12)
+        self.assertEqual(self.html.count('class="artifact-item"'), 11)
         self.assertNotIn("detail.hidden", self.html, "아코디언 JS가 남아 있음")
 
     def test_credentials_open_redacted_image_evidence(self):
@@ -283,9 +283,9 @@ class PortfolioContentTests(unittest.TestCase):
         for path in thumbnails:
             self.assertIn(f'src="{path}"', self.html)
         # 증빙 썸네일은 전부 지연 로딩·대체텍스트를 가진다.
-        self.assertEqual(self.html.count("<img "), len(thumbnails))
-        self.assertEqual(self.html.count('loading="lazy"'), len(thumbnails))
-        self.assertEqual(self.html.count("alt="), len(thumbnails))
+        self.assertEqual(self.html.count("<img "), len(thumbnails) + 2)
+        self.assertEqual(self.html.count('loading="lazy"'), len(thumbnails) + 2)
+        self.assertEqual(self.html.count("alt="), len(thumbnails) + 2)
 
     def test_education_contains_ivs_hours(self):
         self.assertIn('id="education"', self.html)

@@ -11,7 +11,7 @@
   <style>
     .gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.gallery a{display:block;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;text-decoration:none}.gallery img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#eef2f7}.gallery span{display:block;padding:10px 12px;color:var(--muted);font-size:13px;font-weight:700}.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric{padding:16px;border:1px solid var(--line);border-radius:9px;background:#fff}.metric strong{display:block;color:var(--navy);font-size:20px}.metric span{color:var(--muted);font-size:13px}.result-gallery{align-items:start}.result-gallery img{aspect-ratio:auto;height:auto;object-fit:contain;background:#fff}.result-gallery span{line-height:1.5}@media(max-width:700px){.gallery,.metric-grid{grid-template-columns:1fr}}
   </style>
-  <link rel="stylesheet" href="../../assets/project-focus.css">
+  <link rel="stylesheet" href="../../assets/project-focus.css?v=20260928">
 </head>
 <body>
   <a class="skip-link" href="#main">본문 바로가기</a>
@@ -20,8 +20,8 @@
       <a class="back-link" href="../../index.html#black-box-project">← 포트폴리오로 돌아가기</a>
       <p class="eyebrow">BLACK BOX TESTING ARTIFACTS</p>
       <h1>CANoe/CAPL 기반 차량 ECU Black Box Testing</h1>
-      <p>요구사양 분석부터 CAPL 자동화·결함 분석까지 직접 수행했습니다. 수동·자동 검증의 판정 불일치를 추적하고, 최신 Frame 수신에 측정을 동기화한 과정을 소개합니다.</p>
-      <dl class="meta-grid" aria-label="Black Box Testing 프로젝트 메타데이터"><div><dt>유형</dt><dd>개인 프로젝트</dd></div><div><dt>기간</dt><dd>2026.03.19–2026.03.23</dd></div><div><dt>팀 규모</dt><dd>1명</dd></div><div><dt>기여도</dt><dd>100%</dd></div><div><dt>환경</dt><dd>CANoe · CAPL · CANdb</dd></div></dl>
+      <p>CANoe 시뮬레이션 기반 IVS Black Box 교육 과제입니다. 제공된 요구사항을 시험 조건으로 바꾸고, 입력 환경 구성과 CAPL 자동화, 결함 분석을 수행했습니다. 실차·HIL 검증 결과로 제시하지 않습니다.</p>
+      <dl class="meta-grid" aria-label="Black Box Testing 프로젝트 메타데이터"><div><dt>유형</dt><dd>개인 교육 프로젝트</dd></div><div><dt>기간</dt><dd>2026.03.19–2026.03.23</dd></div><div><dt>팀 규모</dt><dd>1명</dd></div><div><dt>대상</dt><dd>IVS 교육용 검증 대상</dd></div><div><dt>환경</dt><dd>CANoe · CAPL · CANdb</dd></div></dl>
     </header>
 
     <nav class="artifact-nav" aria-label="산출물 섹션"><a href="#role">프로젝트 역할</a><a href="#troubleshooting">트러블슈팅</a><a href="#overview">OVERVIEW</a><a href="#code">CODE</a><a href="#test">TEST</a><a href="#document">DOCUMENT</a><a href="#demo">DEMO</a></nav>
@@ -29,9 +29,9 @@
     <section id="role" class="panel">
       <p class="focus-label">01 / 프로젝트 역할</p>
       <h2>검증 전 과정 전담</h2>
-      <p>개인 프로젝트 · 요구사양 분석부터 결함 문서화까지 직접 수행했습니다.</p>
-      <ul class="role-tasks"><li><strong>요구사양 분석 · 테스트 설계</strong>Fault Detection·Recovery·Clear의 선행 조건, 경계값, Timing을 테스트 조건과 기대 결과로 구체화했습니다.</li>
-                  <li><strong>검증 환경 구성 · CAPL 자동화</strong>CANdb·CANoe·Panel을 구성하고, 7개 고장 시나리오를 CAPL 스크립트 6종·테스트케이스 24개로 구현했습니다.</li>
+      <p>교육기관의 검증 대상·요구사항을 바탕으로 CANdb·주변 노드·Panel 구성, 테스트 설계, CAPL 작성과 결과 분석을 담당했습니다. 대상 제어 로직 자체를 개발한 프로젝트는 아닙니다.</p>
+      <ul class="role-tasks"><li><strong>요구사항 분석 · 테스트 설계</strong>Fault Detection·Recovery·Clear의 선행 조건, 경계값, Timing을 테스트 조건과 기대 결과로 구체화했습니다.</li>
+                  <li><strong>검증 환경 구성 · CAPL 자동화</strong>CANdb·CANoe·Panel을 구성하고, 7개 고장 시나리오를 다뤘으며, 보관된 CAPL 스크립트 6종에서 testcase 선언 24개를 확인할 수 있습니다.</li>
                   <li><strong>결함 재현 · 분석 · 문서화</strong>CAN Trace로 기대 결과와 실제 결과를 비교하고 재현 조건·영향도·개선 방향을 정리했습니다.</li></ul>
     </section>
 
@@ -46,21 +46,22 @@
         <li><strong>증상</strong>메시지 송신 방식 변경 후 이전 프레임을 기준으로 타이머가 시작돼 Detection 시점 판정이 흔들렸습니다.</li>
         <li><strong>원인 분석</strong>CAN Trace Timestamp와 CAPL Flag 전환 시점을 비교해 최신 Reference Frame 수신 전 측정이 시작됨을 확인했습니다.</li>
         <li><strong>수정</strong><code>waitBattReference</code>·<code>waitIGNReference</code>에서 <code>TestWaitForMessage</code>로 최신 수신 프레임을 확인한 뒤 <code>setTimerCyclic</code>으로 1ms 타이머를 시작하도록 변경했습니다.</li>
-        <li><strong>재검증</strong>경계값·Timing 시나리오를 CAPL 회귀 테스트로 반복 실행해 동일 판정 기준이 유지되는지 확인했습니다.</li>
+        <li><strong>재검증</strong>경계값·Timing 시나리오를 다시 실행한 기록을 정리했습니다. 수정 전후 비교 로그가 없어 false pass/false fail의 방향과 오차 감소량은 확정하지 않았습니다.</li>
       </ol>
-      <p class="callout">해결의 핵심은 ECU 동작과 시험 스크립트의 측정 기준을 구분하는 것이었습니다. 입력을 변경한 시점 대신 기대한 신호의 최신 Frame이 수신된 시점에 측정을 맞췄습니다.</p>
-      <a class="focus-link" href="#code">실제 CAPL 수정 코드 확인 →</a>
+      <p class="callout">시험 대상의 동작과 테스트 오라클(기대값·시간을 판정하는 로직)을 구분했습니다. 최신 프레임에 시작점을 맞춘 변경은 확인되지만, ±10ms 경계 판정의 정확도를 입증한 것으로 확대하지 않습니다.</p>
+      <a class="focus-link" href="#code">보관 코드와 개선 설계 확인 →</a>
     </section>
 
     <section id="overview" class="panel">
       <h2>OVERVIEW</h2>
       <h3>테스트 수행 흐름</h3>
-      <p class="callout">요구사양 분석 → CANdb·CANoe·Panel 환경 구성 → 수동 검증 → CAPL 자동 검증 → 정적·동적 검증 → 결함 분석 및 회귀 테스트</p>
+      <p class="callout">요구사항 분석 → CANdb·CANoe·Panel 환경 구성 → 수동 검증 → CAPL 자동 검증 → 정적·동적 검증 → 결함 분석 및 재확인</p>
     </section>
 
     <section id="code" class="panel">
       <h2>CODE</h2>
-      <p>최신 수신 프레임을 확인한 뒤에 측정 타이머를 시작하도록 동기화 유틸리티를 분리했습니다. 아래는 <code>Battery_Percent_Low.can</code>에서 직접 작성한 부분을 그대로 옮긴 발췌입니다.</p>
+      <details><summary>교육 당시 CAPL 원본 발췌와 한계</summary>
+      <p>최신 수신 프레임을 확인한 뒤에 측정 타이머를 시작하도록 동기화 유틸리티를 분리했습니다. 아래는 보관된 <code>Battery_Percent_Low.can</code> 발췌입니다. 무한 대기 가능성, timeout 무기록 종료, 9ms 보정과 주석 불일치를 포함한 교육 당시 코드입니다.</p>
       <p>기준 프레임 동기화 — 기대한 신호 값이 실제로 수신된 것을 확인한 뒤에만 1ms 주기 타이머를 기동합니다.</p>
       <pre><code>void waitBattReference(int timeoutMs , int data)
 {
@@ -131,6 +132,29 @@ while(time_cnt_ms &lt;= 5100)
     }
   }
 }</code></pre>
+      </details>
+      <h3>대기 실패와 측정 기준을 분리하는 개선 설계</h3>
+      <p>원본 저장소에 기록한 후속 설계입니다. 아래는 의사코드이며 CAPL 컴파일·CANoe 실행 검증 전입니다.</p>
+      <pre><code>deadline = monotonicNow + totalTimeout
+while monotonicNow &lt; deadline:
+    frame = waitMessage(deadline - monotonicNow)
+    if frame is timeout: return TIMEOUT
+    if frame.value == expected: return OK(frame.timestamp)
+return TIMEOUT
+
+reference = waitReference(expected, totalTimeout)
+if reference is TIMEOUT:
+    record TEST_ERROR("기준 프레임 미수신")
+    stop current case
+
+if no valid status response before deadline:
+    record TEST_ERROR("상태 응답 미수신")
+    stop current case
+elapsed = firstFaultResponse.timestamp - reference.timestamp</code></pre>
+      <p>전체 대기시간을 제한하고 성공·실패를 반환합니다. 무응답을 정상 미검출로 판정하지 않습니다. 원본의 “14,15일 때만” 주석은 <code>Batt_Percent ≤ 15</code> 조건과 다르므로 수정 대상입니다.</p>
+      <h3>시간 측정의 범위</h3>
+      <p>Steering 소스에도 9ms 대기(주석: IVS controller 보정값)와 최대 20ms 응답 대기가 있습니다. 보정의 교정 근거와 전체 측정 불확도는 확보하지 못했습니다. 1ms 카운터 분해능과 986~993ms의 관측 산포는 측정 정확도 보증이 아닙니다.</p>
+      <p>후속 검증에서는 자극 프레임과 첫 상태 2 응답의 시각 차이를 기록하고, 요청·응답 관측 지연을 별도로 평가해야 합니다. 50±10ms 경계의 합격 판정은 이 검증 이후에 가능합니다.</p>
       <ul class="source-list"><li>Detection·Recovery·Clear 시나리오 자동화</li><li>CAN Signal·System Variable 기반 기대값 판정</li><li>경계값과 선행 조건 조합 입력</li><li>판정은 <code>TestStepPass</code>·<code>TestStepFail</code>로 기록해 조건과 실제 값을 함께 남김</li></ul>
 
 
@@ -138,17 +162,17 @@ while(time_cnt_ms &lt;= 5100)
 
     <section id="test" class="panel">
       <h2>TEST</h2>
-      <div class="metric-grid"><div class="metric"><strong>4건</strong><span>정적 결함</span></div><div class="metric"><strong>11건</strong><span>동적 결함</span></div><div class="metric"><strong>CAPL</strong><span>반복 회귀 테스트</span></div></div>
-      <div class="table-wrap"><table><caption>대표 테스트와 실제 판정</caption><thead><tr><th>테스트</th><th>요구 기준</th><th>실제 결과</th><th>판정</th></tr></thead><tbody><tr><td>Batt Percent 경계값</td><td>15% 조건 반영</td><td>15%에서 Fault 미검출</td><td><span class="status status-pass">결함 검출</span></td></tr><tr><td>IGN Cycle</td><td>50 Cycle 경계</td><td>Off-by-One 동작 확인</td><td><span class="status status-pass">결함 검출</span></td></tr><tr><td>Steering Timing</td><td>50±10ms</td><td>986~993ms</td><td><span class="status status-pass">결함 검출</span></td></tr></tbody></table></div>
+      <div class="metric-grid"><div class="metric"><strong>4건</strong><span>정적 검토 항목</span></div><div class="metric"><strong>11건</strong><span>동적 결함</span></div><div class="metric"><strong>CAPL</strong><span>입력 조합 반복 시험</span></div></div>
+      <div class="table-wrap"><table><caption>대표 테스트와 실제 판정</caption><thead><tr><th>테스트</th><th>요구 기준</th><th>실제 결과</th><th>판정</th></tr></thead><tbody><tr><td>Batt Percent 경계값</td><td>15% 조건 반영</td><td>15%에서 Fault 미검출</td><td><span class="status status-fail">FAIL</span></td></tr><tr><td>IGN Cycle</td><td>50 Cycle 경계</td><td>Off-by-One 동작 확인</td><td><span class="status status-fail">FAIL</span></td></tr><tr><td>Steering Timing</td><td>50±10ms</td><td>986~993ms</td><td><span class="status status-fail">FAIL</span></td></tr></tbody></table></div>
 
       <h3>대표 검출 결과</h3>
       <ul class="source-list">
-        <li>요구사양 7개 고장 시나리오를 CAPL 스크립트 6종·테스트케이스 24개로 구현했습니다. 이 중 Batt Percent 시나리오는 101 × Ignition 2 × Engine 2 = 404조합을 전수 수행했습니다.</li>
-        <li>정적 결함 4건: Signal Length, Value, Description 불일치</li>
+        <li>7개 고장 시나리오 중 보관 소스는 CAPL 6종·testcase 선언 24개입니다. Batt Percent 시나리오는 101 × Ignition 2 × Engine 2 = 404조합을 대상으로 했습니다. 작은 정수 입력 공간에서 경계값과 선행조건 누락을 함께 확인한 범위이며 전체 시스템 전수 시험은 아닙니다.</li>
+        <li>정적 검토 4건: Signal Length·Description 불일치와 값 표기 개선 2건. 127과 0x7F는 같은 값이며 값 자체의 오류는 아닙니다.</li>
         <li>동적 결함 11건: 경계값, 선행 조건, Recovery, Timing 오류</li>
         <li>Batt Percent 15% 경계값과 IGN 50 Cycle Off-by-One 확인</li>
-        <li>Steering Timing 요구사양 50±10ms 대비 실제 986~993ms 검출</li>
-        <li>Batt Voltage 회복 임계 15.0V가 CANdb Factor 0.001 미적용으로 raw 15(15mV)에서만 동작</li>
+        <li>Steering Timing 요구사항 50±10ms 대비 스크립트 관측 986~993ms</li>
+        <li>Batt Voltage 회복: raw 14400~15000에서 회복 실패를 관측했습니다. 단위·스케일 해석 오류는 원인 가설이며 DBC와 raw 15 회복 증거의 추가 확인이 필요합니다.</li>
       </ul>
 
       <h3>결함별 실제 판정 화면</h3>
@@ -157,20 +181,35 @@ while(time_cnt_ms &lt;= 5100)
         <a href="../../assets/images/black-box/result_batt_percent_15_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_percent_15_fail.png" alt="Batt_Percent=15 조건에서 Fault 미검출로 Fail 판정된 테스트 리포트 행"><span>Batt Percent 15% — 요구 검출 구간 4900~5100ms에서 Fault 미검출</span></a>
         <a href="../../assets/images/black-box/result_batt_percent_80_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_percent_80_fail.png" alt="Batt_Percent=80 조건에서 Fault 미검출로 Fail 판정된 테스트 리포트 행"><span>Batt Percent 80% — 동일 구간에서 Fault 미검출 관측 · 등호 조건 누락 가능성 추정</span></a>
         <a href="../../assets/images/black-box/result_ign_49_cycle_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_ign_49_cycle_fail.png" alt="Cycle_cnt=49에서 Fault Clear가 동작해 Fail 판정된 테스트 리포트 행 다수"><span>IGN Cycle — 요구 50 Cycle과 달리 <code>Cycle_cnt=49</code>에서 Clear 동작 (Off-by-One)</span></a>
-        <a href="../../assets/images/black-box/result_batt_voltage_recovery_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_voltage_recovery_fail.png" alt="battVoltage 14400에서 15000까지 회복 실패로 Fail 판정된 테스트 리포트 행"><span>Batt Voltage 회복 — raw 14400~15000 전 구간 회복 실패. 요구 임계 15.0V가 Factor 0.001 미적용으로 raw 15(15mV)에서만 동작</span></a>
+        <a href="../../assets/images/black-box/result_batt_voltage_recovery_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_voltage_recovery_fail.png" alt="battVoltage 14400에서 15000까지 회복 실패로 Fail 판정된 테스트 리포트 행"><span>Batt Voltage 회복 — raw 14400~15000 전 구간 회복 실패. 요구 임계 15.0V와의 단위·스케일 해석 불일치 의심 (내부 원인 미확정)</span></a>
         <a href="../../assets/images/black-box/result_batt_voltage_invalid_precondition.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_batt_voltage_invalid_precondition.png" alt="IGN=0 ENG=0 조건에서도 Err_sts=2가 검출된 테스트 리포트 행"><span>Batt Voltage High — IGN=0 · ENG=0 선행조건 위반 상태에서도 <code>Err_sts=2</code> 검출</span></a>
         <a href="../../assets/images/black-box/result_battery_charging_invalid_precondition.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_battery_charging_invalid_precondition.png" alt="ENG=0 조건에서도 Err_sts=2가 검출된 테스트 리포트 행"><span>Battery Charging — <code>ENG=0</code>에서도 검출, Engine 선행조건 미반영</span></a>
         <a href="../../assets/images/black-box/result_ignition_fault_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_ignition_fault_fail.png" alt="IGN=3 입력에도 Err_sts가 0으로 유지된 테스트 리포트 행"><span>Ignition Status Error — <code>IGN=3</code>(Error) 입력에 101ms·5109ms 모두 <code>Err_sts=0</code></span></a>
         <a href="../../assets/images/black-box/result_engine_fault_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_engine_fault_fail.png" alt="ENG=2 입력에도 Err_sts가 0으로 유지된 테스트 리포트 행"><span>Engine Status Error — <code>ENG=2</code>(Fault) 입력에 1028ms까지 <code>Err_sts=0</code></span></a>
-        <a href="../../assets/images/black-box/result_steering_timing_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_steering_timing_fail.png" alt="Steering 검출 시각이 986~993ms로 기록된 테스트 리포트 행"><span>Steering Timing — 요구사양 50±10ms 대비 실제 986~993ms에 검출</span></a>
+        <a href="../../assets/images/black-box/result_steering_timing_fail.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_steering_timing_fail.png" alt="Steering 검출 시각이 986~993ms로 기록된 테스트 리포트 행"><span>Steering Timing — 요구사항 50±10ms 대비 스크립트 관측 986~993ms</span></a>
         <a href="../../assets/images/black-box/result_steering_invalid_condition_detected.png" target="_blank" rel="noreferrer"><img src="../../assets/images/black-box/result_steering_invalid_condition_detected.png" alt="IGN=0 조건에서도 Steering Err_sts=2가 검출된 테스트 리포트 행"><span>Steering — <code>IGN=0</code> 선행조건 위반 상태에서도 검출</span></a>
       </div>
     </section>
 
     <section id="document" class="panel">
       <h2>DOCUMENT</h2>
-      <p>각 결함을 재현 조건, 기대 결과, 실제 결과, 영향도와 개선 방향으로 문서화했습니다.</p>
-      <div class="evidence-grid"><article class="evidence-card"><strong>정적 검토</strong><p>Signal Length, Value, Description 불일치 4건을 식별했습니다.</p></article><article class="evidence-card"><strong>동적 시험</strong><p>경계값, 선행 조건, Recovery, Timing 오류 11건을 식별했습니다.</p></article><article class="evidence-card"><strong>재현 가능성</strong><p>CAN Trace Timestamp와 입력 조건을 기준으로 동일 현상을 반복 확인했습니다.</p></article><article class="evidence-card"><strong>회귀 기준</strong><p>Fresh Frame 수신 이후 측정을 시작하도록 판정 기준을 고정했습니다.</p></article></div>
+      <p>원본 저장소의 요구사항 요약·시험 코드·결함 문서를 대조해 2026-09-28에 추적표와 대표 결함 보고서를 보완했습니다. 아래 ID는 사후 정리용이며 교육기관 원본 ID나 당시 리포트 ID가 아닙니다.</p>
+      <h3>요구사항 → 테스트 → 판정 → 결함</h3>
+      <div class="table-wrap"><table><caption>원본 추적표의 대표 5건 (전체 합격률·커버리지 지표 아님)</caption><thead><tr><th>요구 ID</th><th>조건</th><th>시험 ID</th><th>기대 결과</th><th>실제 결과</th><th>결함·증거</th></tr></thead><tbody><tr><td>BB-REQ-01</td><td>Batt 15% / IGN=1 / ENG=1</td><td>BB-TC-01</td><td>4900~5100ms 내 상태 2</td><td>FAIL — 미검출</td><td><a href="../../assets/images/black-box/result_batt_percent_15_fail.png">BB-DEF-D01 · 판정 화면</a></td></tr>
+<tr><td>BB-REQ-02</td><td>회복 상태에서 IGN 50 cycle</td><td>BB-TC-02</td><td>50회 도달 시 Clear</td><td>FAIL — 49회에서 Clear</td><td><a href="../../assets/images/black-box/result_ign_49_cycle_fail.png">BB-DEF-D02 · 판정 화면</a></td></tr>
+<tr><td>BB-REQ-03</td><td>Batt 80% / IGN=1 / ENG=1 / Chg=1</td><td>BB-TC-03</td><td>고장 검출</td><td>FAIL — 미검출</td><td><a href="../../assets/images/black-box/result_batt_percent_80_fail.png">BB-DEF-D03 · 판정 화면</a></td></tr>
+<tr><td>BB-REQ-06</td><td>고장 확정 후 전압≤15V</td><td>BB-TC-06</td><td>상태 1 회복</td><td>FAIL — raw 14400~15000 회복 실패</td><td><a href="../../assets/images/black-box/result_batt_voltage_recovery_fail.png">BB-DEF-D06 · 판정 화면</a></td></tr>
+<tr><td>BB-REQ-11</td><td>Steering 검출 조건 성립</td><td>BB-TC-11</td><td>50±10ms 내 상태 2</td><td>FAIL — 관측 986~993ms</td><td><a href="../../assets/images/black-box/result_steering_timing_fail.png">BB-DEF-D11 · 판정 화면</a></td></tr></tbody></table></div>
+      <article class="evidence-card" id="defect-report"><h3>BB-DEF-D02 · IGN Clear 경계 불일치</h3>
+      <p><strong>재현 조건:</strong> 고장 검출 후 상태 1(Fixed)로 회복시킨 뒤 IGN Off→On을 반복하고 각 cycle의 상태 응답을 기록했습니다.</p>
+      <p><strong>기대 / 실제:</strong> 요구 50 cycle에 대해 리포트는 Cycle_cnt=49에서 Clear를 기록했습니다. 대상 판정은 FAIL입니다.</p>
+      <p><strong>영향도 / 원인:</strong> 고장 이력이 요구보다 일찍 삭제될 수 있습니다. 계수 기준이나 초기 상태의 off-by-one이 원인 후보이며 내부 구현 원인을 확정한 것은 아닙니다.</p>
+      <p><strong>후속 확인:</strong> 초기 IGN 상태와 계수 기준을 대조하고 48·49·50·51 cycle을 재시험해야 합니다. 대상 수정 완료로 표시하지 않습니다.</p>
+      <a href="../../assets/images/black-box/result_ign_49_cycle_fail.png">결함 보고서의 실제 판정 근거 →</a></article>
+      <h3>정적 검토 예시</h3>
+      <p><strong>BB-DEF-S01:</strong> Ignition의 Off/On/Error 세 상태를 1bit로 정의해 상태 수와 표현 범위가 충돌했습니다. 최소 2bit가 필요합니다. <strong>BB-DEF-S04:</strong> Brake_Err_sts 설명이 Accel을 지칭해 신호명과 설명이 불일치했습니다. 원본 요구사항 이미지는 교육 자료 보호를 위해 재게시하지 않습니다.</p>
+      <details><summary>6개 스크립트 / 7개 모듈 / 24 testcase의 관계</summary>
+      <p>보관된 스크립트별 testcase 선언은 Batt Percent 5개, Charging 6개, Voltage 7개, Ignition 1개, Engine 1개, Steering 4개로 합계 24개입니다. 화면에는 Brake_Error를 포함해 7개 모듈이 있지만 해당 모듈의 소스는 보관 자료에 없습니다. 24개는 함수 선언 수이며 입력 조합 수와 다릅니다.</p></details>
     </section>
 
     <section id="demo" class="panel">

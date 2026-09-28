@@ -55,7 +55,7 @@ class Review202608Tests(unittest.TestCase):
     def test_b05_uds_service_count_matches_listed_sids(self):
         """'7개 서비스' 배지와 본문 SID 나열이 일치해야 한다."""
         bootloader = card(self.index, "bootloader-project")
-        self.assertIn("UDS 7개 서비스 흐름", bootloader)
+        self.assertIn("UDS 7개 서비스", bootloader)
 
     def test_a05_university_period_is_stated(self):
         """국민대 카드만 기간이 비어 있으면 안 된다."""
@@ -73,8 +73,9 @@ class Review202608Tests(unittest.TestCase):
             self.assertIn(phrase, self.bootloader)
 
     def test_b10_factor_defect_is_listed_as_representative(self):
-        """CANdb Factor 미적용 결함(15mV)은 대표 결과에 있어야 한다."""
-        self.assertIn("Factor 0.001 미적용으로 raw 15(15mV)", self.black_box)
+        """관측된 회복 실패와 미확정 Factor 원인 가설을 구분한다."""
+        self.assertIn("단위·스케일 해석 오류는 원인 가설", self.black_box)
+        self.assertNotIn("Factor 0.001 미적용으로 raw 15(15mV)에서만 동작", self.black_box)
 
     def test_c01_defect_result_captures_exist_and_are_linked(self):
         """공개 결정된 판정 화면 10장이 실제로 존재하고 페이지에 연결돼야 한다."""
@@ -91,21 +92,21 @@ class Review202608Tests(unittest.TestCase):
             self.assertIn(f"../../assets/images/black-box/{name}.png", self.black_box)
 
     def test_c01_requirement_document_captures_stay_unpublished(self):
-        """강사 요구사양 PDF 캡처는 공개 사이트에 들어오면 안 된다."""
+        """강사 요구사항 PDF 캡처는 공개 사이트에 들어오면 안 된다."""
         published = list((ROOT / "assets/images").rglob("*.png"))
         for path in published:
             self.assertFalse(
                 path.name.startswith(("req_p", "static_req", "static_ref", "static_defect")),
-                f"요구사양 문서 캡처가 공개 자산에 포함됨: {path.name}",
+                f"요구사항 문서 캡처가 공개 자산에 포함됨: {path.name}",
             )
 
     def test_a03_hero_states_what_he_does(self):
         """채용담당자가 첫 화면에서 직무를 판단할 수 있어야 한다."""
-        self.assertIn("요구사양을 시험으로 구체화하고, 결함의 원인까지 추적하는 차량 SW 엔지니어입니다.", self.index)
+        self.assertIn("요구사항을 시험으로 구체화하고, 결함의 원인까지 추적하는 차량 SW 엔지니어입니다.", self.index)
 
     def test_a07_test_scale_has_a_denominator(self):
         """결함 건수만 있고 모수가 없으면 규모를 가늠할 수 없다."""
-        self.assertIn("CAPL 스크립트 6종·테스트케이스 24개", self.black_box)
+        self.assertIn("CAPL 6종·testcase 선언 24개", self.black_box)
         self.assertIn("101 × Ignition 2 × Engine 2 = 404조합", self.black_box)
 
     def test_a08_og_image_is_declared_and_present(self):
@@ -121,7 +122,7 @@ class Review202608Tests(unittest.TestCase):
     def test_b07_b08_b09_standards_and_techniques_are_named(self):
         for phrase in [
             "경계값 분석·동등분할·상태 전이 테스트로 Test Case 설계",
-            "A-SPICE SWE.6 관점에서 요구사양–Test Case–판정 결과를 추적",
+            "요구사항–Test Case–판정 결과 추적표 작성 (SWE.6 학습 관점)",
             "ISO 26262 기능안전, MISRA C 코딩 표준, Polyspace 정적 분석 (교육 이수)",
         ]:
             self.assertIn(phrase, self.index)
