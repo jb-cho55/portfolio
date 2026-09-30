@@ -102,7 +102,7 @@ class Review202608Tests(unittest.TestCase):
 
     def test_a03_hero_states_what_he_does(self):
         """채용담당자가 첫 화면에서 직무를 판단할 수 있어야 한다."""
-        self.assertIn("요구사항을 시험으로 구체화하고, 결함의 원인까지 추적하는 차량 SW 엔지니어입니다.", self.index)
+        self.assertIn("요구사항 기반으로 개발·검증하고, 산출물 간 추적성을 관리하는 차량 SW 엔지니어입니다.", self.index)
 
     def test_a07_test_scale_has_a_denominator(self):
         """결함 건수만 있고 모수가 없으면 규모를 가늠할 수 없다."""

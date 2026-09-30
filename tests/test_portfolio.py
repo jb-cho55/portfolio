@@ -42,10 +42,10 @@ class PortfolioContentTests(unittest.TestCase):
     def test_black_box_goal_uses_requirement_specification_language(self):
         black_box = card(self.html, "black-box-project")
         self.assertIn(
-            "CANoe 시뮬레이션 기반 IVS 교육 과제에서 고장 검출·회복·해제를 검증합니다.",
+            "CANoe 기반 테스트 환경을 구축하고, 제어기의 고장 검출·회복·해제 상태 전환을 검증합니다.",
             black_box,
         )
-        self.assertNotIn("요구사양", black_box)
+        self.assertIn("요구사양 결함 4건", black_box)
 
     def test_each_project_shows_results_before_role_and_troubleshooting(self):
         for project_id in ["black-box-project", "bootloader-project"]:
@@ -70,7 +70,7 @@ class PortfolioContentTests(unittest.TestCase):
             "Backup·Restore",
             "SHA-256",
             "Alignment Trap 분석",
-            "정적 검토 4건",
+            "요구사양 결함 4건",
             "동적 결함 11건",
             "7개 고장 시나리오",
             "프로젝트 우수상",
@@ -91,9 +91,8 @@ class PortfolioContentTests(unittest.TestCase):
 
         for scale in [
             "7개 고장 시나리오",
-            "CAPL 스크립트 6종",
-            "testcase 선언 24개",
-            "Batt Percent 404조합",
+            "Testcase 24개를 작성했습니다.",
+            "추적성 확보",
         ]:
             self.assertIn(scale, black_box)
 
@@ -191,7 +190,7 @@ class PortfolioContentTests(unittest.TestCase):
             "영향도",
         ]
         black_box = card(self.html, "black-box-project")
-        card_level = ["Fault Detection·Recovery·Clear", "정적 검토 4건", "동적 결함 11건"]
+        card_level = ["Fault Detection·Recovery·Clear", "요구사양 결함 4건", "동적 결함 11건"]
         for content in card_level:
             self.assertIn(content, black_box)
         for content in [c for c in expected if c not in card_level]:

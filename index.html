@@ -841,7 +841,7 @@
     }
 
   </style>
-  <link rel="stylesheet" href="assets/project-focus.css?v=20260928">
+  <link rel="stylesheet" href="assets/project-focus.css?v=20260930">
 </head>
 <body>
   <a class="skip-link" href="#main">본문 바로가기</a>
@@ -886,9 +886,9 @@
         <div>
           <p class="eyebrow">Vehicle SW Verification Portfolio</p>
           <h1>조정빈<span>Vehicle SW Verification Engineer</span></h1>
-          <p class="hero-copy"><strong>요구사항을 시험으로 구체화하고, 결함의 원인까지 추적하는 차량 SW 엔지니어입니다.</strong></p>
-          <p class="hero-copy">국민대학교 자동차IT융합학과와 HL만도·HL클레무브 IVS 부트캠프를 통해 차량 HW·SW 전반을 학습했으며, CANoe/CAPL 시험 자동화와 Embedded C·UDS 구현 경험을 쌓았습니다.</p>
-          <p class="hero-copy">시험 결과를 요구사항과 연결하고, CAN Trace와 Trace32로 원인을 설명합니다.</p>
+          <p class="hero-copy"><strong>요구사항 기반으로 개발·검증하고, 산출물 간 추적성을 관리하는 차량 SW 엔지니어입니다.</strong></p>
+          <p class="hero-copy">국민대학교 자동차IT융합학과와 HL만도·HL클레무브 IVS 부트캠프를 통해 차량 HW·SW 전반을 학습했으며, CANoe 기반 테스트 하네스 구축·검증과 AUTOSAR 기반 교육 환경에서 UDS 구현 프로젝트를 수행했습니다.</p>
+          <p class="hero-copy">자동차 시스템에 대한 이해를 바탕으로 요구사항을 명확히 해석하고, 개발과 검증으로 연결합니다.</p>
           <div class="hero-actions">
             <a class="button button-primary" href="#projects">프로젝트 보기</a>
             <a class="button button-secondary" href="mailto:cho.jeongbin55@gmail.com">이메일 문의</a>
@@ -909,7 +909,11 @@
             </li>
             <li>
               <strong>HL만도·HL클레무브 IVS 5기</strong>
-              <span>812시간 교육 수료 · OPIc IH</span>
+              <span>812시간 교육 수료</span>
+            </li>
+            <li>
+              <strong>OPIc IH</strong>
+              <span>영어 · Intermediate High</span>
             </li>
             <li>
               <strong>Black Box Testing 프로젝트 우수상</strong>
@@ -947,14 +951,14 @@
           </dl>
 
             <div class="project-intro">
-              <dl class="intro-summary"><dt>목표</dt><dd>CANoe 시뮬레이션 기반 IVS 교육 과제에서 고장 검출·회복·해제를 검증합니다.</dd></dl>
+              <dl class="intro-summary"><dt>목표</dt><dd>CANoe 기반 테스트 환경을 구축하고, 제어기의 고장 검출·회복·해제 상태 전환을 검증합니다.</dd></dl>
             </div>
 
             <section class="key-results" aria-label="Black Box Testing Key Results">
               <h4>KEY RESULTS</h4>
               <div class="results-grid">
                 <div class="result-card">
-                  <strong>정적 검토 4건</strong>
+                  <strong>요구사양 결함 4건</strong>
                   <span>상태 표현·설명 불일치와 표기 개선</span>
                 </div>
                 <div class="result-card">
@@ -963,22 +967,22 @@
                 </div>
                 <div class="result-card">
                   <strong>7개 고장 시나리오</strong>
-                  <span>보관 CAPL 6종 / testcase 24개 / Batt Percent 404조합</span>
+                  <span>Testcase 24개로 설계</span>
                 </div>
                 <div class="result-card">
-                  <strong>판정 캡처 10건</strong>
-                  <span>요구사항·시험·결함 연결표 공개</span>
+                  <strong>추적성 확보</strong>
+                  <span>요구사양–Testcase–시험 결과·결함 연결</span>
                 </div>
               </div>
             </section>
-            <figure class="project-preview"><a href="assets/images/black-box/result_ign_49_cycle_fail.png" target="_blank" rel="noreferrer"><img src="assets/images/black-box/result_ign_49_cycle_fail.png" alt="요구 50 cycle에 대해 49회에서 Clear된 실제 판정" loading="lazy"></a><figcaption>요구 50 cycle에 대해 49회에서 Clear된 실제 판정</figcaption></figure>
+            <figure class="project-preview"><a href="assets/images/black-box/network_setup.png" target="_blank" rel="noreferrer"><img src="assets/images/black-box/network_setup.png" alt="CANoe에서 IVS와 주변 시뮬레이션 노드를 연결한 테스트 환경" loading="lazy"></a><figcaption>CANoe 기반 테스트 환경 — IVS 및 주변 시뮬레이션 노드 구성</figcaption></figure>
             <div class="project-focus">
               <section class="role-panel" aria-labelledby="black-box-role">
                 <p class="focus-label">01 / 프로젝트 역할</p>
                 <h4 id="black-box-role">검증 전 과정 전담</h4>
                 <ul class="role-tasks"><li><strong>요구사항 분석 · 테스트 설계</strong>Fault Detection·Recovery·Clear의 선행 조건, 경계값, Timing을 테스트 조건과 기대 결과로 구체화했습니다.</li>
-                  <li><strong>검증 환경 구성 · CAPL 자동화</strong>CANdb·CANoe·Panel을 구성하고, 7개 고장 시나리오를 다뤘습니다. 보관 소스는 CAPL 스크립트 6종, testcase 선언 24개입니다.</li>
-                  <li><strong>결함 재현 · 분석 · 문서화</strong>CAN Trace로 기대 결과와 실제 결과를 비교하고 재현 조건·영향도·개선 방향을 정리했습니다.</li></ul>
+                  <li><strong>검증 환경 구성 · CAPL 자동화</strong>CANdb·CANoe·Panel을 구성하고, 7개 고장 시나리오에 대해 Testcase 24개를 작성했습니다.</li>
+                  <li><strong>결함 재현 · 분석 · 문서화</strong>Panel·CAN Trace 창을 통한 수동 검증과 CAPL 자동 검증의 결과를 비교했습니다. 기대 결과와 실제 결과를 대조해 재현 조건·영향도·개선 방향을 정리하고, 각 시험 결과와 요구사양 간 추적성을 확보했습니다.</li></ul>
               </section>
               <section class="trouble-panel" aria-labelledby="black-box-troubleshooting">
                 <p class="focus-label">02 / 트러블슈팅</p>
@@ -1403,5 +1407,6 @@
       mobileMenu.classList.toggle("open", !isOpen);
     });
   </script>
+  <script src="assets/image-viewer.js?v=20260930" defer></script>
 </body>
 </html>
