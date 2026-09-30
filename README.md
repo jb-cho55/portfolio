@@ -1,4 +1,4 @@
-# 조정빈 · Vehicle SW Verification Portfolio
+# 조정빈 · Vehicle SW Portfolio
 
 요구사항 기반 시험, CANoe/CAPL 자동화와 Trace32 원인 분석을 정리한 차량 SW 검증 포트폴리오입니다.
 

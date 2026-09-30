@@ -13,8 +13,8 @@ class PortfolioContentTests(unittest.TestCase):
         cls.bootloader_page = Path("artifacts/bootloader/index.html").read_text(encoding="utf-8")
 
     def test_vehicle_embedded_sw_positioning(self):
-        self.assertIn("Vehicle SW Verification Portfolio", self.html)
-        self.assertIn("Vehicle SW Verification Engineer", self.html)
+        self.assertIn("Vehicle SW Portfolio", self.html)
+        self.assertIn("Vehicle SW Engineer", self.html)
         self.assertIn("국민대학교 자동차IT융합학과와 HL만도·HL클레무브 IVS 부트캠프", self.html)
         self.assertIn("차량 HW·SW 전반을 학습", self.html)
         self.assertNotIn("Embedded SW QA Engineer", self.html)

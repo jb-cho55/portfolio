@@ -52,16 +52,24 @@
 /* Evidence review, 2026-09-28 */
 .image-viewer-open { overflow: hidden; }
 .image-viewer { position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 70px 24px 24px; box-sizing: border-box; border: 0; background: transparent; color: #fff; }
-.image-viewer[open] { display: flex; align-items: center; justify-content: center; }
+.image-viewer[open] { display: flex; flex-direction: column; }
 .image-viewer::backdrop { background: rgba(5, 15, 30, .88); }
 .image-viewer figure { margin: 0; max-width: 100%; text-align: center; }
+.image-viewer-stage { display: grid; place-items: center; flex: 1; min-height: 0; width: 100%; overflow: auto; }
 .image-viewer img { display: block; max-width: 100%; max-height: calc(100dvh - 160px); width: auto; height: auto; margin: auto; object-fit: contain; }
 .image-viewer figcaption { margin-top: 12px; font-size: 14px; line-height: 1.6; }
-.image-viewer-close { position: absolute; top: 16px; right: 20px; padding: 12px 18px; border: 1px solid #fff; border-radius: 8px; background: #fff; color: #122033; font: inherit; cursor: pointer; }
-.image-viewer-close:focus-visible { outline: 3px solid #83b8ff; outline-offset: 4px; }
+.image-viewer-controls { position: absolute; top: 16px; right: 20px; display: flex; gap: 8px; }
+.image-viewer-controls button { padding: 10px 14px; border: 1px solid #fff; border-radius: 8px; background: #fff; color: #122033; font: inherit; cursor: pointer; }
+.image-viewer-controls button:focus-visible { outline: 3px solid #83b8ff; outline-offset: 4px; }
+.image-viewer-zoomed .image-viewer-stage { display: block; }
+.image-viewer-zoomed figure { width: max-content; max-width: none; margin: 0 auto; }
+.image-viewer-zoomed img { max-width: none; max-height: none; }
+.image-viewer-zoomed figcaption { max-width: calc(100vw - 64px); text-align: left; }
 .hero { padding: 48px 0 36px; }
 .project-preview { margin: 0 30px 20px; padding: 14px; background: #f6f8fa; border: 1px solid var(--line); border-radius: 10px; }
-.project-preview img { display: block; width: 100%; height: 180px; object-fit: contain; }
+.project-preview img { display: block; width: 100%; height: auto; object-fit: contain; }
+.project-preview a { display: block; cursor: zoom-in; }
+.project-preview figcaption::after { content: ' · 클릭하여 확대 · 원본 크기 보기'; display: block; margin-top: 4px; color: var(--blue); font-weight: 600; }
 .project-preview figcaption { margin-top: 8px; color: var(--muted); font-size: 13px; }
 .project-focus { padding-top: 16px; }
 .role-panel, .trouble-panel { padding: 18px; }
@@ -76,7 +84,6 @@ summary { cursor: pointer; font-weight: 700; color: var(--navy); }
 .status-fail { color: #9b2727; background: #fff0ed; }
 @media(max-width:600px) {
   .project-preview { margin: 0 16px 16px; }
-  .project-preview img { height: 130px; }
   .team-case { padding: 20px 16px; }
   .team-case .results-grid { grid-template-columns: 1fr; }
   .team-case .focus-link + .focus-link { margin-left: 0; display: block; }

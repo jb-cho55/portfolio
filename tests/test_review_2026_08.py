@@ -128,11 +128,11 @@ class Review202608Tests(unittest.TestCase):
             self.assertIn(phrase, self.index)
 
     def test_b11_provided_training_environment_is_disclosed(self):
-        self.assertIn("제공된 AURIX·MCAL 교육 환경 위에서", self.bootloader)
+        self.assertIn("제공된 AURIX·MCAL 교육 환경과 예제를 바탕으로", self.bootloader)
 
     def test_c02_skill_and_project_order_lead_with_verification(self):
         self.assertLess(
-            self.index.index("PROJECT 01 · VEHICLE SW VERIFICATION"),
+            self.index.index("PROJECT 01 · BLACK BOX TESTING"),
             self.index.index("PROJECT 02 · EMBEDDED SW DEVELOPMENT"),
         )
 

@@ -11,7 +11,7 @@
   <style>
     .evidence-card.shot{padding:0;overflow:hidden}.evidence-card.shot img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#eef2f7}.evidence-card.shot div{padding:14px}
   </style>
-  <link rel="stylesheet" href="../../assets/project-focus.css?v=20260930">
+  <link rel="stylesheet" href="../../assets/project-focus.css?v=20260930b">
 </head>
 <body>
   <a class="skip-link" href="#main">본문 바로가기</a>
@@ -20,7 +20,7 @@
       <a class="back-link" href="../../index.html#bootloader-project">← 포트폴리오로 돌아가기</a>
       <p class="eyebrow">BOOTLOADER EVIDENCE</p>
       <h1>UDS를 통한 Flash Backup &amp; Restore 근거 자료</h1>
-      <p>메모리 영역·진단 절차 설계와 Embedded C 구현을 전담했습니다. CAN 응답 중단을 Trace32로 추적해 비정렬 word 접근을 특정한 과정부터 수정 코드·당시 재검증 기록까지 소개합니다.</p>
+      <p>제공된 AURIX·MCAL 교육 환경과 예제를 바탕으로 메모리 영역·진단 절차를 이해하고 기능을 구현·수정했습니다. CAN 응답 중단을 Trace32로 추적해 비정렬 word 접근을 특정한 과정부터 수정 코드·당시 재검증 기록까지 소개합니다.</p>
       <dl class="meta-grid" aria-label="프로젝트 메타데이터"><div><dt>유형</dt><dd>개인 교육 프로젝트</dd></div><div><dt>기간</dt><dd>2026.03.03–2026.03.24</dd></div><div><dt>팀 규모</dt><dd>1명</dd></div><div><dt>기반</dt><dd>제공된 교육 환경</dd></div><div><dt>환경</dt><dd>AURIX TC234LP · Embedded C · CANoe · Trace32</dd></div></dl>
     </header>
 
@@ -28,10 +28,10 @@
 
     <section id="role" class="panel">
       <p class="focus-label">01 / 프로젝트 역할</p>
-      <h2>설계·구현·디버깅 전담</h2>
-      <p>개인 프로젝트 · 제공된 AURIX·MCAL 교육 환경 위에서 직접 구현했습니다.</p>
-      <ul class="role-tasks"><li><strong>메모리 영역 · 진단 절차 설계</strong>Application Primary·Backup 영역과 UDS 리프로그래밍 절차를 설계했습니다.</li>
-                  <li><strong>Embedded C · Flash 제어 구현</strong>UDS 7개 서비스, Application Backup·Restore, SHA-256 비교 분기를 구현했습니다.</li>
+      <h2>교육 예제 기반 구현·디버깅</h2>
+      <p>개인 프로젝트 · 제공된 AURIX·MCAL 교육 환경과 예제를 바탕으로 요구사항별 기능을 구현·수정했습니다.</p>
+      <ul class="role-tasks"><li><strong>메모리 영역 · 진단 절차 이해</strong>제공된 Application Primary·Backup 영역과 UDS 리프로그래밍 예제를 분석하고 요구사항별 처리 흐름을 정리했습니다.</li>
+                  <li><strong>Embedded C · Flash 제어 구현</strong>제공된 MCAL·RTE 연결을 바탕으로 UDS 7개 서비스, Application Backup·Restore, SHA-256 비교 분기를 구현·수정했습니다.</li>
                   <li><strong>Trace32 디버깅 · 재검증</strong>함수 인수·레지스터·Trap 정보를 대조해 정렬 위반을 특정하고, 버퍼 수정 후 양방향 복사와 해시 판정을 확인했습니다.</li></ul>
     </section>
 
@@ -98,7 +98,7 @@ for (i = 0u; i &lt; copySize; i++)
       <h2>OVERVIEW</h2>
       <h3>시스템 구조와 리프로그래밍 흐름</h3>
       <p class="callout">교육용 프레임워크: Tester → CAN·ISO-TP → BswCom → BswDcm → RTE 호출 → EcuAbsFls → FlsLoader → Flash</p>
-      <p class="callout">Programming Session · DiagnosticSessionControl(0x10) → SecurityAccess(0x27) → Erase·Backup · RoutineControl(0x31) → RequestDownload(0x34) → TransferData(0x36) → RequestTransferExit(0x37) → SHA-256 확인 → ECUReset(0x11)</p>
+      <p class="callout">Programming Session · DiagnosticSessionControl(0x10) → SecurityAccess(0x27) → Backup·Erase · RoutineControl(0x31) → RequestDownload(0x34) → TransferData(0x36) → RequestTransferExit(0x37) → RoutineControl(0x31)에서 SHA-256 확인 → ECUReset(0x11)</p>
 
       <p>위 경로는 교육 프로젝트의 모듈명입니다. AUTOSAR Classic의 표준 진단 경로(CanTp → PduR → Dcm)와 구분합니다.</p>
       <h3>구현 범위</h3>
@@ -115,7 +115,7 @@ for (i = 0u; i &lt; copySize; i++)
     <section id="memory-map" class="panel">
       <h2>MEMORY MAP</h2>
       <p>AURIX TC234LP Bootloader의 PFlash·DFlash 구획과 Backup·Restore 방향을 실제 링커 주소로 정리했습니다.</p>
-      <figure class="figure"><img src="../../assets/bootloader/memory-map.svg" alt="Bootloader, Application Primary, Valid Pattern, Backup, DFlash 영역의 실제 주소와 Backup Restore 방향을 표시한 Memory Map"><figcaption>Bootloader용 링크 스크립트의 주소와 크기를 기준으로 시각화했습니다.</figcaption></figure>
+      <figure class="figure"><a href="../../assets/bootloader/memory-map.svg"><img src="../../assets/bootloader/memory-map.svg" alt="Bootloader, Application Primary, Valid Pattern, Backup, DFlash 영역의 실제 주소와 Backup Restore 방향을 표시한 Memory Map"></a><figcaption>Bootloader용 링크 스크립트의 주소와 크기를 기준으로 시각화했습니다. 클릭하면 확대할 수 있습니다.</figcaption></figure>
 
       <h3>영역 정의</h3>
       <div class="table-wrap"><table><caption>링커 정의 기반 Flash 구획</caption><thead><tr><th>영역</th><th>주소 범위</th><th>크기</th><th>용도</th><th>관련 함수·심볼</th></tr></thead><tbody><tr><td>Bootloader User</td><td>0x80000000–0x80025FFF</td><td>152 KiB</td><td>Bootloader 코드와 BMHD 인접 영역, 실행 시작점 0x80000020</td><td>RESET</td></tr><tr><td>Bootloader INTTAB·Trap</td><td>0x80026000–0x80027FFF</td><td>8 KiB</td><td>인터럽트 벡터 및 Trap Table</td><td>INTTAB 0x80026000, BTV 0x80027800</td></tr><tr><td>Application Primary</td><td>0x80100000–0x8017DFFF</td><td>504 KiB</td><td>현재 실행 대상 Application Binary</td><td>MEMORY_ADDRESS_APPLICATION, EA_AppToBackup()</td></tr><tr><td>Application INTTAB</td><td>0x8017E000–0x8017FFBF</td><td>8 KiB - 64 B</td><td>Application 벡터 영역</td><td>pflash_app_inttab</td></tr><tr><td>SHA-256 저장 영역</td><td>0x8017FFC0–0x8017FFDF</td><td>32 B</td><td>계산값과 비교하는 저장 해시 (전자서명 아님)</td><td>MEMORY_ADDRESS_SIGNATURE</td></tr><tr><td>Valid Pattern</td><td>0x8017FFE0–0x8017FFFF</td><td>32 B</td><td>리프로그래밍 완료·실행 가능 상태 표시</td><td>pflash_app_valid</td></tr><tr><td>Application Backup</td><td>0x80180000–0x801FFFFF</td><td>512 KiB</td><td>업데이트 전 Application 보존 및 실패 복구</td><td>EA_AppToBackup(), EA_AppRestore()</td></tr><tr><td>DFlash Bank 0</td><td>0xAF000000–0xAF01FFFF</td><td>128 KiB</td><td>비휘발성 상태·로그 저장 후보 영역</td><td>dflash0</td></tr><tr><td>DFlash Bank 1</td><td>0xAF100000–0xAF103FFF</td><td>16 KiB</td><td>비휘발성 보조 영역</td><td>Bank 1 (심볼 원본 재확인 필요)</td></tr></tbody></table></div>
@@ -140,7 +140,7 @@ memory pflash_app_backup {
     <section id="uds" class="panel">
       <h2>UDS SEQUENCE</h2>
       <p>UDS 7개 서비스의 대표 호출 흐름과 Backup·Restore 분기를 요약했습니다. 전체 오류 처리의 완전성이나 안전성을 입증하는 시퀀스는 아닙니다.</p>
-      <figure class="figure"><img src="../../assets/bootloader/uds-sequence.svg" alt="UDS 대표 호출 흐름과 SHA-256 불일치 Restore 분기, valid pattern 선기록 결함을 표시한 도식"><figcaption>교육 당시 서비스 분기와 RTE·Flash 호출 관계의 개요입니다. 해시 비교와 valid pattern 기록의 세부 순서는 아래 구현 한계 설명을 함께 확인해야 합니다.</figcaption></figure>
+      <figure class="figure"><a href="../../assets/bootloader/uds-sequence.svg"><img src="../../assets/bootloader/uds-sequence.svg" alt="UDS 대표 호출 흐름과 SHA-256 불일치 Restore 분기, valid pattern 선기록 결함을 표시한 도식"></a><figcaption>교육 당시 서비스 분기와 RTE·Flash 호출 관계의 개요입니다. 해시 비교와 valid pattern 기록의 세부 순서는 아래 구현 한계 설명을 함께 확인해야 합니다. 클릭하면 확대할 수 있습니다.</figcaption></figure>
 
       <h3>서비스 순서</h3>
       <div class="table-wrap"><table><caption>UDS 리프로그래밍 서비스와 책임</caption><thead><tr><th>순서</th><th>서비스</th><th>당시 구현 흐름</th><th>확인 범위·미해결 문제</th></tr></thead><tbody>
@@ -148,9 +148,9 @@ memory pflash_app_backup {
         <tr><td>2</td><td>0x27 SecurityAccess</td><td>Seed/Key 교환 분기</td><td>고정 Seed/Key 사용. EraseMemory 권한 검사 누락은 별도 미해결</td></tr>
         <tr><td>3</td><td>0x31 RoutineControl</td><td>EA_AppToBackup() 후 RID_EraseMemory 실행</td><td>요청 길이·세션·권한·physical request 검사 누락. Backup 실패 시 Erase 차단은 공개 근거로 입증하지 못함</td></tr>
         <tr><td>4</td><td>0x34 RequestDownload</td><td>주소·길이와 전송 상태 초기화</td><td>광고한 블록 길이와 실제 TransferData 길이 상한 검사는 별개이며, 후자는 누락</td></tr>
-        <tr><td>5</td><td>0x36 TransferData</td><td>Block Sequence 처리, Binary 기록, SHA-256 누적</td><td>길이 상한·ISO-TP 재조립 경계 검사 누락. 순서 오류 시험은 근거 부족</td></tr>
-        <tr><td>6</td><td>0x37 RequestTransferExit</td><td>전송 종료, valid pattern 기록 및 SHA-256 비교</td><td>SHA-256 검증 전에 valid pattern을 기록하는 순서 결함. 수정안 미적용</td></tr>
-        <tr><td>7</td><td>0x31 RID_CheckProgrammingDependencies</td><td>프로젝트 구현의 의존성 확인 분기</td><td>완전한 의존성·안전 조건 검사를 입증한 것은 아님</td></tr>
+        <tr><td>5</td><td>0x36 TransferData</td><td>Block Sequence 처리, 바이트 변환 후 Primary에 Binary 기록</td><td>길이 상한·ISO-TP 재조립 경계 검사 누락. 순서 오류 시험은 근거 부족</td></tr>
+        <tr><td>6</td><td>0x37 RequestTransferExit</td><td>전송 길이 확인 후 valid pattern 기록</td><td>이 단계에서는 해시를 비교하지 않음. SHA-256 검증 전에 valid pattern을 기록하는 순서 결함. 수정안 미적용</td></tr>
+        <tr><td>7</td><td>0x31 RID_CheckProgrammingDependencies</td><td>Primary를 읽어 키 접두어 SHA-256 계산·비교, 불일치 시 Backup 복구</td><td>교재의 Secondary 검증 후 Primary 복사 방식과 다름. 완전한 의존성·안전 조건 검사를 입증한 것은 아님</td></tr>
         <tr><td>8</td><td>0x11 ECUReset</td><td>Reset 및 Application 실행 경로</td><td>Restore 후 Application 정상 진입은 별도 실행 근거 부족</td></tr>
       </tbody></table></div>
 
@@ -204,6 +204,6 @@ BswDcm
     </section>
 
   </main>
-  <script src="../../assets/image-viewer.js?v=20260930" defer></script>
+  <script src="../../assets/image-viewer.js?v=20260930b" defer></script>
 </body>
 </html>
