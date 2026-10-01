@@ -841,7 +841,7 @@
     }
 
   </style>
-  <link rel="stylesheet" href="assets/project-focus.css?v=20260930b">
+  <link rel="stylesheet" href="assets/project-focus.css?v=20261001a">
 </head>
 <body>
   <a class="skip-link" href="#main">본문 바로가기</a>
@@ -887,7 +887,7 @@
           <p class="eyebrow">Vehicle SW Portfolio</p>
           <h1>조정빈<span>Vehicle SW Engineer</span></h1>
           <p class="hero-copy"><strong>요구사항 기반으로 개발·검증하고, 산출물 간 추적성을 관리하는 차량 SW 엔지니어입니다.</strong></p>
-          <p class="hero-copy">국민대학교 자동차IT융합학과와 HL만도·HL클레무브 IVS 부트캠프를 통해 차량 HW·SW 전반을 학습했으며, CANoe 기반 테스트 하네스 구축·검증과 AUTOSAR 기반 교육 환경에서 UDS 구현 프로젝트를 수행했습니다.</p>
+          <p class="hero-copy">국민대학교 자동차IT융합학과와 HL만도·HL클레무브 IVS 부트캠프를 통해 차량 HW·SW 전반을 학습했으며, CANoe 기반 테스트 하네스 구축·검증과 AUTOSAR 기반 MCAL·RTE를 활용한 UDS 구현 프로젝트를 수행했습니다.</p>
           <p class="hero-copy">자동차 시스템에 대한 이해를 바탕으로 요구사항을 명확히 해석하고, 개발과 검증으로 연결합니다.</p>
           <div class="hero-actions">
             <a class="button button-primary" href="#projects">프로젝트 보기</a>
@@ -904,12 +904,12 @@
               <span>자동차·전자·소프트웨어 융합 전공</span>
             </li>
             <li>
-              <strong>ISTQB CTFL · 정보처리기사</strong>
-              <span>테스트 기초와 소프트웨어 공학 기반</span>
-            </li>
-            <li>
               <strong>HL만도·HL클레무브 IVS 5기</strong>
               <span>812시간 교육 수료</span>
+            </li>
+            <li>
+              <strong>ISTQB CTFL · 정보처리기사</strong>
+              <span>테스트 기초와 소프트웨어 공학 기반</span>
             </li>
             <li>
               <strong>OPIc IH</strong>
@@ -982,7 +982,7 @@
                 <h4 id="black-box-role">검증 전 과정 전담</h4>
                 <ul class="role-tasks"><li><strong>요구사항 분석 · 테스트 설계</strong>Fault Detection·Recovery·Clear의 선행 조건, 경계값, Timing을 테스트 조건과 기대 결과로 구체화했습니다.</li>
                   <li><strong>검증 환경 구성 · CAPL 자동화</strong>CANdb·CANoe·Panel을 구성하고, 7개 고장 시나리오에 대해 Testcase 24개를 작성했습니다.</li>
-                  <li><strong>결함 재현 · 분석 · 문서화</strong>Panel·CAN Trace 창을 통한 수동 검증과 CAPL 자동 검증의 결과를 비교했습니다. 기대 결과와 실제 결과를 대조해 재현 조건·영향도·개선 방향을 정리하고, 각 시험 결과와 요구사양 간 추적성을 확보했습니다.</li></ul>
+                  <li><strong>결함 재현 · 분석 · 문서화</strong>Panel·CAN Trace 창을 통한 수동 검증과 CAPL 자동 검증의 결과를 비교했습니다. 각 시험 결과를 요구사양과 연결해 추적성을 확보했습니다.</li></ul>
               </section>
               <section class="trouble-panel" aria-labelledby="black-box-troubleshooting">
                 <p class="focus-label">02 / 트러블슈팅</p>
@@ -1050,8 +1050,8 @@
             <div><dt>유형</dt><dd>개인 교육 프로젝트</dd></div>
             <div><dt>수행 기간</dt><dd>2026.03.03–2026.03.24</dd></div>
             <div><dt>팀 규모</dt><dd>1명</dd></div>
-            <div><dt>기반</dt><dd>제공된 교육 환경</dd></div>
-            <div><dt>담당 범위</dt><dd>교육 환경 위 구현·디버깅 담당</dd></div>
+            <div><dt>기반</dt><dd>AUTOSAR MCAL·RTE</dd></div>
+            <div><dt>담당 범위</dt><dd>요구사항 분석·구현·디버깅</dd></div>
           </dl>
 
             <div class="project-intro">
@@ -1062,30 +1062,26 @@
               <h4>KEY RESULTS</h4>
               <div class="results-grid">
                 <div class="result-card">
-                  <strong>Alignment Trap 분석</strong>
-                  <span>오류 명령·주소·원인 레지스터 연결</span>
-                </div>
-                <div class="result-card">
-                  <strong>32바이트 복사 버퍼</strong>
-                  <span>수정 전후 원본 코드로 변경 확인</span>
-                </div>
-                <div class="result-card">
                   <strong>UDS 7개 서비스</strong>
-                  <span>Backup·Restore와 SHA-256 비교 구현</span>
+                  <span>세션·보안 접근부터 다운로드·검사·리셋까지 연결</span>
                 </div>
                 <div class="result-card">
-                  <strong>남은 검증 범위 명시</strong>
-                  <span>안전 부팅 개선안 미적용·미검증</span>
+                  <strong>Flash App 영역 백업·복원</strong>
+                  <span>링커 스크립트로 Primary·Backup 메모리 영역 지정</span>
+                </div>
+                <div class="result-card">
+                  <strong>AUTOSAR 기반 MCAL·RTE 활용</strong>
+                  <span>진단 처리와 Flash 제어를 계층별 인터페이스로 연결</span>
                 </div>
               </div>
             </section>
-            <figure class="project-preview"><a href="assets/images/bootloader/alignment-trap-dmi.png" target="_blank" rel="noreferrer"><img src="assets/images/bootloader/alignment-trap-dmi.png" alt="Alignment Trap 원인과 오류 주소를 확인한 Trace32 화면" loading="lazy"></a><figcaption>Alignment Trap 원인과 오류 주소를 확인한 Trace32 화면</figcaption></figure>
+            <figure class="project-preview"><a href="assets/bootloader/memory-map.svg?v=20261001b"><img src="assets/bootloader/memory-map.svg?v=20261001b" alt="링커 주소로 구분한 Application Primary·Backup 영역과 백업·복원 방향" loading="lazy"></a><figcaption>Flash 메모리 구성 — Application Primary에서 Backup으로 백업하고, Backup에서 Primary로 복원</figcaption></figure>
             <div class="project-focus">
               <section class="role-panel" aria-labelledby="bootloader-role">
                 <p class="focus-label">01 / 프로젝트 역할</p>
-                <h4 id="bootloader-role">교육 예제 기반 구현·디버깅</h4>
-                <ul class="role-tasks"><li><strong>메모리 영역 · 진단 절차 이해</strong>제공된 Application Primary·Backup 영역과 UDS 리프로그래밍 예제를 분석하고 요구사항별 처리 흐름을 정리했습니다.</li>
-                  <li><strong>Embedded C · Flash 제어 구현</strong>제공된 MCAL·RTE 연결을 바탕으로 UDS 7개 서비스, Application Backup·Restore, SHA-256 비교 분기를 구현·수정했습니다.</li>
+                <h4 id="bootloader-role">요구사항 기반 구현·디버깅</h4>
+                <ul class="role-tasks"><li><strong>요구사항 분석 · 메모리 영역 구성</strong>리프로그래밍 중단·무결성 불일치 시 복구 요구사항을 분석하고, 링커 스크립트의 Application Primary·Backup 영역과 진단 처리 흐름을 연결했습니다.</li>
+                  <li><strong>Embedded C · Flash 제어 구현</strong>UDS 7개 서비스를 연결한 리프로그래밍 흐름에 Application Backup·Restore와 SHA-256 비교 분기를 구현했습니다. RTE 인터페이스로 ECU 추상화 계층을 호출하고 MCAL·Flash Loader를 활용했습니다.</li>
                   <li><strong>Trace32 디버깅 · 재검증</strong>함수 인수·레지스터·Trap 정보를 대조해 정렬 위반을 특정하고, 버퍼 수정 후 양방향 복사와 해시 판정을 확인했습니다.</li></ul>
               </section>
               <section class="trouble-panel" aria-labelledby="bootloader-troubleshooting">

@@ -38,7 +38,7 @@ class BootloaderArtifactTests(unittest.TestCase):
 
     def test_both_projects_publish_personal_project_metadata(self):
         self.assertEqual(self.index.count('class="project-meta"'), 2)
-        for value in ["개인 프로젝트", "2026.03.03–2026.03.24", "2026.03.19–2026.03.23", "1명", "제공된 교육 환경"]:
+        for value in ["개인 프로젝트", "2026.03.03–2026.03.24", "2026.03.19–2026.03.23", "1명", "AUTOSAR MCAL·RTE"]:
             self.assertIn(value, self.index)
 
     def test_memory_map_uses_exact_linker_addresses(self):

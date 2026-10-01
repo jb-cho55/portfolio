@@ -11,7 +11,7 @@
   <style>
     .evidence-card.shot{padding:0;overflow:hidden}.evidence-card.shot img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#eef2f7}.evidence-card.shot div{padding:14px}
   </style>
-  <link rel="stylesheet" href="../../assets/project-focus.css?v=20260930b">
+  <link rel="stylesheet" href="../../assets/project-focus.css?v=20261001a">
 </head>
 <body>
   <a class="skip-link" href="#main">본문 바로가기</a>
@@ -20,18 +20,18 @@
       <a class="back-link" href="../../index.html#bootloader-project">← 포트폴리오로 돌아가기</a>
       <p class="eyebrow">BOOTLOADER EVIDENCE</p>
       <h1>UDS를 통한 Flash Backup &amp; Restore 근거 자료</h1>
-      <p>제공된 AURIX·MCAL 교육 환경과 예제를 바탕으로 메모리 영역·진단 절차를 이해하고 기능을 구현·수정했습니다. CAN 응답 중단을 Trace32로 추적해 비정렬 word 접근을 특정한 과정부터 수정 코드·당시 재검증 기록까지 소개합니다.</p>
-      <dl class="meta-grid" aria-label="프로젝트 메타데이터"><div><dt>유형</dt><dd>개인 교육 프로젝트</dd></div><div><dt>기간</dt><dd>2026.03.03–2026.03.24</dd></div><div><dt>팀 규모</dt><dd>1명</dd></div><div><dt>기반</dt><dd>제공된 교육 환경</dd></div><div><dt>환경</dt><dd>AURIX TC234LP · Embedded C · CANoe · Trace32</dd></div></dl>
+      <p>AURIX TC234LP에서 요구사항을 메모리 구획과 UDS 처리 흐름으로 구체화하고, MCAL·RTE를 활용해 Application 백업·복원과 SHA-256 비교 분기를 구현했습니다. CAN 응답 중단을 Trace32로 추적해 비정렬 word 접근을 특정한 과정부터 수정 코드·당시 재검증 기록까지 소개합니다.</p>
+      <dl class="meta-grid" aria-label="프로젝트 메타데이터"><div><dt>유형</dt><dd>개인 교육 프로젝트</dd></div><div><dt>기간</dt><dd>2026.03.03–2026.03.24</dd></div><div><dt>팀 규모</dt><dd>1명</dd></div><div><dt>기반</dt><dd>AUTOSAR MCAL·RTE</dd></div><div><dt>환경</dt><dd>AURIX TC234LP · Embedded C · CANoe · Trace32</dd></div></dl>
     </header>
 
-    <nav class="artifact-nav" aria-label="근거 자료 섹션"><a href="#role">프로젝트 역할</a><a href="#trace32">트러블슈팅</a><a href="#overview">OVERVIEW</a><a href="#memory-map">MEMORY MAP</a><a href="#uds">UDS SEQUENCE</a><a href="#test">TEST RESULTS</a><a href="#review">CODE REVIEW</a></nav>
+    <nav class="artifact-nav" aria-label="근거 자료 섹션"><a href="#role">프로젝트 역할</a><a href="#trace32">트러블슈팅</a><a href="#overview">OVERVIEW</a><a href="#requirements">요구사항·구현</a><a href="#memory-map">MEMORY MAP</a><a href="#uds">UDS SEQUENCE</a><a href="#test">TEST RESULTS</a><a href="#review">CODE REVIEW</a></nav>
 
     <section id="role" class="panel">
       <p class="focus-label">01 / 프로젝트 역할</p>
-      <h2>교육 예제 기반 구현·디버깅</h2>
-      <p>개인 프로젝트 · 제공된 AURIX·MCAL 교육 환경과 예제를 바탕으로 요구사항별 기능을 구현·수정했습니다.</p>
-      <ul class="role-tasks"><li><strong>메모리 영역 · 진단 절차 이해</strong>제공된 Application Primary·Backup 영역과 UDS 리프로그래밍 예제를 분석하고 요구사항별 처리 흐름을 정리했습니다.</li>
-                  <li><strong>Embedded C · Flash 제어 구현</strong>제공된 MCAL·RTE 연결을 바탕으로 UDS 7개 서비스, Application Backup·Restore, SHA-256 비교 분기를 구현·수정했습니다.</li>
+      <h2>요구사항 기반 구현·디버깅</h2>
+      <p>개인 프로젝트 · 요구사항 분석, Flash 메모리 구성, 백업·복원 기능 구현과 Trace32 디버깅을 담당했습니다.</p>
+      <ul class="role-tasks"><li><strong>요구사항 분석 · 메모리 영역 구성</strong>리프로그래밍 중단·무결성 불일치 시 복구 요구사항을 분석하고, 링커 스크립트의 Application Primary·Backup 영역과 진단 처리 흐름을 연결했습니다.</li>
+                  <li><strong>Embedded C · Flash 제어 구현</strong>UDS 7개 서비스를 연결한 리프로그래밍 흐름에 Application Backup·Restore와 SHA-256 비교 분기를 구현했습니다. RTE 인터페이스로 ECU 추상화 계층을 호출하고 MCAL·Flash Loader를 활용했습니다.</li>
                   <li><strong>Trace32 디버깅 · 재검증</strong>함수 인수·레지스터·Trap 정보를 대조해 정렬 위반을 특정하고, 버퍼 수정 후 양방향 복사와 해시 판정을 확인했습니다.</li></ul>
     </section>
 
@@ -112,10 +112,25 @@ for (i = 0u; i &lt; copySize; i++)
       <p class="callout warning">아래는 교육 당시 구현과 기록의 정리입니다. 이후 발견한 길이 상한·권한 검사 누락과 valid pattern 기록 순서 문제는 <a href="#review">CODE REVIEW</a>에 구분했습니다. 개선안은 적용·빌드·ECU 검증하지 않았으며, 정상 경로의 동작 기록이 모든 실패 조건에서의 안전성을 뜻하지 않습니다.</p>
     </section>
 
+    <section id="requirements" class="panel">
+      <h2>요구사항과 구현 연결</h2>
+      <p>요구사항 PDF, Notion 수행 기록, 보관 소스를 대조해 프로젝트 1–4의 구현 범위를 정리했습니다. 아래 내용은 소스와 당시 기록의 비교이며 새 ECU 시험 결과가 아닙니다.</p>
+      <div class="table-wrap"><table><caption>요구사항별 구현과 확인 근거</caption><thead><tr><th>요구사항</th><th>구현 내용</th><th>확인 근거</th></tr></thead><tbody>
+        <tr><td>UDS 리프로그래밍</td><td>세션 진입·보안 접근·삭제·다운로드·무결성 검사·리셋 연결</td><td>BswDcm의 대표 경로에 사용하는 고유 SID 7개. RoutineControl의 Erase·Check는 같은 서비스의 두 루틴</td></tr>
+        <tr><td>Flash App 영역 백업·복원</td><td>Primary → Backup 보존, 실패 시 Backup → Primary 복원</td><td>EA_AppToBackup()·EA_AppRestore(), Notion 프로젝트 1의 중단 후 복원 수행 기록</td></tr>
+        <tr><td>메모리 구획</td><td>링커 스크립트로 Primary·Backup·해시·valid pattern 영역 지정</td><td>PDF 117쪽 링크 설정과 소스 주소 정의 대조. Primary 0x80100000, Backup 0x80180000</td></tr>
+        <tr><td>AUTOSAR 기반 MCAL·RTE 활용</td><td>BswDcm → RTE → EcuAbsFls → Flash Loader 호출 연결</td><td>진단 처리·ECU 추상화·드라이버 인터페이스 활용 범위. 전체 AUTOSAR 표준 스택 자체 구현이나 적합성 검증을 뜻하지 않음</td></tr>
+        <tr><td>SW Binary 변경 검출</td><td>SHA-256 계산·저장 해시 비교, 불일치 시 NRC 0x72와 Restore 요청</td><td>프로젝트 2·3 소스와 Notion의 정상·변조 Binary 수행 기록. 고정 키 접두어 해시는 HMAC·전자서명이 아님</td></tr>
+        <tr><td>SW Binary 바이트 변환</td><td>TransferData에서 데이터에 -0x05 적용 후 기록, 해시 바이트 제외</td><td>프로젝트 4 소스와 +0x05/-0x05 변환 관계. 암호학적 기밀성을 보장하는 방식은 아님</td></tr>
+      </tbody></table></div>
+      <p><strong>메모리 운용 차이:</strong> PDF의 구현 예시는 신규 Binary를 Secondary에서 검사한 뒤 Primary로 복사합니다. 본 프로젝트의 Notion 기록과 보관 소스는 기존 Primary를 Backup에 보존하고 신규 Binary를 Primary에 기록한 뒤, 검사 실패 시 복원하는 흐름입니다.</p>
+      <p><strong>최종 소스에 포함되지 않은 항목:</strong> Notion 프로젝트 5의 다운로드 중 SHA-256 누적 계산 예시는 최종 소스에 반영되어 있지 않습니다. 프로젝트 6의 시도·성공 횟수 제한도 구현 성과에 포함하지 않았습니다. 최종 소스의 해시 계산은 RoutineControl에서 Primary를 다시 읽는 방식입니다.</p>
+    </section>
+
     <section id="memory-map" class="panel">
       <h2>MEMORY MAP</h2>
       <p>AURIX TC234LP Bootloader의 PFlash·DFlash 구획과 Backup·Restore 방향을 실제 링커 주소로 정리했습니다.</p>
-      <figure class="figure"><a href="../../assets/bootloader/memory-map.svg"><img src="../../assets/bootloader/memory-map.svg" alt="Bootloader, Application Primary, Valid Pattern, Backup, DFlash 영역의 실제 주소와 Backup Restore 방향을 표시한 Memory Map"></a><figcaption>Bootloader용 링크 스크립트의 주소와 크기를 기준으로 시각화했습니다. 클릭하면 확대할 수 있습니다.</figcaption></figure>
+      <figure class="figure"><a href="../../assets/bootloader/memory-map.svg?v=20261001b"><img src="../../assets/bootloader/memory-map.svg?v=20261001b" alt="Bootloader, Application Primary, Valid Pattern, Backup, DFlash 영역의 실제 주소와 Backup Restore 방향을 표시한 Memory Map"></a><figcaption>Bootloader용 링크 스크립트의 주소와 크기를 기준으로 시각화했습니다. 클릭하면 확대할 수 있습니다.</figcaption></figure>
 
       <h3>영역 정의</h3>
       <div class="table-wrap"><table><caption>링커 정의 기반 Flash 구획</caption><thead><tr><th>영역</th><th>주소 범위</th><th>크기</th><th>용도</th><th>관련 함수·심볼</th></tr></thead><tbody><tr><td>Bootloader User</td><td>0x80000000–0x80025FFF</td><td>152 KiB</td><td>Bootloader 코드와 BMHD 인접 영역, 실행 시작점 0x80000020</td><td>RESET</td></tr><tr><td>Bootloader INTTAB·Trap</td><td>0x80026000–0x80027FFF</td><td>8 KiB</td><td>인터럽트 벡터 및 Trap Table</td><td>INTTAB 0x80026000, BTV 0x80027800</td></tr><tr><td>Application Primary</td><td>0x80100000–0x8017DFFF</td><td>504 KiB</td><td>현재 실행 대상 Application Binary</td><td>MEMORY_ADDRESS_APPLICATION, EA_AppToBackup()</td></tr><tr><td>Application INTTAB</td><td>0x8017E000–0x8017FFBF</td><td>8 KiB - 64 B</td><td>Application 벡터 영역</td><td>pflash_app_inttab</td></tr><tr><td>SHA-256 저장 영역</td><td>0x8017FFC0–0x8017FFDF</td><td>32 B</td><td>계산값과 비교하는 저장 해시 (전자서명 아님)</td><td>MEMORY_ADDRESS_SIGNATURE</td></tr><tr><td>Valid Pattern</td><td>0x8017FFE0–0x8017FFFF</td><td>32 B</td><td>리프로그래밍 완료·실행 가능 상태 표시</td><td>pflash_app_valid</td></tr><tr><td>Application Backup</td><td>0x80180000–0x801FFFFF</td><td>512 KiB</td><td>업데이트 전 Application 보존 및 실패 복구</td><td>EA_AppToBackup(), EA_AppRestore()</td></tr><tr><td>DFlash Bank 0</td><td>0xAF000000–0xAF01FFFF</td><td>128 KiB</td><td>비휘발성 상태·로그 저장 후보 영역</td><td>dflash0</td></tr><tr><td>DFlash Bank 1</td><td>0xAF100000–0xAF103FFF</td><td>16 KiB</td><td>비휘발성 보조 영역</td><td>Bank 1 (심볼 원본 재확인 필요)</td></tr></tbody></table></div>

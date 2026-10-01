@@ -1,8 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 760" role="img" aria-labelledby="memory-map-title memory-map-desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="760" viewBox="0 0 1000 760" role="img" aria-labelledby="memory-map-title memory-map-desc">
 <title id="memory-map-title">AURIX TC234LP Bootloader Memory Map</title>
 <desc id="memory-map-desc">Bootloader, interrupt and trap table, application primary, valid pattern, backup, and DFlash regions with actual addresses and backup restore arrows.</desc>
 <style>.t{font:700 18px Arial,sans-serif;fill:#0b1f3a}.s{font:14px Arial,sans-serif;fill:#45546a}.r{stroke:#0b1f3a;stroke-width:2;rx:10}.a{stroke:#216fe6;stroke-width:4;fill:none;marker-end:url(#m)}.label{font:700 14px Arial,sans-serif;fill:#216fe6}</style>
 <defs><marker id="m" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#216fe6"/></marker></defs>
+<rect width="1000" height="760" fill="#f6f8fa"/>
 <text x="40" y="38" class="t">PFlash cached address space</text>
 <rect x="40" y="60" width="920" height="86" fill="#dcecff" class="r"/><text x="65" y="92" class="t">Bootloader User</text><text x="65" y="119" class="s">0x80000000–0x80025FFF · 152 KiB · RESET 0x80000020</text>
 <rect x="40" y="158" width="920" height="72" fill="#c8dcf5" class="r"/><text x="65" y="187" class="t">INTTAB + Trap Table</text><text x="65" y="213" class="s">0x80026000–0x80027FFF · INTTAB 0x80026000 · BTV 0x80027800</text>

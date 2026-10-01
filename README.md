@@ -21,11 +21,11 @@ CANoe 시뮬레이션 기반 IVS 교육 과제입니다. 제공된 요구사항�
 
 ## UDS를 통한 Flash Backup & Restore
 
-제공된 AURIX TC234LP·MCAL 교육 환경에서 UDS 7개 서비스와 Application Backup/Restore, SHA-256 비교 분기를 구현했습니다. Trace32에서 홀수 주소의 word 접근과 Alignment Trap을 연결하고, uint32 저장 공간으로 버퍼 정렬을 확보한 전후 코드를 제공합니다.
+AURIX TC234LP에서 요구사항에 따라 UDS 7개 서비스를 연결한 리프로그래밍, Flash App 영역 백업·복원과 SHA-256 비교 분기를 구현했습니다. 링커 스크립트로 Primary·Backup 영역을 지정하고 AUTOSAR 기반 MCAL·RTE 인터페이스를 활용했습니다. Trace32에서 홀수 주소의 word 접근과 Alignment Trap을 연결하고, uint32 저장 공간으로 버퍼 정렬을 확보한 전후 코드를 제공합니다.
 
 공개 캡처·소스와 수행 서술을 구분하며, 현재 새 빌드나 ECU 재시험 결과는 아닙니다. 이후 발견한 길이·권한 검사 및 valid pattern 순서 개선안은 **미적용·미검증**입니다. 고정 Seed/Key와 키 접두어 SHA-256은 교육용이며 HMAC이나 전자서명이 아닙니다.
 
-[메모리 맵](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#memory-map) · [진단 흐름](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#uds) · [공개 확인 자료](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#test) · [Trace32](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#trace32)
+[요구사항·구현 대조](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#requirements) · [메모리 맵](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#memory-map) · [진단 흐름](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#uds) · [공개 확인 자료](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#test) · [Trace32](https://jb-cho55.github.io/portfolio/artifacts/bootloader/#trace32)
 
 ## 협업 프로젝트
 

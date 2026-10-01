@@ -127,8 +127,10 @@ class Review202608Tests(unittest.TestCase):
         ]:
             self.assertIn(phrase, self.index)
 
-    def test_b11_provided_training_environment_is_disclosed(self):
-        self.assertIn("제공된 AURIX·MCAL 교육 환경과 예제를 바탕으로", self.bootloader)
+    def test_b11_requirement_role_preserves_project_scope(self):
+        self.assertIn("요구사항 기반 구현·디버깅", self.bootloader)
+        self.assertIn("개인 교육 프로젝트", self.bootloader)
+        self.assertIn("전체 AUTOSAR 표준 스택 자체 구현이나 적합성 검증을 뜻하지 않음", self.bootloader)
 
     def test_c02_skill_and_project_order_lead_with_verification(self):
         self.assertLess(
